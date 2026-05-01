@@ -33,7 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emailValor  = $email;
     $nombreValor = $nombre;
 
-    if ($email === '' || $nombre === '' || $password === '') {
+    if (!csrfValidar()) {
+        $error = "Sesión expirada o token inválido. Recarga la página e inténtalo de nuevo.";
+    } elseif ($email === '' || $nombre === '' || $password === '') {
         $error = "Todos los campos son obligatorios.";
     } elseif (mb_strlen($email) > 100) {
         $error = "El email es demasiado largo.";
@@ -135,6 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="registro.php" autocomplete="off">
+            <?php echo csrfTokenInput(); ?>
 
             <div class="campo">
                 <label for="nombre">Nombre completo</label>

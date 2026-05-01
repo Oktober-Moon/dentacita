@@ -41,6 +41,25 @@ if ($varianteTema === null && function_exists('obtenerConexion')) {
 if (!$varianteTema) $varianteTema = 'cyan-default';
 ?>
 <script>document.documentElement.setAttribute('data-tema', <?php echo json_encode($varianteTema); ?>);</script>
+<script>
+/* Anti-CSRF · interceptor global de fetch
+   Añade X-CSRF-Token a TODAS las peticiones POST/PUT/DELETE sin tocar
+   los archivos JS individuales. El token vive en window.CSRF_TOKEN. */
+window.CSRF_TOKEN = <?php echo json_encode(csrfToken()); ?>;
+(function() {
+    var origFetch = window.fetch.bind(window);
+    window.fetch = function(input, init) {
+        init = init || {};
+        var metodo = (init.method || 'GET').toUpperCase();
+        if (['POST','PUT','DELETE'].indexOf(metodo) !== -1) {
+            var headers = new Headers(init.headers || {});
+            headers.set('X-CSRF-Token', window.CSRF_TOKEN);
+            init.headers = headers;
+        }
+        return origFetch(input, init);
+    };
+})();
+</script>
 <?php
 
 $modulosMenu = [

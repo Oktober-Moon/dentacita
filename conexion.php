@@ -16,6 +16,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/_csrf.php';
+csrfToken(); // Asegura que la sesión tiene un token CSRF generado.
+
 mysqli_report(MYSQLI_REPORT_OFF);
 
 // Credenciales de servicio (usuario MySQL con SELECT/INSERT/UPDATE/DELETE).
@@ -75,6 +78,15 @@ function exigirSesionAjax($conexion) {
             "ok"       => false,
             "mensaje"  => "Sesión expirada. Vuelve a iniciar sesión.",
             "redirect" => true
+        ]);
+        exit;
+    }
+    // Anti-CSRF: rechazar POST/PUT/DELETE sin token válido.
+    if (!csrfValidar()) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            "ok"      => false,
+            "mensaje" => "Petición rechazada por seguridad (token inválido). Recarga la página."
         ]);
         exit;
     }
