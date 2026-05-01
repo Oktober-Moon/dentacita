@@ -29,6 +29,8 @@ $('btnNuevaCita').addEventListener('click', function() {
     $('modalCitaTitulo').textContent = 'Nueva cita';
     $('btnGuardarCita').textContent = 'Guardar cita';
     limpiarFormularioCita();
+    // Estado solo visible al editar (igual que en pro-connect-hub)
+    $('campo-estado-cita').classList.add('oculto');
     mostrarPaso('tipo');
     abrirModal();
 });
@@ -319,18 +321,14 @@ function abrirEditar(id) {
             var ini = new Date(c.fecha_hora_inicio.replace(' ', 'T'));
             var fin = new Date(c.fecha_hora_fin.replace(' ', 'T'));
             var dur = Math.round((fin - ini) / 60000);
-            var sel = $('duracion');
-            var coincide = Array.from(sel.options).some(function(o){ return parseInt(o.value,10) === dur; });
-            if (!coincide) {
-                var op = document.createElement('option');
-                op.value = String(dur); op.textContent = dur + ' min'; op.selected = true;
-                sel.appendChild(op);
-            }
-            sel.value = String(dur);
+            $('duracion').value = String(dur > 0 ? dur : 30);
 
             $('estado').value      = c.estado;
             $('precio').value      = c.precio !== null ? c.precio : '';
             $('notas').value       = c.notas || '';
+
+            // Estado visible solo al editar (igual que en pro-connect-hub)
+            $('campo-estado-cita').classList.remove('oculto');
 
             mostrarPaso('datos');
             abrirModal();

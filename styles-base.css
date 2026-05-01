@@ -1,3 +1,6 @@
+/* Utilidad genérica · ocultar cualquier elemento.
+   Coexiste con .modal-paso.oculto que ya existía en styles-modal-agenda.css. */
+.oculto { display: none !important; }
 
 
 /* ============================================================

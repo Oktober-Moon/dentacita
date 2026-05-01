@@ -189,23 +189,12 @@ $conexion->close();
                         <input type="date" id="fecha" required>
                     </div>
                     <div class="campo">
-                        <label for="hora_inicio">Hora de inicio *</label>
+                        <label for="hora_inicio">Hora *</label>
                         <input type="time" id="hora_inicio" required>
                     </div>
-                    <div class="campo">
-                        <label for="duracion">Duración (minutos) *</label>
-                        <select id="duracion" required>
-                            <option value="15">15 minutos</option>
-                            <option value="30" selected>30 minutos</option>
-                            <option value="45">45 minutos</option>
-                            <option value="60">1 hora</option>
-                            <option value="90">1 hora 30 min</option>
-                            <option value="120">2 horas</option>
-                        </select>
-                    </div>
-                    <div class="campo">
-                        <label for="estado">Estado *</label>
-                        <select id="estado" required>
+                    <div class="campo oculto" id="campo-estado-cita">
+                        <label for="estado">Estado</label>
+                        <select id="estado">
                             <option value="programada">Programada</option>
                             <option value="confirmada">Confirmada</option>
                             <option value="completada">Completada</option>
@@ -214,6 +203,8 @@ $conexion->close();
                         </select>
                     </div>
                 </div>
+
+                <input type="hidden" id="duracion" value="30">
 
                 <div class="grid-2">
                     <div class="campo">
