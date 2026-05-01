@@ -60,6 +60,21 @@ $fin    = date('Y-m-d H:i:s', $tsFin);
 /* ----- paciente_id puede ser NULL si la cita es solo "nombre + tel" ----- */
 $pacienteIdInt = is_numeric($paciente_id) ? (int)$paciente_id : null;
 
+/* ----- Anti-IDOR: validar que el paciente referenciado pertenezca al usuario ----- */
+if ($pacienteIdInt !== null) {
+    $chkP = @$conexion->prepare("SELECT 1 FROM pacientes WHERE paciente_id = ? AND usuario_id = ? LIMIT 1");
+    if ($chkP) {
+        $chkP->bind_param("ii", $pacienteIdInt, $usuarioId);
+        @$chkP->execute();
+        $okP = (bool)$chkP->get_result()->fetch_assoc();
+        $chkP->close();
+        if (!$okP) {
+            echo json_encode(["ok"=>false,"mensaje"=>"El paciente no pertenece a este usuario."]);
+            $conexion->close(); exit;
+        }
+    }
+}
+
 /* ----- precio puede ser NULL ----- */
 $precioFinal = ($precio === '' || $precio === null) ? null : (float)$precio;
 

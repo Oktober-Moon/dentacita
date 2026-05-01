@@ -262,7 +262,7 @@ $nav_base_url = '';
                                 <td><?php echo htmlspecialchars($c['titulo']); ?></td>
                                 <td>
                                     <span class="badge badge-<?php echo htmlspecialchars($c['estado']); ?>">
-                                        <?php echo $nombresEstado[$c['estado']] ?? $c['estado']; ?>
+                                        <?php echo htmlspecialchars($nombresEstado[$c['estado']] ?? $c['estado']); ?>
                                     </span>
                                 </td>
                             </tr>
@@ -305,7 +305,7 @@ $nav_base_url = '';
                                     <td><?php echo htmlspecialchars($c['titulo']); ?></td>
                                     <td>
                                         <span class="badge badge-<?php echo htmlspecialchars($c['estado']); ?>">
-                                            <?php echo $nombresEstado[$c['estado']] ?? $c['estado']; ?>
+                                            <?php echo htmlspecialchars($nombresEstado[$c['estado']] ?? $c['estado']); ?>
                                         </span>
                                     </td>
                                 </tr>

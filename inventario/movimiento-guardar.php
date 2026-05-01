@@ -62,6 +62,21 @@ $cosV     = $costo_unitario === '' ? null : (float)$costo_unitario;
 $pveV     = $precio_venta_unitario === '' ? null : (float)$precio_venta_unitario;
 $notV     = $notas === '' ? null : $notas;
 
+/* ----- Anti-IDOR: validar que la cita referenciada pertenezca al usuario ----- */
+if ($citaIdV !== null) {
+    $chkC = @$conexion->prepare("SELECT 1 FROM citas WHERE cita_id = ? AND usuario_id = ? LIMIT 1");
+    if ($chkC) {
+        $chkC->bind_param("ii", $citaIdV, $usuarioId);
+        @$chkC->execute();
+        $okC = (bool)$chkC->get_result()->fetch_assoc();
+        $chkC->close();
+        if (!$okC) {
+            echo json_encode(["ok"=>false,"mensaje"=>"La cita no pertenece a este usuario."]);
+            $conexion->close(); exit;
+        }
+    }
+}
+
 // Validación cruzada: si motivo=venta, debe haber precio
 if ($tipo === 'salida' && $motivo === 'venta' && $pveV === null) {
     echo json_encode(["ok"=>false,"mensaje"=>"Para una venta debes indicar el precio de venta unitario."]);
