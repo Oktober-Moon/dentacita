@@ -1,0 +1,26 @@
+# --- Configuración local de Claude Code ---
+.claude/
+
+# --- Subidas de pacientes (datos sensibles · no versionar) ---
+# Versionamos la estructura (.gitkeep / .htaccess) pero nunca el contenido.
+uploads/**/*
+!uploads/**/.gitkeep
+!uploads/**/.htaccess
+!uploads/.htaccess
+
+# --- Sistema operativo ---
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# --- Editores ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Logs y temporales ---
+*.log
+*.bak
+*.tmp

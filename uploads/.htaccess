@@ -1,0 +1,9 @@
+# No permitir ejecución de scripts dentro de uploads
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|cgi|pl|asp|aspx)$">
+    Require all denied
+</FilesMatch>
+
+# Permitir descarga directa de los archivos comunes
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|pdf|doc|docx|xls|xlsx|txt)$">
+    Require all granted
+</FilesMatch>
