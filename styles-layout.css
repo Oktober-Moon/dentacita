@@ -2,8 +2,9 @@
    SIDEBAR · firma visual con franja activa
    ============================================================ */
 .app-sidebar {
-    background: var(--vidrio-fondo);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
     border-right: 1px solid var(--vidrio-borde);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(var(--vidrio-desenfoque));
     -webkit-backdrop-filter: blur(var(--vidrio-desenfoque));
     display: flex;
@@ -39,7 +40,7 @@
 .sidebar-item {
     display: flex;
     align-items: center;
-    gap: var(--espacio-sm);
+    gap: var(--espacio-xm);
     padding: 10px 14px;
     min-height: 40px;
     border-radius: var(--radio-sm);
@@ -51,6 +52,14 @@
     transition: background var(--dur-rapida) var(--ease-salida),
                 color      var(--dur-rapida) var(--ease-salida);
 }
+.sidebar-item-icono {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    opacity: 0.8;
+    transition: opacity var(--dur-rapida) var(--ease-salida);
+}
+.sidebar-item:hover .sidebar-item-icono,
+.sidebar-item.activo .sidebar-item-icono { opacity: 1; }
 /* Hover solo con dispositivos que de verdad apuntan (mouse, trackpad).
    En táctiles el :hover se queda "pegado" después de un tap. */
 @media (hover: hover) and (pointer: fine) {
@@ -78,6 +87,22 @@
     border-radius: 2px;
 }
 
+/* Encabezado de sección dentro del sidebar (agrupa los enlaces en
+   Operación / Negocio / Cuenta). En mobile la sidebar se vuelve flex-row
+   con wrap y los títulos pierden sentido visual, así que se ocultan. */
+.app-sidebar-seccion {
+    font-family: var(--fuente-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--texto-atenuado);
+    padding: 14px 14px 6px;
+    margin: 0;
+    user-select: none;
+}
+.app-sidebar-nav > .app-sidebar-seccion:first-child { padding-top: 4px; }
+
 .app-sidebar-footer {
     padding: var(--espacio-md) var(--espacio-md) 0;
     border-top: 1px solid var(--vidrio-borde);
@@ -85,7 +110,11 @@
 }
 .app-sidebar-footer .sidebar-cerrar { margin-bottom: var(--espacio-sm); }
 .app-sidebar-footer .sidebar-cerrar:last-child { margin-bottom: 0; }
-.sidebar-btn-icono { display: none; }
+.sidebar-btn-icono {
+    width: 16px; height: 16px;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
 .sidebar-btn-notif { position: relative; }
 .app-sidebar-usuario { margin-bottom: var(--espacio-sm); }
 .app-sidebar-usuario-nombre {
@@ -119,6 +148,8 @@
         flex-wrap: wrap;
         align-items: center;
     }
+    /* Los títulos de sección no aportan en el row colapsado del header. */
+    .app-sidebar-seccion { display: none; }
     .sidebar-item {
         padding: 8px 12px;
         min-height: 36px;
@@ -145,13 +176,8 @@
         padding: 6px 10px;
         white-space: nowrap;
     }
-    /* En mobile mostramos icono y ocultamos texto para ahorrar ancho */
+    /* En mobile mostramos solo el SVG y ocultamos el texto para ahorrar ancho */
     .app-sidebar-footer .sidebar-btn-texto { display: none; }
-    .app-sidebar-footer .sidebar-btn-icono {
-        display: inline-block;
-        font-size: 16px;
-        line-height: 1;
-    }
 }
 
 /* En pantallas muy estrechas (<420px) la sidebar desborda; permitir
@@ -167,7 +193,7 @@
 
 
 /* ============================================================
-   PAGE HEADER
+   PAGE HEADER · pre-título · gradient text · subtítulo con seps
    ============================================================ */
 .page-header {
     display: flex; align-items: flex-end; justify-content: space-between;
@@ -175,15 +201,85 @@
     gap: var(--espacio-md);
     flex-wrap: wrap;
 }
-.page-titulo { margin-bottom: 4px; }
+.page-pre-titulo {
+    font-family: var(--fuente-ui);
+    font-size: 13px; font-weight: 500;
+    color: var(--color-acento-claro);
+    margin-bottom: var(--espacio-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espacio-sm);
+}
+.page-pre-titulo::before {
+    content: "";
+    width: 14px; height: 1px;
+    background: var(--color-acento);
+}
+.page-titulo {
+    margin-bottom: 6px;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(180deg, #ffffff, rgba(255, 255, 255, 0.78));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 .page-subtitulo {
     color: var(--texto-secundario);
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-xm);
+    flex-wrap: wrap;
+}
+.page-subtitulo .sep {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--vidrio-borde-hover);
+    display: inline-block;
+}
+.page-subtitulo .mono {
+    color: var(--texto-atenuado);
+    font-size: 12px;
 }
 .page-acciones {
     display: flex;
     gap: var(--espacio-sm);
     flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Segmented control · alterna entre vistas (Mes/Semana, Mes/Día, etc.) */
+.seg-vista {
+    display: inline-flex;
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-sm);
+    padding: 3px;
+    box-shadow: var(--hairline-int);
+}
+.seg-vista button {
+    background: transparent;
+    border: 0;
+    padding: 5px 14px;
+    font-family: var(--fuente-ui);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--texto-secundario);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all var(--dur-rapida);
+}
+.seg-vista button:hover { color: var(--texto-primario); }
+.seg-vista button.activo {
+    background: var(--color-acento-sutil);
+    color: var(--color-acento-claro);
+    box-shadow: var(--hairline-int);
+}
+.seg-vista button:focus-visible {
+    outline: 2px solid var(--color-acento);
+    outline-offset: 2px;
 }
 
 
@@ -232,6 +328,12 @@
     box-shadow: var(--sombra-card);
     position: relative;
     overflow: hidden;
+    transition: transform var(--dur-rapida) var(--ease-salida),
+                box-shadow var(--dur-rapida);
+}
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sombra-card-hover);
 }
 .kpi-card::after {
     content: "";
@@ -317,6 +419,16 @@
     color: var(--color-peligro-texto);
     border-bottom-color: var(--color-peligro-borde);
 }
+
+/* Variante "flush" · padding 0 en la card; útil para timelines y listas
+   cuyos hijos ya manejan su propio padding (dashboard, listados). */
+.ficha-card-flush { padding: 0; }
+.ficha-card-flush > .ficha-card-titulo {
+    padding: var(--espacio-md) var(--espacio-lg);
+    margin-bottom: 0;
+}
+.ficha-card-flush > .timeline { padding: var(--espacio-md) var(--espacio-lg) var(--espacio-md) calc(var(--espacio-lg) + 90px); }
+.ficha-card-flush > .estado-vacio { padding: var(--espacio-2xl) var(--espacio-md); }
 
 .ficha-card-titulo {
     font-family: var(--fuente-mono);
@@ -677,5 +789,145 @@
 .banner-naranja  { background: var(--color-advertencia-sutil); border-color: var(--color-advertencia-borde); color: var(--color-advertencia-texto); }
 .banner-rojo     { background: var(--color-peligro-sutil);     border-color: var(--color-peligro-borde);     color: var(--color-peligro-texto); }
 .banner-azul     { background: var(--color-info-sutil);        border-color: var(--color-info-borde);        color: var(--color-info-texto); }
+
+/* Badge numérico circular dentro de un banner ("3 ítems con stock bajo").
+   Se queda como clase opcional · ningún markup actual lo usa todavía. */
+.banner-num {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    min-width: 22px; height: 22px;
+    padding: 0 7px;
+    border-radius: var(--radio-completo);
+    font-family: var(--fuente-mono);
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.banner-naranja .banner-num { background: var(--color-advertencia); color: var(--color-fondo-profundo); }
+.banner-rojo    .banner-num { background: var(--color-peligro);     color: #fff; }
+.banner-azul    .banner-num { background: var(--color-info);        color: #fff; }
+
+
+/* ============================================================
+   STATS STRIP · 4 celdas con borde dashed entre ellas
+   Usado en pacientes (header) e inventario/finanzas si aplica.
+   ============================================================ */
+.stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-md);
+    backdrop-filter: blur(var(--vidrio-desenfoque));
+    -webkit-backdrop-filter: blur(var(--vidrio-desenfoque));
+    box-shadow: var(--sombra-card);
+    margin-bottom: var(--espacio-lg);
+    overflow: hidden;
+}
+.stats-strip-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 880px) {
+    .stats-strip,
+    .stats-strip-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 540px) {
+    .stats-strip,
+    .stats-strip-3 { grid-template-columns: 1fr; }
+}
+.stat-cell {
+    padding: 18px 22px;
+    border-right: 1px dashed var(--vidrio-borde);
+    position: relative;
+}
+.stat-cell:last-child { border-right: 0; }
+@media (max-width: 880px) {
+    .stat-cell:nth-child(2) { border-right: 0; }
+    .stat-cell:nth-child(1), .stat-cell:nth-child(2) { border-bottom: 1px dashed var(--vidrio-borde); }
+}
+.stat-label {
+    font-family: var(--fuente-ui);
+    font-size: 12px; font-weight: 500;
+    color: var(--texto-atenuado);
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: var(--espacio-sm);
+}
+.stat-label::before {
+    content: ""; width: 5px; height: 5px;
+    border-radius: 1px;
+    background: var(--color-acento);
+}
+.stat-cell.peligro .stat-label::before { background: var(--color-peligro); }
+.stat-cell.advert  .stat-label::before { background: var(--color-advertencia); }
+.stat-cell.exito   .stat-label::before { background: var(--color-exito); }
+.stat-valor {
+    font-family: var(--fuente-titular);
+    font-size: 26px; font-weight: 700;
+    color: var(--texto-primario);
+    letter-spacing: -0.02em; line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.stat-cell.peligro .stat-valor { color: var(--color-peligro-texto); }
+.stat-cell.advert  .stat-valor { color: var(--color-advertencia-texto); }
+.stat-cell.exito   .stat-valor { color: var(--color-exito-texto); }
+.stat-cell.acento  .stat-valor { color: var(--color-acento-claro); }
+.stat-sub {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--texto-secundario);
+}
+
+
+/* ============================================================
+   FILTROS BAR · buscar + chips + toggle vista
+   ============================================================ */
+.filtros-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px;
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-md);
+    backdrop-filter: blur(var(--vidrio-desenfoque));
+    -webkit-backdrop-filter: blur(var(--vidrio-desenfoque));
+    box-shadow: var(--sombra-card);
+    margin-bottom: var(--espacio-lg);
+    flex-wrap: wrap;
+}
+.buscar-wrap {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1; min-width: 240px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-sm);
+    padding: 0 14px;
+    height: 40px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: border-color var(--dur-rapida);
+}
+.buscar-wrap:focus-within {
+    border-color: var(--color-acento-borde);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 3px var(--color-acento-sutil);
+}
+.buscar-wrap svg {
+    width: 16px; height: 16px;
+    stroke: var(--texto-atenuado);
+    fill: none; stroke-width: 2; stroke-linecap: round;
+    flex-shrink: 0;
+}
+.buscar-wrap input {
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--texto-primario);
+    font-family: inherit;
+    font-size: 14px;
+    flex: 1;
+    padding: 0;
+    height: auto;
+}
+.buscar-wrap input::placeholder { color: var(--texto-atenuado); }
+
+
+/* Reglas del dashboard (timeline, prox-list, dual-grid) viven en
+   styles-dashboard.css para mantener este archivo bajo 1000 líneas. */
 
 

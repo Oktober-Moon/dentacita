@@ -125,6 +125,12 @@ function cargarCitasDelDia() {
             }
             $('citasDiaConteo').textContent =
                 data.citas.length + (data.citas.length === 1 ? ' cita' : ' citas');
+            var metaConteo = $('agendaMetaConteo');
+            if (metaConteo) {
+                var sufijo = esHoy(estado.fechaSeleccionada) ? ' hoy' : '';
+                metaConteo.textContent = data.citas.length +
+                    (data.citas.length === 1 ? ' cita' + sufijo : ' citas' + sufijo);
+            }
             pintarCitasDelDia(data.citas);
         })
         .catch(function() {

@@ -52,20 +52,32 @@
     --texto-secundario: rgba(255, 255, 255, 0.72);
     --texto-atenuado:   rgba(255, 255, 255, 0.42);
 
-    /* Glassmorphism · firma del sistema (Okari) */
-    --vidrio-fondo:        rgba(255, 255, 255, 0.07);
-    --vidrio-fondo-hover:  rgba(255, 255, 255, 0.11);
-    --vidrio-fondo-activo: rgba(255, 255, 255, 0.15);
-    --vidrio-borde:        rgba(255, 255, 255, 0.09);
+    /* Glassmorphism · firma del sistema (Okari)
+       Opacidades sutiles para evitar el efecto "card pegada al fondo".
+       Hairlines internos/inferiores aportan definición sin engrosar. */
+    --vidrio-fondo:        rgba(255, 255, 255, 0.045);
+    --vidrio-fondo-hover:  rgba(255, 255, 255, 0.085);
+    --vidrio-fondo-activo: rgba(255, 255, 255, 0.13);
+    --vidrio-borde:        rgba(255, 255, 255, 0.08);
     --vidrio-borde-hover:  rgba(255, 255, 255, 0.16);
     --vidrio-desenfoque:   16px;
     --vidrio-desenfoque-overlay: 8px;
 
+    /* Hairlines · línea fina interna (luz) y línea inferior (sombra)
+       Se componen dentro de --sombra-card para dar profundidad. */
+    --hairline-int:  inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    --hairline-bot:  inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+
     /* Sombras · glass + glow */
-    --sombra-card:   inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.40);
-    --sombra-modal:  0 24px 80px rgba(0,0,0,0.60);
+    --sombra-card:        var(--hairline-int), var(--hairline-bot),
+                          0 12px 28px -8px rgba(0, 0, 0, 0.55),
+                          0 2px 0 rgba(0, 0, 0, 0.18);
+    --sombra-card-hover:  var(--hairline-int), var(--hairline-bot),
+                          0 18px 40px -10px rgba(0, 0, 0, 0.7),
+                          0 0 0 1px var(--color-acento-borde);
+    --sombra-modal:       0 24px 80px rgba(0, 0, 0, 0.60);
     /* Halo de focus para inputs · más definido que el 10% sutil anterior */
-    --sombra-glow:   0 0 0 3px var(--color-acento-borde);
+    --sombra-glow:        0 0 0 3px var(--color-acento-borde);
 
     /* Espaciado · escala estricta */
     --espacio-xs:  4px;
@@ -80,8 +92,8 @@
     /* Radios */
     --radio-xs: 4px;
     --radio-sm: 8px;
-    --radio-md: 12px;
-    --radio-lg: 16px;
+    --radio-md: 14px;
+    --radio-lg: 18px;
     --radio-xl: 24px;
     --radio-completo: 9999px;
 
@@ -131,25 +143,30 @@ body {
     overflow-x: hidden;
 }
 
-/* Aurora ambient · dos blobs blur en esquinas opuestas */
-body::before, body::after {
+/* Aurora ambient · dos halos elípticos diagonalmente opuestos
+   + textura punteada sutil en toda la página (firma "tela de fondo"). */
+body::before {
     content: "";
     position: fixed;
-    width: 700px; height: 700px;
-    border-radius: 50%;
-    filter: blur(120px);
+    inset: 0;
+    background:
+        radial-gradient(ellipse 900px 600px at 12% -10%, var(--color-acento-brillo), transparent 60%),
+        radial-gradient(ellipse 700px 500px at 90% 110%, rgba(74, 142, 188, 0.20), transparent 60%);
+    filter: blur(60px);
+    opacity: 0.85;
     pointer-events: none;
     z-index: 0;
 }
-body::before {
-    top: -200px; left: -200px;
-    background: var(--color-acento-brillo);
-    opacity: 0.45;
-}
 body::after {
-    bottom: -240px; right: -240px;
-    background: rgba(74, 142, 188, 0.18);
-    opacity: 0.55;
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.025) 1px, transparent 0);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.15));
+    pointer-events: none;
+    z-index: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -230,12 +247,15 @@ code, .mono { font-family: var(--fuente-mono); font-variant-numeric: tabular-num
 
 /* --- Variantes --- */
 .btn-primario {
-    background: var(--color-acento);
+    background: linear-gradient(180deg, var(--color-acento-claro), var(--color-acento));
     color: var(--color-fondo-profundo);
     font-weight: 600;
-    box-shadow: 0 4px 14px var(--color-acento-sutil);
+    box-shadow: var(--hairline-int), 0 4px 14px var(--color-acento-sutil);
 }
-.btn-primario:hover { background: var(--color-acento-claro); transform: translateY(-1px); }
+.btn-primario:hover {
+    background: linear-gradient(180deg, var(--color-acento-claro), var(--color-acento-claro));
+    transform: translateY(-1px);
+}
 
 .btn-secundario {
     background: var(--vidrio-fondo);
@@ -243,6 +263,7 @@ code, .mono { font-family: var(--fuente-mono); font-variant-numeric: tabular-num
     border-color: var(--vidrio-borde);
     backdrop-filter: blur(var(--vidrio-desenfoque));
     -webkit-backdrop-filter: blur(var(--vidrio-desenfoque));
+    box-shadow: var(--hairline-int);
 }
 .btn-secundario:hover {
     background: var(--vidrio-fondo-hover);

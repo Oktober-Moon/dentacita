@@ -296,6 +296,54 @@ $('#btnGuardarFoto').addEventListener('click', async () => {
 });
 
 
+/* ====================================================================
+ * ELIMINAR MI CUENTA · soft delete con confirmación literal "ELIMINAR"
+ * El boton solo se habilita cuando el input contiene exactamente la
+ * palabra. Server-side se vuelve a validar (defensa en profundidad).
+ * ====================================================================*/
+const btnAbrirEliminar = $('#btnAbrirEliminarCuenta');
+const inputConfirmar   = $('#confirmacionEliminar');
+const btnConfirmar     = $('#btnConfirmarEliminar');
+
+if (btnAbrirEliminar && inputConfirmar && btnConfirmar) {
+    btnAbrirEliminar.addEventListener('click', () => {
+        inputConfirmar.value = '';
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = 'Eliminar permanentemente';
+        abrirModal('modalEliminarCuenta');
+        setTimeout(() => inputConfirmar.focus(), 80);
+    });
+
+    inputConfirmar.addEventListener('input', () => {
+        btnConfirmar.disabled = inputConfirmar.value !== 'ELIMINAR';
+    });
+
+    btnConfirmar.addEventListener('click', async () => {
+        if (inputConfirmar.value !== 'ELIMINAR') return;
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = 'Eliminando…';
+        const datos = new FormData();
+        datos.append('confirmacion', inputConfirmar.value);
+        try {
+            const resp = await fetch('cuenta-eliminar.php', { method: 'POST', body: datos });
+            const json = await resp.json();
+            if (!json.ok) {
+                btnConfirmar.disabled = false;
+                btnConfirmar.textContent = 'Eliminar permanentemente';
+                toast(json.mensaje || 'Error al eliminar.', 'error');
+                return;
+            }
+            // OK: la sesión ya fue destruida server-side; redirigimos al login.
+            window.location.href = '../index.php';
+        } catch (e) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = 'Eliminar permanentemente';
+            toast('No se pudo conectar.', 'error');
+        }
+    });
+}
+
+
 cargar();
 
 })();

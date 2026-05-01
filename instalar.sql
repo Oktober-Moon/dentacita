@@ -51,6 +51,8 @@ CREATE TABLE perfil_dentista (
     foto_url               VARCHAR(255),
     variante_tema          VARCHAR(40) DEFAULT 'cyan-default',
     onboarding_completado  TINYINT(1) DEFAULT 0,
+    cuenta_eliminada       TINYINT(1) NOT NULL DEFAULT 0,
+    cuenta_eliminada_en    DATETIME NULL,
     creado_en              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     actualizado_en         TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id) ON DELETE CASCADE

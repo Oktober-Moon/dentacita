@@ -118,35 +118,72 @@ function inicial(nombre) {
     return nombre.trim().charAt(0).toUpperCase();
 }
 
+/* Variantes de color del avatar · ciclan por hash del id para que cada
+   paciente tenga un color estable pero distinto. */
+const AVATAR_COLORES = ['', 'col-info', 'col-purpura', 'col-exito', 'col-naranja'];
+function avatarColor(id) {
+    const n = parseInt(id, 10) || 0;
+    return AVATAR_COLORES[n % AVATAR_COLORES.length];
+}
+
+function fmtDiaCorto(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso.replace(' ', 'T'));
+    if (isNaN(d)) return '—';
+    const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    return d.getDate() + ' ' + meses[d.getMonth()];
+}
+
 function renderTabla(pacientes) {
     if (!pacientes || pacientes.length === 0) {
         tablaContenido.innerHTML =
-            '<div class="tabla-vacio">No hay pacientes que coincidan con tu búsqueda.</div>';
+            '<div class="placeholder-card"><div class="placeholder-titulo">Sin coincidencias</div>' +
+            '<div class="placeholder-desc">No hay pacientes que coincidan con tu búsqueda.</div></div>';
         return;
     }
 
     const cards = pacientes.map(p => {
-        const edad = calcularEdad(p.fecha_nacimiento);
+        const edad       = calcularEdad(p.fecha_nacimiento);
         const totalCitas = parseInt(p.total_citas || 0, 10);
+        const colorCls   = avatarColor(p.paciente_id);
+        const codigo     = String(p.paciente_id).padStart(4, '0');
         const avatarHtml = p.foto_url
-            ? `<img class="paciente-card-avatar" src="${escapar(p.foto_url)}" alt="" onerror="this.outerHTML='<span class=\\'paciente-card-avatar\\'>${escapar(inicial(p.nombre_completo))}</span>'">`
-            : `<span class="paciente-card-avatar">${escapar(inicial(p.nombre_completo))}</span>`;
+            ? `<img class="pac-card-avatar ${colorCls}" src="${escapar(p.foto_url)}" alt=""` +
+              ` onerror="this.outerHTML='<span class=\\'pac-card-avatar ${colorCls}\\'>${escapar(inicial(p.nombre_completo))}</span>'">`
+            : `<span class="pac-card-avatar ${colorCls}">${escapar(inicial(p.nombre_completo))}</span>`;
         return `
-            <div class="paciente-card-wrap">
-                <a class="paciente-card" href="detalle.php?id=${p.paciente_id}">
-                    ${avatarHtml}
-                    <div class="paciente-card-cuerpo">
-                        <div class="paciente-card-nombre">${escapar(p.nombre_completo)}</div>
-                        <div class="paciente-card-meta">
-                            ${edad ? escapar(edad) : ''}${edad && p.telefono ? ' · ' : ''}${p.telefono ? escapar(p.telefono) : ''}
+            <div class="pac-card-wrap">
+                <a class="pac-card" href="detalle.php?id=${p.paciente_id}">
+                    <div class="pac-card-top">
+                        <span class="pac-card-codigo">PAC · <span>#${codigo}</span></span>
+                        <span class="pac-card-status">Activo</span>
+                    </div>
+                    <div class="pac-card-body">
+                        ${avatarHtml}
+                        <div class="pac-card-info">
+                            <div class="pac-card-nombre">${escapar(p.nombre_completo)}</div>
+                            <div class="pac-card-meta">
+                                ${edad ? escapar(edad) : 'Edad —'}
+                                ${p.telefono ? '<span class="dot"></span>' + escapar(p.telefono) : ''}
+                            </div>
                         </div>
-                        <div class="paciente-card-info">
-                            <span><strong>${totalCitas}</strong> cita${totalCitas === 1 ? '' : 's'}</span>
-                            ${p.ultima_cita ? `<span class="texto-atenuado">última: ${escapar(fmtFecha(p.ultima_cita.substring(0, 10)))}</span>` : ''}
+                    </div>
+                    <div class="pac-card-foot">
+                        <div class="pac-card-foot-cell">
+                            <div class="pac-card-foot-cell-label">Última</div>
+                            <div class="pac-card-foot-cell-valor">${p.ultima_cita ? escapar(fmtDiaCorto(p.ultima_cita)) : '—'}</div>
+                        </div>
+                        <div class="pac-card-foot-cell">
+                            <div class="pac-card-foot-cell-label">Citas</div>
+                            <div class="pac-card-foot-cell-valor acento">${totalCitas}</div>
+                        </div>
+                        <div class="pac-card-foot-cell">
+                            <div class="pac-card-foot-cell-label">Edad</div>
+                            <div class="pac-card-foot-cell-valor">${edad ? escapar(edad.replace(' años', '')) : '—'}</div>
                         </div>
                     </div>
                 </a>
-                <div class="paciente-card-acciones">
+                <div class="pac-card-acciones">
                     <button type="button" class="btn-link" data-accion="editar" data-id="${p.paciente_id}">Editar</button>
                     <button type="button" class="btn-link btn-link-peligro" data-accion="eliminar" data-id="${p.paciente_id}" data-nombre="${escapar(p.nombre_completo)}">Eliminar</button>
                 </div>

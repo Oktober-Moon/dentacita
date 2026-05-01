@@ -3,23 +3,73 @@
    ============================================================ */
 .agenda-grid {
     display: grid;
-    grid-template-columns: 380px 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: var(--espacio-lg);
     align-items: flex-start;
 }
-@media (max-width: 960px) {
+@media (max-width: 1100px) {
     .agenda-grid { grid-template-columns: 1fr; }
+}
+
+/* Columna principal · alterna entre vista mensual y semanal.
+   min-width:0 evita que un grid hijo ancho fuerce overflow del padre. */
+.agenda-grid-principal {
+    min-width: 0;
+}
+
+/* Aside permanente · siempre visible (mes o semana) con cards apiladas. */
+.agenda-aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-md);
+    min-width: 0;
+}
+
+/* Header de la vista semanal · navegación + título + botón Hoy. */
+.semana-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-md);
+    margin-bottom: var(--espacio-md);
+    flex-wrap: wrap;
+}
+.semana-header-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-sm);
+}
+.semana-titulo {
+    font-family: var(--fuente-titular);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--texto-primario);
+    text-transform: capitalize;
+    letter-spacing: -0.01em;
+    min-width: 180px;
+    text-align: center;
 }
 
 .calendario-header {
     display: flex; align-items: center; justify-content: space-between;
+    gap: var(--espacio-md);
     margin-bottom: var(--espacio-md);
+    flex-wrap: wrap;
+}
+.calendario-header-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-sm);
 }
 .calendario-mes {
     font-family: var(--fuente-titular);
-    font-size: 16px; font-weight: 700;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--texto-primario);
     text-transform: capitalize;
+    letter-spacing: -0.01em;
+    min-width: 180px;
+    text-align: center;
 }
 .calendario-dias-semana {
     display: grid; grid-template-columns: repeat(7, 1fr);
@@ -39,8 +89,10 @@
     display: grid; grid-template-columns: repeat(7, 1fr);
     gap: 4px;
 }
+/* Celda del mes · ahora con altura flexible para alojar mini-bloques.
+   Layout vertical alineado al inicio: número arriba + lista de citas. */
 .calendario-celda {
-    aspect-ratio: 1 / 1;
+    min-height: 110px;
     background: transparent;
     border: 1px solid transparent;
     border-radius: var(--radio-sm);
@@ -48,45 +100,107 @@
     font-family: inherit;
     cursor: pointer;
     display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
+    align-items: stretch; justify-content: flex-start;
     gap: 3px;
-    padding: 4px;
+    padding: 6px 5px;
     transition: all var(--dur-rapida);
+    text-align: left;
+    overflow: hidden;
 }
 .calendario-celda:hover {
     background: var(--vidrio-fondo);
     color: var(--texto-primario);
 }
-.calendario-celda-num { font-size: 13px; font-weight: 500; }
-.calendario-celda-vacia { cursor: default; }
+.calendario-celda-num {
+    font-family: var(--fuente-titular);
+    font-size: 14px; font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    padding: 0 2px;
+}
+.calendario-celda-vacia { cursor: default; min-height: 110px; }
 .calendario-celda-vacia:hover { background: transparent; }
 .calendario-celda-hoy {
     border-color: var(--color-acento-borde);
+    background: var(--color-acento-sutil);
+}
+.calendario-celda-hoy .calendario-celda-num {
     color: var(--color-acento-claro);
-    font-weight: 700;
 }
 .calendario-celda-seleccionada {
-    background: var(--color-acento);
-    color: var(--color-fondo-profundo);
+    background: var(--vidrio-fondo-activo);
+    border-color: var(--color-acento);
+    box-shadow: var(--hairline-int), 0 4px 12px var(--color-acento-sutil);
+}
+.calendario-celda-seleccionada .calendario-celda-num {
+    color: var(--color-acento-claro);
+}
+.calendario-celda-seleccionada:hover { background: var(--vidrio-fondo-hover); }
+
+/* Mini-bloques de cita dentro de la celda · borde-left de color por estado,
+   hora compacta + título truncado. Hasta 3 visibles + "+N más" si hay extras. */
+.calendario-celda-citas {
+    display: flex; flex-direction: column;
+    gap: 2px;
+    margin-top: 2px;
+    overflow: hidden;
+}
+.cal-mes-cita {
+    display: flex; align-items: center; gap: 4px;
+    padding: 1px 4px 1px 5px;
+    border-radius: 3px;
+    border-left: 2px solid var(--color-info);
+    font-size: 10px;
+    line-height: 1.3;
+    background: var(--color-info-sutil);
+    color: var(--color-info-texto);
+    overflow: hidden;
+    white-space: nowrap;
+}
+.cal-mes-cita-hora {
+    font-family: var(--fuente-mono);
     font-weight: 700;
-    box-shadow: 0 4px 12px var(--color-acento-sutil);
+    flex-shrink: 0;
+    font-size: 9px;
+    opacity: 0.9;
 }
-.calendario-celda-seleccionada:hover { background: var(--color-acento-claro); color: var(--color-fondo-profundo); }
-.calendario-celda-puntos {
-    display: flex; gap: 2px; height: 4px;
+.cal-mes-cita-titulo {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
 }
-.punto {
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--color-acento-claro);
+.cal-mes-cita-confirmada {
+    background: var(--color-exito-sutil);
+    color: var(--color-exito-texto);
+    border-left-color: var(--color-exito);
 }
-/* Punto coloreado según el estado de la cita correspondiente. */
-.punto-programada { background: var(--color-info-texto); }
-.punto-confirmada { background: var(--color-exito-texto); }
-.punto-completada { background: var(--texto-secundario); }
-.punto-cancelada  { background: var(--color-peligro-texto); }
-.punto-no_asistio { background: var(--color-advertencia-texto); }
-.calendario-celda-seleccionada .punto { background: var(--color-fondo-profundo); }
+.cal-mes-cita-completada {
+    background: var(--vidrio-fondo);
+    color: var(--texto-secundario);
+    border-left-color: var(--texto-secundario);
+    opacity: 0.75;
+}
+.cal-mes-cita-cancelada {
+    background: var(--color-peligro-sutil);
+    color: var(--color-peligro-texto);
+    border-left-color: var(--color-peligro);
+    opacity: 0.55;
+    text-decoration: line-through;
+}
+.cal-mes-cita-no_asistio {
+    background: var(--color-advertencia-sutil);
+    color: var(--color-advertencia-texto);
+    border-left-color: var(--color-advertencia);
+}
+.cal-mes-cita-mas {
+    font-family: var(--fuente-mono);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--texto-atenuado);
+    padding: 0 4px;
+    margin-top: 1px;
+}
+.calendario-celda-seleccionada .cal-mes-cita-mas { color: var(--color-acento-claro); }
 
 /* Citas vencidas: badge naranja "Vencida" + tinte sutil del item entero. */
 .badge-overdue {
@@ -115,12 +229,24 @@
     align-items: center;
     padding: var(--espacio-md);
     border: 1px solid var(--vidrio-borde);
+    border-left: 3px solid var(--vidrio-borde);
     border-radius: var(--radio-sm);
     margin-bottom: var(--espacio-sm);
     background: var(--vidrio-fondo);
-    transition: all var(--dur-rapida);
+    box-shadow: var(--hairline-int);
+    transition: all var(--dur-rapida) var(--ease-salida);
 }
-.cita-item:hover { border-color: var(--color-acento-borde); transform: translateY(-1px); }
+.cita-item:hover {
+    border-color: var(--color-acento-borde);
+    transform: translateY(-1px);
+    box-shadow: var(--hairline-int), 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+/* Border-left de color por estado · firma visual del paquete */
+.cita-item-programada { border-left-color: var(--color-info); }
+.cita-item-confirmada { border-left-color: var(--color-exito); }
+.cita-item-completada { border-left-color: var(--texto-secundario); }
+.cita-item-cancelada  { border-left-color: var(--color-peligro); opacity: 0.6; }
+.cita-item-no_asistio { border-left-color: var(--color-advertencia); }
 .cita-cuerpo { min-width: 0; }
 .cita-hora {
     font-family: var(--fuente-mono);
@@ -178,7 +304,7 @@
     max-height: calc(100vh - 64px);
     overflow-y: auto;
     position: relative;
-    box-shadow: var(--sombra-modal);
+    box-shadow: var(--hairline-int), var(--sombra-modal);
     margin: var(--espacio-lg) 0;
 
     /* Entrada/salida con transition (no animation) · simétrico */
@@ -264,6 +390,7 @@
     background: var(--vidrio-fondo-hover);
     border-color: var(--color-acento-borde);
     transform: translateY(-1px);
+    box-shadow: var(--hairline-int), 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 .opcion-card:focus-visible {
     outline: 2px solid var(--color-acento);

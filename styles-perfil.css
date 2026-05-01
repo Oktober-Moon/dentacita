@@ -433,6 +433,87 @@
 
 
 /* ============================================================
+   PERFIL · hero (gradient top + avatar grande superpuesto)
+   La card "Foto y nombre" usa este bloque en lugar de .ficha-card
+   para tener el gradient a sangre + avatar emergiendo del borde.
+   ============================================================ */
+.perfil-hero {
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-md);
+    backdrop-filter: blur(var(--vidrio-desenfoque));
+    -webkit-backdrop-filter: blur(var(--vidrio-desenfoque));
+    box-shadow: var(--sombra-card);
+    overflow: hidden;
+    margin-bottom: var(--espacio-lg);
+}
+.perfil-hero-top {
+    height: 110px;
+    background:
+        linear-gradient(135deg, rgba(20, 184, 166, 0.18), rgba(74, 142, 188, 0.10) 60%, rgba(142, 77, 217, 0.10)),
+        var(--color-fondo-secundario);
+    position: relative;
+    border-bottom: 1px solid var(--vidrio-borde);
+    overflow: hidden;
+}
+/* Trama cuadriculada sutil con desvanecido vertical · firma decorativa */
+.perfil-hero-top::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 80px),
+        repeating-linear-gradient(0deg,  rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 80px);
+    mask-image: linear-gradient(180deg, transparent, #000 50%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 50%, transparent);
+    pointer-events: none;
+}
+.perfil-hero-cuerpo {
+    padding: 0 var(--espacio-xl) var(--espacio-lg);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--espacio-lg);
+    align-items: flex-end;
+    margin-top: -50px;
+    position: relative;
+    z-index: 1;
+}
+.perfil-hero .perfil-foto-bloque {
+    align-items: center;
+    flex-shrink: 0;
+    z-index: 1;
+}
+/* Override de .perfil-foto-img cuando vive dentro del hero · 110x110 con
+   esquinas redondeadas y borde pesado para emerger del gradient. */
+.perfil-hero .perfil-foto-img {
+    width: 110px; height: 110px;
+    border-radius: var(--radio-xl);
+    border: 3px solid var(--color-fondo-primario);
+    background: linear-gradient(135deg, var(--color-acento), #0e7490);
+    box-shadow: var(--hairline-int), 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+.perfil-hero .perfil-form {
+    padding-bottom: var(--espacio-xs);
+    min-width: 0;
+    flex: 1;
+}
+.perfil-hero .perfil-form .campo { margin-bottom: 0; }
+.autosave-indicador-inline {
+    font-style: italic;
+    margin-left: var(--espacio-sm);
+}
+
+@media (max-width: 700px) {
+    .perfil-hero-cuerpo {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+        text-align: center;
+        gap: var(--espacio-md);
+    }
+    .perfil-hero .perfil-form { text-align: left; padding-bottom: 0; }
+}
+
+
+/* ============================================================
    TEMA VISUAL · selector de 8 colores planos
    ============================================================ */
 .tema-grid {

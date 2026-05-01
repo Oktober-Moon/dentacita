@@ -46,13 +46,22 @@ function pintarCalendario() {
         var citasDia = citasPorDia[clave] || [];
         var html = '<span class="calendario-celda-num">' + d + '</span>';
         if (citasDia.length > 0) {
-            html += '<span class="calendario-celda-puntos">';
+            html += '<div class="calendario-celda-citas">';
             var n = Math.min(citasDia.length, 3);
             for (var p = 0; p < n; p++) {
-                var est = citasDia[p].estado || 'programada';
-                html += '<span class="punto punto-' + est + '"></span>';
+                var c = citasDia[p];
+                var est = c.estado || 'programada';
+                var hi = (c.fecha_hora_inicio || '').substring(11, 16);
+                var titulo = c.titulo || c.paciente_nombre || '—';
+                html += '<span class="cal-mes-cita cal-mes-cita-' + est + '">' +
+                          '<span class="cal-mes-cita-hora">' + hi + '</span>' +
+                          '<span class="cal-mes-cita-titulo">' + escaparHtml(titulo) + '</span>' +
+                        '</span>';
             }
-            html += '</span>';
+            if (citasDia.length > 3) {
+                html += '<span class="cal-mes-cita-mas">+' + (citasDia.length - 3) + ' más</span>';
+            }
+            html += '</div>';
         }
         celda.innerHTML = html;
         celda.dataset.fecha = clave;
@@ -73,6 +82,14 @@ function cambiarMes(delta) {
 
 $('mesAnterior').addEventListener('click', function(){ cambiarMes(-1); });
 $('mesSiguiente').addEventListener('click', function(){ cambiarMes(1); });
+$('mesHoy').addEventListener('click', function() {
+    var hoy = new Date();
+    estado.mesVisible = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    estado.fechaSeleccionada = hoy;
+    cargarCitasDelMes();
+    cargarCitasDelDia();
+    cargarMemorias();
+});
 
 
 /* ============================================================
@@ -113,7 +130,7 @@ function pintarCitasDelDia(citas) {
         var vencida = (c.estado === 'programada' || c.estado === 'confirmada')
                    && inicioTs < ahoraTs;
         html +=
-            '<li class="cita-item' + (vencida ? ' cita-overdue' : '') + '" data-id="' + c.cita_id + '">' +
+            '<li class="cita-item cita-item-' + c.estado + (vencida ? ' cita-overdue' : '') + '" data-id="' + c.cita_id + '">' +
                 '<div class="cita-hora mono">' + hi + ' – ' + hf + '</div>' +
                 '<div class="cita-cuerpo">' +
                     '<div class="cita-titulo">' + escaparHtml(c.titulo) + '</div>' +
@@ -259,15 +276,18 @@ function cambiarVista(vista) {
     if (vista === 'semanal') {
         $('vistaMensual').style.display = 'none';
         $('vistaSemanal').style.display = '';
-        if (btnM) btnM.classList.remove('btn-primario'); btnM && btnM.classList.add('btn-secundario');
-        if (btnS) btnS.classList.add('btn-primario');
+        if (btnM) btnM.classList.remove('activo');
+        if (btnS) btnS.classList.add('activo');
         cargarSemana();
     } else {
         $('vistaSemanal').style.display = 'none';
         $('vistaMensual').style.display = '';
-        if (btnS) btnS.classList.remove('btn-primario'); btnS && btnS.classList.add('btn-secundario');
-        if (btnM) btnM.classList.add('btn-primario');
+        if (btnS) btnS.classList.remove('activo');
+        if (btnM) btnM.classList.add('activo');
     }
+    /* Persistir preferencia entre recargas. localStorage puede fallar
+       (modo privado, cuota llena, etc.) — silencioso si pasa. */
+    try { localStorage.setItem('agenda_vista_preferida', vista); } catch (e) { /* ignorar */ }
 }
 
 document.querySelectorAll('[data-vista]').forEach(function(btn) {
@@ -279,6 +299,10 @@ $('semAnterior').addEventListener('click', function() {
 });
 $('semSiguiente').addEventListener('click', function() {
     estadoSemana.inicioSemana.setDate(estadoSemana.inicioSemana.getDate() + 7);
+    cargarSemana();
+});
+$('semHoy').addEventListener('click', function() {
+    estadoSemana.inicioSemana = lunesDeLaSemana(new Date());
     cargarSemana();
 });
 
@@ -308,7 +332,7 @@ function pintarSemana() {
     var cont = $('semanaContenedor');
     var inicio = new Date(estadoSemana.inicioSemana);
     var diasNombres = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-    var horaIni = 8, horaFin = 20;
+    var horaIni = 8, horaFin = 20;   // ventana visible (incluye 20:00)
     var ahoraTs = Date.now();
 
     var html = '<div class="semana-cabecera">';
@@ -339,13 +363,23 @@ function pintarSemana() {
         var citasDia = estadoSemana.citas.filter(function(c) {
             return c.fecha_hora_inicio.substring(0, 10) === claveDia;
         });
+        var citasAntes = 0, citasDespues = 0;
         citasDia.forEach(function(c) {
             var ini = new Date(c.fecha_hora_inicio.replace(' ', 'T'));
             var fin = new Date(c.fecha_hora_fin.replace(' ', 'T'));
             var iniHorasFlot = ini.getHours() + ini.getMinutes() / 60;
             var finHorasFlot = fin.getHours() + fin.getMinutes() / 60;
-            var top = (iniHorasFlot - horaIni) * 40;
-            var height = Math.max(20, (finHorasFlot - iniHorasFlot) * 40 - 2);
+            /* Citas que terminan antes del horario visible o empiezan
+               después de la última franja se muestran como contador
+               discreto (↑/↓) en lugar de bloque posicionado. */
+            if (finHorasFlot <= horaIni)         { citasAntes++;   return; }
+            if (iniHorasFlot >= horaFin + 1)     { citasDespues++; return; }
+            /* Cita que cruza el límite (ej. 7:30-8:30): clamp visual al
+               rango para que el bloque no se salga del contenedor. */
+            var iniMostrar = Math.max(iniHorasFlot, horaIni);
+            var finMostrar = Math.min(finHorasFlot, horaFin + 1);
+            var top    = (iniMostrar - horaIni) * 56;
+            var height = Math.max(28, (finMostrar - iniMostrar) * 56 - 2);
             var vencida = (c.estado === 'programada' || c.estado === 'confirmada')
                        && ini.getTime() < ahoraTs;
             var hi = c.fecha_hora_inicio.substring(11, 16);
@@ -358,9 +392,40 @@ function pintarSemana() {
                       '<div class="semana-cita-paciente">' + escaparHtml(c.paciente_nombre) + '</div>' +
                     '</div>';
         });
+        if (citasAntes > 0) {
+            html += '<div class="semana-fuera-horario semana-fuera-arriba" ' +
+                    'title="' + citasAntes + ' cita' + (citasAntes>1?'s':'') +
+                    ' antes de las ' + (horaIni < 10 ? '0' : '') + horaIni + ':00">' +
+                    '↑ ' + citasAntes + '</div>';
+        }
+        if (citasDespues > 0) {
+            html += '<div class="semana-fuera-horario semana-fuera-abajo" ' +
+                    'title="' + citasDespues + ' cita' + (citasDespues>1?'s':'') +
+                    ' después de las ' + horaFin + ':00">' +
+                    '↓ ' + citasDespues + '</div>';
+        }
+        /* Línea horizontal "ahora" · solo en la columna del día actual y
+           si la hora actual cae dentro de la franja visible 8-20h. */
+        if (mismoDia(fechaCol, new Date())) {
+            var ahora = new Date();
+            var hAhora = ahora.getHours() + ahora.getMinutes() / 60;
+            if (hAhora >= horaIni && hAhora <= horaFin + 1) {
+                var topAhora = (hAhora - horaIni) * 56;
+                var pad2 = function(n) { return n < 10 ? '0' + n : '' + n; };
+                var horaTxt = pad2(ahora.getHours()) + ':' + pad2(ahora.getMinutes());
+                html += '<div class="semana-linea-ahora" style="top:' + topAhora + 'px">' +
+                          '<span class="semana-linea-ahora-label">' + horaTxt + '</span>' +
+                        '</div>';
+            }
+        }
         html += '</div>';
     }
     html += '</div>';
+
+    if (estadoSemana.citas.length === 0) {
+        html += '<div class="estado-vacio" style="text-align:center; padding:var(--espacio-md)">' +
+                'No hay citas en esta semana.</div>';
+    }
 
     cont.innerHTML = html;
 
@@ -368,3 +433,13 @@ function pintarSemana() {
         el.addEventListener('click', function() { abrirEditar(el.dataset.id); });
     });
 }
+
+/* Aplicar preferencia de vista al cargar (si existe en localStorage).
+   Se ejecuta una sola vez al final de este script — los listeners de
+   los botones ya están enganchados arriba. */
+try {
+    var vistaPref = localStorage.getItem('agenda_vista_preferida');
+    if (vistaPref === 'semanal') {
+        cambiarVista('semanal');
+    }
+} catch (e) { /* ignorar */ }

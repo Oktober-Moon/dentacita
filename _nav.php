@@ -74,32 +74,54 @@ document.addEventListener('submit', function(e) {
 </script>
 <?php
 
-$modulosMenu = [
-    ['id'=>'dashboard',    'label'=>'Inicio',       'href'=>'dashboard.php'],
-    ['id'=>'agenda',       'label'=>'Agenda',       'href'=>'agenda/'],
-    ['id'=>'pacientes',    'label'=>'Pacientes',    'href'=>'pacientes/'],
-    ['id'=>'finanzas',     'label'=>'Finanzas',     'href'=>'finanzas/'],
-    ['id'=>'inventario',   'label'=>'Inventario',   'href'=>'inventario/'],
-    ['id'=>'perfil',       'label'=>'Mi perfil',    'href'=>'perfil/'],
+$seccionesMenu = [
+    ['titulo' => 'Operación', 'items' => [
+        ['id'=>'dashboard', 'label'=>'Inicio',    'href'=>'dashboard.php'],
+        ['id'=>'agenda',    'label'=>'Agenda',    'href'=>'agenda/'],
+        ['id'=>'pacientes', 'label'=>'Pacientes', 'href'=>'pacientes/'],
+    ]],
+    ['titulo' => 'Negocio', 'items' => [
+        ['id'=>'finanzas',   'label'=>'Finanzas',   'href'=>'finanzas/'],
+        ['id'=>'inventario', 'label'=>'Inventario', 'href'=>'inventario/'],
+    ]],
+    ['titulo' => 'Cuenta', 'items' => [
+        ['id'=>'perfil', 'label'=>'Mi perfil', 'href'=>'perfil/'],
+    ]],
 ];
+
+// Iconos SVG inline · solo el path; el wrapper común vive en el render.
+$iconosSidebar = [
+    'dashboard'  => '<path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/>',
+    'agenda'     => '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    'pacientes'  => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'finanzas'   => '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+    'inventario' => '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+    'perfil'     => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+];
+$svgAttrs = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
 ?>
 <aside class="app-sidebar">
     <div class="app-sidebar-marca">DENTACITA</div>
 
     <nav class="app-sidebar-nav">
-        <?php foreach ($modulosMenu as $m):
-            $clase = 'sidebar-item';
-            if ($m['id'] === $nav_actual) $clase .= ' activo';
-        ?>
-        <a class="<?php echo $clase; ?>" href="<?php echo htmlspecialchars($nav_base_url . $m['href']); ?>">
-            <span class="sidebar-item-label"><?php echo htmlspecialchars($m['label']); ?></span>
-        </a>
+        <?php foreach ($seccionesMenu as $sec): ?>
+            <div class="app-sidebar-seccion"><?php echo htmlspecialchars($sec['titulo']); ?></div>
+            <?php foreach ($sec['items'] as $m):
+                $clase = 'sidebar-item';
+                if ($m['id'] === $nav_actual) $clase .= ' activo';
+                $svgPath = $iconosSidebar[$m['id']] ?? '';
+            ?>
+            <a class="<?php echo $clase; ?>" href="<?php echo htmlspecialchars($nav_base_url . $m['href']); ?>">
+                <svg class="sidebar-item-icono" <?php echo $svgAttrs; ?>><?php echo $svgPath; ?></svg>
+                <span class="sidebar-item-label"><?php echo htmlspecialchars($m['label']); ?></span>
+            </a>
+            <?php endforeach; ?>
         <?php endforeach; ?>
     </nav>
 
     <div class="app-sidebar-footer">
         <button type="button" class="btn btn-secundario btn-sm sidebar-cerrar sidebar-btn-notif" id="btnNotificaciones" aria-label="Notificaciones">
-            <span class="sidebar-btn-icono" aria-hidden="true">🔔</span>
+            <svg class="sidebar-btn-icono" <?php echo $svgAttrs; ?>><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="sidebar-btn-texto">Notificaciones</span>
             <span id="notifBadge" class="notif-badge" style="display:none">0</span>
         </button>
@@ -110,7 +132,7 @@ $modulosMenu = [
         <a href="<?php echo htmlspecialchars($nav_base_url); ?>logout.php"
            class="btn btn-secundario btn-sm sidebar-cerrar sidebar-btn-logout"
            aria-label="Cerrar sesión">
-            <span class="sidebar-btn-icono" aria-hidden="true">⏻</span>
+            <svg class="sidebar-btn-icono" <?php echo $svgAttrs; ?>><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             <span class="sidebar-btn-texto">Cerrar sesión</span>
         </a>
     </div>

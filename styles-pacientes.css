@@ -394,89 +394,162 @@ input:-webkit-autofill:active {
 
 
 /* ============================================================
-   PACIENTES · cards en lista (en lugar de tabla)
+   PACIENTES · pac-card (cards visuales con top + body + foot)
+   Estilo del paquete: código #PAC, status pill, avatar coloreado,
+   3-cell footer con datos calculados (última, total citas, edad).
    ============================================================ */
 .pacientes-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 340px));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: var(--espacio-md);
-    justify-content: start;
-    padding: var(--espacio-md);
+    margin-bottom: var(--espacio-lg);
 }
-.paciente-card {
-    background: var(--vidrio-fondo);
+
+.pac-card-wrap {
+    position: relative;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015)),
+        var(--color-fondo-primario);
     border: 1px solid var(--vidrio-borde);
     border-radius: var(--radio-md);
-    padding: var(--espacio-md);
+    backdrop-filter: blur(var(--vidrio-desenfoque));
+    -webkit-backdrop-filter: blur(var(--vidrio-desenfoque));
+    box-shadow: var(--sombra-card);
+    overflow: hidden;
+    transition: all var(--dur-base) var(--ease-salida);
+    display: flex; flex-direction: column;
+}
+.pac-card-wrap:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sombra-card-hover);
+}
+.pac-card {
     text-decoration: none;
     color: inherit;
-    display: flex;
-    gap: var(--espacio-md);
-    align-items: flex-start;
-    transition: border-color var(--dur-rapida), transform var(--dur-rapida);
+    display: block;
+    flex: 1;
 }
-.paciente-card:hover {
-    border-color: var(--color-acento-borde);
-    transform: translateY(-1px);
+
+/* Top strip · código + status */
+.pac-card-top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--espacio-sm);
+    padding: 10px 14px;
+    border-bottom: 1px dashed var(--vidrio-borde);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent);
 }
-.paciente-card-avatar {
-    width: 48px; height: 48px;
+.pac-card-codigo {
+    font-family: var(--fuente-mono);
+    font-size: 11px; font-weight: 500;
+    color: var(--texto-atenuado);
+}
+.pac-card-codigo span { color: var(--color-acento-claro); }
+.pac-card-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--fuente-ui);
+    font-size: 11px; font-weight: 600;
+    color: var(--texto-secundario);
+}
+.pac-card-status::before {
+    content: ""; width: 6px; height: 6px;
     border-radius: 50%;
-    background: var(--color-acento-sutil);
+    background: var(--color-exito);
+}
+.pac-card-status.alerta::before { background: var(--color-advertencia); }
+.pac-card-status.alerta { color: var(--color-advertencia-texto); }
+.pac-card-status.peligro::before { background: var(--color-peligro); }
+.pac-card-status.peligro { color: var(--color-peligro-texto); }
+
+/* Body · avatar + info */
+.pac-card-body {
+    padding: 16px 14px;
+    display: flex; gap: 14px;
+    align-items: flex-start;
+}
+.pac-card-avatar {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--color-acento-sutil), rgba(20, 184, 166, 0.04));
     border: 1px solid var(--color-acento-borde);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-flex; align-items: center; justify-content: center;
     color: var(--color-acento-claro);
     font-family: var(--fuente-titular);
-    font-weight: 700;
-    font-size: 18px;
+    font-weight: 700; font-size: 18px;
     flex-shrink: 0;
+    box-shadow: var(--hairline-int);
     object-fit: cover;
 }
-.paciente-card-cuerpo { flex: 1; min-width: 0; }
-.paciente-card-nombre {
-    font-weight: 600;
+.pac-card-info { min-width: 0; flex: 1; }
+.pac-card-nombre {
+    font-family: var(--fuente-titular);
+    font-size: 16px; font-weight: 700;
     color: var(--texto-primario);
+    letter-spacing: -0.01em;
     margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.paciente-card-meta {
-    font-size: 12px;
-    color: var(--texto-atenuado);
+.pac-card-meta {
     font-family: var(--fuente-mono);
+    font-size: 11px;
+    color: var(--texto-atenuado);
+    letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: var(--espacio-sm);
+    flex-wrap: wrap;
 }
-.paciente-card-info {
+.pac-card-meta .dot {
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--vidrio-borde-hover);
+}
+.pac-card-edad-tel {
     margin-top: var(--espacio-sm);
     font-size: 12px;
     color: var(--texto-secundario);
-    display: flex;
+    display: flex; align-items: center; gap: var(--espacio-sm);
     flex-wrap: wrap;
-    gap: var(--espacio-xs) var(--espacio-sm);
 }
-.paciente-card-wrap {
-    display: flex;
-    flex-direction: column;
-    background: var(--vidrio-fondo);
-    border: 1px solid var(--vidrio-borde);
-    border-radius: var(--radio-md);
-    transition: border-color var(--dur-rapida);
-}
-.paciente-card-wrap:hover { border-color: var(--color-acento-borde); }
-.paciente-card-wrap > .paciente-card {
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    transform: none !important;
-}
-.paciente-card-acciones {
-    display: flex;
-    gap: var(--espacio-sm);
-    padding: 0 var(--espacio-md) var(--espacio-sm);
+
+/* Footer · 3 cells de datos clave */
+.pac-card-foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    padding: 0;
     border-top: 1px solid var(--vidrio-borde);
-    padding-top: var(--espacio-sm);
+    background: rgba(0, 0, 0, 0.18);
+}
+.pac-card-foot-cell {
+    padding: 10px 8px;
+    text-align: center;
+    border-right: 1px dashed var(--vidrio-borde);
+}
+.pac-card-foot-cell:last-child { border-right: 0; }
+.pac-card-foot-cell-label {
+    font-family: var(--fuente-ui);
+    font-size: 11px; font-weight: 500;
+    color: var(--texto-atenuado);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.pac-card-foot-cell-valor {
+    font-family: var(--fuente-mono);
+    font-size: 12px; font-weight: 700;
+    color: var(--texto-primario);
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+.pac-card-foot-cell-valor.acento { color: var(--color-acento-claro); }
+.pac-card-foot-cell-valor.advert { color: var(--color-advertencia-texto); }
+
+/* Acciones · row separada al final con editar/eliminar */
+.pac-card-acciones {
+    display: flex;
+    gap: var(--espacio-xs);
+    padding: var(--espacio-sm) 14px;
+    border-top: 1px dashed var(--vidrio-borde);
+    background: rgba(0, 0, 0, 0.10);
+    justify-content: flex-end;
 }
 
 /* Countdown de papelera (S3 · auto-purga 30 días) */
@@ -524,7 +597,8 @@ input:-webkit-autofill:active {
 
 
 /* ============================================================
-   AGENDA · vista semanal
+   AGENDA · vista semanal (estilo del paquete: cal-header + bloques
+   con border-left de color por estado + línea ahora)
    ============================================================ */
 .semana-grid {
     display: flex;
@@ -533,74 +607,213 @@ input:-webkit-autofill:active {
 }
 .semana-cabecera {
     display: grid;
-    grid-template-columns: 60px repeat(7, 1fr);
+    grid-template-columns: 64px repeat(7, 1fr);
     border-bottom: 1px solid var(--vidrio-borde);
     position: sticky; top: 0;
-    background: var(--vidrio-fondo);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent),
+                var(--color-fondo-primario);
     z-index: 2;
 }
 .semana-col-titulo {
-    padding: 8px;
+    padding: 12px 10px;
     text-align: center;
     border-left: 1px solid var(--vidrio-borde);
+    position: relative;
+}
+.semana-col-titulo:first-child { border-left: 0; }
+.semana-col-titulo .texto-pequeno {
+    font-family: var(--fuente-ui);
+    font-size: 11px; font-weight: 600;
+    color: var(--texto-atenuado);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 .semana-col-titulo .mono {
-    font-size: 18px;
-    font-weight: 600;
+    font-family: var(--fuente-titular);
+    font-size: 22px; font-weight: 700;
+    color: var(--texto-primario);
+    margin-top: 4px;
+    line-height: 1;
 }
-.semana-col-hoy {
-    background: var(--color-acento-sutil);
-    color: var(--color-acento-claro);
+.semana-col-hoy .mono,
+.semana-col-hoy .texto-pequeno { color: var(--color-acento-claro); }
+.semana-col-hoy::after {
+    content: "";
+    position: absolute;
+    left: 50%; bottom: -1px;
+    transform: translateX(-50%);
+    width: 32px; height: 2px;
+    background: var(--color-acento);
+    border-radius: 2px 2px 0 0;
 }
+
 .semana-cuerpo {
     display: grid;
-    grid-template-columns: 60px repeat(7, 1fr);
+    grid-template-columns: 64px repeat(7, 1fr);
     position: relative;
-    min-height: 540px;
+    min-height: 728px;
 }
 .semana-col-hora {
     border-right: 1px solid var(--vidrio-borde);
+    background: rgba(0, 0, 0, 0.15);
 }
 .semana-fila-hora {
-    height: 40px;
-    padding: 4px 6px;
+    height: 56px;
+    padding: 4px 8px 0 0;
+    text-align: right;
+    font-family: var(--fuente-mono);
     font-size: 10px;
+    font-weight: 500;
     color: var(--texto-atenuado);
-    border-bottom: 1px dashed rgba(255,255,255,0.04);
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.04);
 }
+.semana-fila-hora:last-child { border-bottom: 0; }
 .semana-col {
     position: relative;
     border-left: 1px solid var(--vidrio-borde);
 }
+.semana-col:first-child { border-left: 0; }
 .semana-celda-hora {
-    height: 40px;
-    border-bottom: 1px dashed rgba(255,255,255,0.04);
+    height: 56px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.04);
 }
+.semana-celda-hora:last-child { border-bottom: 0; }
+
 .semana-cita {
     position: absolute;
-    left: 2px; right: 2px;
-    background: var(--color-info-sutil);
-    border: 1px solid var(--color-info-borde);
-    color: var(--color-info-texto);
-    border-radius: var(--radio-xs);
-    padding: 4px 6px;
-    font-size: 11px;
+    left: 4px; right: 4px;
+    border-radius: 6px;
+    padding: 6px 8px 5px;
+    font-family: var(--fuente-ui);
     overflow: hidden;
     cursor: pointer;
-    transition: transform var(--dur-rapida);
+    box-shadow: var(--hairline-int), 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid;
+    border-left-width: 3px;
+    transition: transform var(--dur-rapida) var(--ease-salida),
+                box-shadow var(--dur-rapida);
 }
-.semana-cita:hover { transform: scale(1.02); z-index: 1; }
-.semana-cita-hora { font-weight: 700; font-size: 10px; }
-.semana-cita-titulo { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.semana-cita-paciente { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.85; }
-.semana-cita-confirmada { background: var(--color-exito-sutil); border-color: var(--color-exito-borde); color: var(--color-exito-texto); }
-.semana-cita-completada { background: var(--vidrio-fondo); border-color: var(--vidrio-borde); color: var(--texto-secundario); }
-.semana-cita-cancelada  { background: var(--color-peligro-sutil); border-color: var(--color-peligro-borde); color: var(--color-peligro-texto); opacity: 0.7; text-decoration: line-through; }
-.semana-cita-no_asistio { background: var(--color-advertencia-sutil); border-color: var(--color-advertencia-borde); color: var(--color-advertencia-texto); }
+.semana-cita:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--hairline-int), 0 6px 14px rgba(0, 0, 0, 0.45);
+    z-index: 5;
+}
+.semana-cita-hora {
+    font-family: var(--fuente-mono);
+    font-size: 10px;
+    font-weight: 600;
+    opacity: 0.85;
+    margin-bottom: 1px;
+}
+.semana-cita-titulo {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--texto-primario);
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.semana-cita-paciente {
+    font-size: 11px;
+    line-height: 1.25;
+    margin-top: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0.85;
+}
+
+.semana-cita-programada {
+    background: var(--color-info-sutil);
+    border-color: var(--color-info-borde);
+    border-left-color: var(--color-info);
+    color: var(--color-info-texto);
+}
+.semana-cita-confirmada {
+    background: var(--color-exito-sutil);
+    border-color: var(--color-exito-borde);
+    border-left-color: var(--color-exito);
+    color: var(--color-exito-texto);
+}
+.semana-cita-completada {
+    background: var(--vidrio-fondo);
+    border-color: var(--vidrio-borde);
+    border-left-color: var(--texto-secundario);
+    color: var(--texto-secundario);
+}
+.semana-cita-cancelada {
+    background: var(--color-peligro-sutil);
+    border-color: var(--color-peligro-borde);
+    border-left-color: var(--color-peligro);
+    color: var(--color-peligro-texto);
+    opacity: 0.55;
+}
+.semana-cita-cancelada .semana-cita-titulo,
+.semana-cita-cancelada .semana-cita-paciente { text-decoration: line-through; }
+.semana-cita-no_asistio {
+    background: var(--color-advertencia-sutil);
+    border-color: var(--color-advertencia-borde);
+    border-left-color: var(--color-advertencia);
+    color: var(--color-advertencia-texto);
+}
 .semana-cita-overdue {
     border-color: var(--color-advertencia-borde) !important;
-    box-shadow: 0 0 0 1px var(--color-advertencia-borde);
+    box-shadow: 0 0 0 1px var(--color-advertencia-borde), var(--hairline-int);
 }
+
+/* Línea horizontal "ahora" sobre la columna del día actual.
+   Solo visible cuando la semana mostrada incluye HOY. JS la coloca
+   dentro de la .semana-col del día y calcula su top en píxeles. */
+.semana-linea-ahora {
+    position: absolute;
+    left: 0; right: 0;
+    height: 0;
+    border-top: 1.5px solid var(--color-advertencia);
+    z-index: 3;
+    pointer-events: none;
+}
+.semana-linea-ahora::before {
+    content: "";
+    position: absolute;
+    left: -5px; top: -5px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--color-advertencia);
+    box-shadow: 0 0 0 3px rgba(232, 151, 42, 0.20);
+}
+.semana-linea-ahora-label {
+    position: absolute;
+    right: 8px; top: -8px;
+    background: var(--color-advertencia);
+    color: var(--color-fondo-profundo);
+    font-family: var(--fuente-mono);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.02em;
+}
+
+/* Indicador de citas fuera del rango visible 8-20h (↑ N arriba, ↓ N abajo).
+   No es interactivo: el dentista navega a esos horarios desde el modal
+   de edición. */
+.semana-fuera-horario {
+    position: absolute;
+    left: 4px; right: 4px;
+    padding: 2px 6px;
+    border-radius: var(--radio-xs);
+    background: var(--vidrio-fondo-hover);
+    border: 1px dashed var(--vidrio-borde);
+    color: var(--texto-atenuado);
+    font-size: 10px;
+    font-family: var(--fuente-mono);
+    text-align: center;
+    pointer-events: none;
+    z-index: 1;
+}
+.semana-fuera-arriba { top: 2px; }
+.semana-fuera-abajo  { bottom: 2px; }
 
 
 /* Selector de tema · grid de variantes (3 cols) */

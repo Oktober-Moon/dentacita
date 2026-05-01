@@ -176,50 +176,66 @@ $nav_base_url = '../';
 
         <div class="page-header">
             <div>
+                <div class="page-pre-titulo">Negocio · Finanzas</div>
                 <h1 class="page-titulo">Finanzas</h1>
-                <div class="page-subtitulo">Ingresos, egresos, reembolsos y cobros pendientes.</div>
+                <div class="page-subtitulo">
+                    Ingresos, egresos, reembolsos y cobros pendientes
+                    <span class="sep"></span>
+                    <span class="mono"><?php echo strtoupper(date('M Y')); ?></span>
+                </div>
             </div>
             <div class="page-acciones">
-                <a href="exportar.php" class="btn btn-secundario">↓ Exportar CSV</a>
-                <button type="button" class="btn btn-primario" id="btnNuevaTrans">+ Nueva transacción</button>
+                <a href="exportar.php" class="btn btn-secundario">
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Exportar CSV
+                </a>
+                <button type="button" class="btn btn-primario" id="btnNuevaTrans">
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nueva transacción
+                </button>
             </div>
         </div>
 
-        <!-- KPIs del mes -->
-        <h2 class="seccion-titulo seccion-titulo-pequeno">Este mes</h2>
-        <div class="kpi-grid kpi-grid-4">
-            <div class="kpi-card kpi-card-verde">
-                <div class="kpi-card-titulo">Ingresos</div>
-                <div class="kpi-card-valor" id="kpiIngresoMes">—</div>
+        <!-- KPIs del mes · stats strip -->
+        <div class="stats-strip">
+            <div class="stat-cell exito">
+                <div class="stat-label">Ingresos</div>
+                <div class="stat-valor" id="kpiIngresoMes">—</div>
+                <div class="stat-sub">este mes</div>
             </div>
-            <div class="kpi-card kpi-card-rojo">
-                <div class="kpi-card-titulo">Egresos</div>
-                <div class="kpi-card-valor" id="kpiEgresoMes">—</div>
+            <div class="stat-cell peligro">
+                <div class="stat-label">Egresos</div>
+                <div class="stat-valor" id="kpiEgresoMes">—</div>
+                <div class="stat-sub">este mes</div>
             </div>
-            <div class="kpi-card" id="kpiBalanceMesCard">
-                <div class="kpi-card-titulo">Balance</div>
-                <div class="kpi-card-valor" id="kpiBalanceMes">—</div>
+            <div class="stat-cell" id="kpiBalanceMesCard">
+                <div class="stat-label">Balance</div>
+                <div class="stat-valor" id="kpiBalanceMes">—</div>
+                <div class="stat-sub">ingresos − egresos</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Promedio por transacción</div>
-                <div class="kpi-card-valor" id="kpiPromedioMes">—</div>
+            <div class="stat-cell acento">
+                <div class="stat-label">Promedio</div>
+                <div class="stat-valor" id="kpiPromedioMes">—</div>
+                <div class="stat-sub">por transacción</div>
             </div>
         </div>
 
-        <!-- KPIs del año -->
-        <h2 class="seccion-titulo seccion-titulo-pequeno">Año en curso</h2>
-        <div class="kpi-grid kpi-grid-3">
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Ingresos</div>
-                <div class="kpi-card-valor" id="kpiIngresoAno">—</div>
+        <!-- KPIs del año · stats strip de 3 cells -->
+        <div class="stats-strip stats-strip-3">
+            <div class="stat-cell exito">
+                <div class="stat-label">Ingresos</div>
+                <div class="stat-valor" id="kpiIngresoAno">—</div>
+                <div class="stat-sub">año en curso</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Egresos</div>
-                <div class="kpi-card-valor" id="kpiEgresoAno">—</div>
+            <div class="stat-cell peligro">
+                <div class="stat-label">Egresos</div>
+                <div class="stat-valor" id="kpiEgresoAno">—</div>
+                <div class="stat-sub">año en curso</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Balance</div>
-                <div class="kpi-card-valor" id="kpiBalanceAno">—</div>
+            <div class="stat-cell">
+                <div class="stat-label">Balance</div>
+                <div class="stat-valor" id="kpiBalanceAno">—</div>
+                <div class="stat-sub">año en curso</div>
             </div>
         </div>
 

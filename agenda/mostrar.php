@@ -27,6 +27,7 @@ if (isset($_GET['mes'])) {
 
     $stmt = @$conexion->prepare(
         "SELECT c.cita_id, c.fecha_hora_inicio, c.estado,
+                c.titulo, c.paciente_nombre,
                 (SELECT COALESCE(SUM(t.monto), 0) FROM transacciones t
                  WHERE t.cita_id = c.cita_id AND t.usuario_id = c.usuario_id
                    AND t.estado='activa' AND t.categoria != 'Reembolso') AS cobrado_total,

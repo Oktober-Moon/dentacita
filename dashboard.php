@@ -132,12 +132,12 @@ $nombresEstado = [
     'no_asistio' => 'No asistió',
 ];
 function fmtDinero($n) { return '$' . number_format((float)$n, 2, '.', ','); }
-function fmtDiaCorto($iso) {
-    $ts = strtotime($iso);
-    if (!$ts) return $iso;
-    $dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-    return $dias[(int)date('w', $ts)] . ' ' . date('d/m', $ts);
-}
+/* Pre-titulo del dashboard · "Resumen · Jueves 30 de abril" */
+$diasLargos  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+$mesesLargos = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+$preTituloHoy = $diasLargos[(int)date('w')] . ' ' . (int)date('j') . ' de ' . $mesesLargos[(int)date('n') - 1];
+$semanaAnio   = (int)date('W');
+$horaLocal    = date('H:i');
 
 $nav_actual   = 'dashboard';
 $nav_base_url = '';
@@ -160,11 +160,19 @@ $nav_base_url = '';
 
         <div class="page-header">
             <div>
+                <div class="page-pre-titulo">Resumen · <?php echo htmlspecialchars($preTituloHoy); ?></div>
                 <h1 class="page-titulo">Hola, <?php echo htmlspecialchars($nombreDentista); ?></h1>
-                <div class="page-subtitulo">Resumen de tu actividad de hoy.</div>
+                <div class="page-subtitulo">
+                    Tienes <strong><?php echo (int)$citasHoy . ' cita' . ($citasHoy == 1 ? '' : 's') . ' hoy'; ?></strong>
+                    <span class="sep"></span>
+                    <span class="mono">SEMANA <?php echo $semanaAnio; ?> · <?php echo htmlspecialchars($horaLocal); ?></span>
+                </div>
             </div>
             <div class="page-acciones">
-                <a href="agenda/" class="btn btn-primario">Ir a la agenda →</a>
+                <a href="agenda/" class="btn btn-primario">
+                    Ir a la agenda
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                </a>
             </div>
         </div>
 
@@ -173,60 +181,62 @@ $nav_base_url = '';
         <div class="banners-alerta">
             <?php if ($citasAtrasadas > 0): ?>
                 <a href="agenda/" class="banner banner-naranja">
-                    <strong><?php echo $citasAtrasadas; ?></strong> cita<?php echo $citasAtrasadas === 1 ? '' : 's'; ?> atrasada<?php echo $citasAtrasadas === 1 ? '' : 's'; ?>
+                    <span class="banner-num"><?php echo $citasAtrasadas; ?></span>
+                    cita<?php echo $citasAtrasadas === 1 ? '' : 's'; ?> atrasada<?php echo $citasAtrasadas === 1 ? '' : 's'; ?> sin atender
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
                 </a>
             <?php endif; ?>
 
             <?php if ($inventarioBajo > 0): ?>
                 <a href="inventario/" class="banner banner-rojo">
-                    <strong><?php echo $inventarioBajo; ?></strong> ítem<?php echo $inventarioBajo === 1 ? '' : 's'; ?> con stock bajo
+                    <span class="banner-num"><?php echo $inventarioBajo; ?></span>
+                    ítem<?php echo $inventarioBajo === 1 ? '' : 's'; ?> con stock bajo
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
                 </a>
             <?php endif; ?>
         </div>
         <?php endif; ?>
 
-        <!-- ===== KPIs operativos ===== -->
-        <h2 class="seccion-titulo seccion-titulo-pequeno">Actividad clínica</h2>
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Citas hoy</div>
-                <div class="kpi-card-valor"><?php echo $citasHoy === null ? '—' : $citasHoy; ?></div>
-                <div class="kpi-card-desc"><?php echo (int)$citasSemana; ?> esta semana</div>
+        <!-- ===== KPIs operativos · stats strip ===== -->
+        <div class="stats-strip">
+            <div class="stat-cell">
+                <div class="stat-label">Citas hoy</div>
+                <div class="stat-valor"><?php echo $citasHoy === null ? '—' : $citasHoy; ?></div>
+                <div class="stat-sub"><?php echo (int)$citasSemana; ?> esta semana</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Próximos 7 días</div>
-                <div class="kpi-card-valor"><?php echo $citasSemana === null ? '—' : $citasSemana; ?></div>
-                <div class="kpi-card-desc">programadas o confirmadas</div>
+            <div class="stat-cell">
+                <div class="stat-label">Próximos 7 días</div>
+                <div class="stat-valor"><?php echo $citasSemana === null ? '—' : $citasSemana; ?></div>
+                <div class="stat-sub">programadas o confirmadas</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Completadas este mes</div>
-                <div class="kpi-card-valor"><?php echo $completadasMes === null ? '—' : $completadasMes; ?></div>
-                <div class="kpi-card-desc"><?php echo $citasMesCobradas; ?> con cobro registrado</div>
+            <div class="stat-cell acento">
+                <div class="stat-label">Completadas mes</div>
+                <div class="stat-valor"><?php echo $completadasMes === null ? '—' : $completadasMes; ?></div>
+                <div class="stat-sub"><?php echo $citasMesCobradas; ?> con cobro registrado</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Pacientes</div>
-                <div class="kpi-card-valor"><?php echo $totalPacientes === null ? '—' : $totalPacientes; ?></div>
-                <div class="kpi-card-desc">en tu base</div>
+            <div class="stat-cell">
+                <div class="stat-label">Pacientes</div>
+                <div class="stat-valor"><?php echo $totalPacientes === null ? '—' : $totalPacientes; ?></div>
+                <div class="stat-sub">en tu base</div>
             </div>
         </div>
 
-        <!-- ===== KPIs financieros ===== -->
-        <h2 class="seccion-titulo seccion-titulo-pequeno">Finanzas del mes</h2>
-        <div class="kpi-grid">
-            <div class="kpi-card kpi-card-verde">
-                <div class="kpi-card-titulo">Ingresos del mes</div>
-                <div class="kpi-card-valor"><?php echo fmtDinero($ingresosMes); ?></div>
-                <div class="kpi-card-desc"><?php echo $citasMesCobradas; ?> citas cobradas</div>
+        <!-- ===== KPIs financieros · stats strip de 3 cells ===== -->
+        <div class="stats-strip stats-strip-3">
+            <div class="stat-cell exito">
+                <div class="stat-label">Ingresos del mes</div>
+                <div class="stat-valor"><?php echo fmtDinero($ingresosMes); ?></div>
+                <div class="stat-sub"><?php echo $citasMesCobradas; ?> citas cobradas</div>
             </div>
-            <div class="kpi-card kpi-card-rojo">
-                <div class="kpi-card-titulo">Egresos del mes</div>
-                <div class="kpi-card-valor"><?php echo fmtDinero($egresosMes); ?></div>
-                <div class="kpi-card-desc">materiales y otros gastos</div>
+            <div class="stat-cell peligro">
+                <div class="stat-label">Egresos del mes</div>
+                <div class="stat-valor"><?php echo fmtDinero($egresosMes); ?></div>
+                <div class="stat-sub">materiales y otros</div>
             </div>
-            <div class="kpi-card <?php echo $balanceMes >= 0 ? 'kpi-card-verde' : 'kpi-card-rojo'; ?>">
-                <div class="kpi-card-titulo">Balance</div>
-                <div class="kpi-card-valor"><?php echo fmtDinero($balanceMes); ?></div>
-                <div class="kpi-card-desc">Egresos: <?php echo fmtDinero($egresosMes); ?></div>
+            <div class="stat-cell <?php echo $balanceMes >= 0 ? 'exito' : 'peligro'; ?>">
+                <div class="stat-label">Balance</div>
+                <div class="stat-valor"><?php echo fmtDinero($balanceMes); ?></div>
+                <div class="stat-sub">ingresos − egresos</div>
             </div>
         </div>
 
@@ -245,46 +255,15 @@ $nav_base_url = '';
             </div>
         </div>
 
-        <!-- ===== Próximas citas (próximos 7 días) ===== -->
-        <?php if (!empty($citasProximas)): ?>
-        <div class="seccion">
-            <h2 class="seccion-titulo">Próximas citas</h2>
-            <div class="tabla-contenedor">
-                <table class="tabla-datos tabla-citas-proximas">
-                    <thead>
-                        <tr>
-                            <th class="col-dia">Día</th>
-                            <th class="col-hora">Hora</th>
-                            <th>Paciente</th>
-                            <th>Motivo</th>
-                            <th class="col-estado">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($citasProximas as $c): ?>
-                            <tr>
-                                <td class="mono"><?php echo fmtDiaCorto($c['fecha_hora_inicio']); ?></td>
-                                <td class="mono"><?php echo date('H:i', strtotime($c['fecha_hora_inicio'])); ?></td>
-                                <td><?php echo htmlspecialchars($c['paciente_nombre']); ?></td>
-                                <td><?php echo htmlspecialchars($c['titulo']); ?></td>
-                                <td>
-                                    <span class="badge badge-<?php echo htmlspecialchars($c['estado']); ?>">
-                                        <?php echo htmlspecialchars($nombresEstado[$c['estado']] ?? $c['estado']); ?>
-                                    </span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <?php endif; ?>
+        <!-- ===== Citas de hoy (timeline) + Próximas citas (lista) ===== -->
+        <div class="dual-grid">
 
-        <!-- ===== Citas de hoy ===== -->
-        <div class="seccion">
-            <h2 class="seccion-titulo">Citas de hoy</h2>
-
-            <div class="tabla-contenedor">
+            <!-- Timeline de citas de hoy -->
+            <div class="ficha-card ficha-card-flush">
+                <div class="ficha-card-titulo">
+                    Citas de hoy
+                    <span class="texto-pequeno texto-atenuado"><?php echo count($citasDeHoy); ?></span>
+                </div>
                 <?php if (empty($citasDeHoy)): ?>
                     <div class="estado-vacio">
                         <div class="estado-vacio-titulo">Sin citas para hoy</div>
@@ -292,35 +271,80 @@ $nav_base_url = '';
                         <a href="agenda/" class="btn btn-primario btn-sm">Agendar cita</a>
                     </div>
                 <?php else: ?>
-                    <table class="tabla-datos tabla-citas-hoy">
-                        <thead>
-                            <tr>
-                                <th class="col-hora-rango">Hora</th>
-                                <th>Paciente</th>
-                                <th>Motivo</th>
-                                <th class="col-estado">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($citasDeHoy as $c): ?>
-                                <tr>
-                                    <td class="mono">
-                                        <?php echo date('H:i', strtotime($c['fecha_hora_inicio'])); ?>
-                                        <span class="texto-atenuado"> – <?php echo date('H:i', strtotime($c['fecha_hora_fin'])); ?></span>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($c['paciente_nombre']); ?></td>
-                                    <td><?php echo htmlspecialchars($c['titulo']); ?></td>
-                                    <td>
-                                        <span class="badge badge-<?php echo htmlspecialchars($c['estado']); ?>">
-                                            <?php echo htmlspecialchars($nombresEstado[$c['estado']] ?? $c['estado']); ?>
-                                        </span>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                    <div class="timeline">
+                        <?php
+                        $tsAhora = time();
+                        foreach ($citasDeHoy as $c):
+                            $iniTs = strtotime($c['fecha_hora_inicio']);
+                            $finTs = strtotime($c['fecha_hora_fin']);
+                            $esAhora      = ($iniTs <= $tsAhora && $tsAhora < $finTs)
+                                            && in_array($c['estado'], ['programada','confirmada'], true);
+                            $esCompletada = ($c['estado'] === 'completada');
+                            $clases = 'tl-cita';
+                            if ($esAhora)      $clases .= ' ahora';
+                            if ($esCompletada) $clases .= ' completada';
+                        ?>
+                        <a href="agenda/" class="<?php echo $clases; ?>">
+                            <div class="tl-cita-hora">
+                                <?php echo date('H:i', $iniTs); ?>
+                                <span class="tl-cita-hora-fin"><?php echo date('H:i', $finTs); ?></span>
+                            </div>
+                            <div class="tl-cita-fila">
+                                <div class="tl-cita-info">
+                                    <div class="tl-cita-titulo"><?php echo htmlspecialchars($c['titulo']); ?></div>
+                                    <div class="tl-cita-paciente"><?php echo htmlspecialchars($c['paciente_nombre']); ?></div>
+                                </div>
+                                <span class="badge badge-<?php echo htmlspecialchars($c['estado']); ?>">
+                                    <?php echo htmlspecialchars($nombresEstado[$c['estado']] ?? $c['estado']); ?>
+                                </span>
+                            </div>
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
             </div>
+
+            <!-- Próximas citas · próximos 7 días -->
+            <div class="ficha-card ficha-card-flush">
+                <div class="ficha-card-titulo">
+                    Próximas citas
+                    <span class="texto-pequeno texto-atenuado">7 días</span>
+                </div>
+                <?php if (empty($citasProximas)): ?>
+                    <div class="placeholder-card-inline">
+                        <p>Sin citas en los próximos 7 días.</p>
+                    </div>
+                <?php else: ?>
+                    <ul class="prox-lista">
+                        <?php
+                        $diasCorto = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+                        foreach ($citasProximas as $c):
+                            $ts = strtotime($c['fecha_hora_inicio']);
+                        ?>
+                        <li>
+                            <a href="agenda/" class="prox-item">
+                                <div class="prox-fecha">
+                                    <div class="prox-fecha-dia"><?php echo $diasCorto[(int)date('w', $ts)]; ?></div>
+                                    <div class="prox-fecha-num"><?php echo (int)date('j', $ts); ?></div>
+                                </div>
+                                <div class="prox-cuerpo">
+                                    <div class="prox-titulo"><?php echo htmlspecialchars($c['titulo']); ?></div>
+                                    <div class="prox-meta">
+                                        <span><?php echo htmlspecialchars($c['paciente_nombre']); ?></span>
+                                        <span class="dot"></span>
+                                        <span class="mono"><?php echo date('H:i', $ts); ?></span>
+                                    </div>
+                                </div>
+                                <span class="badge badge-<?php echo htmlspecialchars($c['estado']); ?>">
+                                    <?php echo htmlspecialchars($nombresEstado[$c['estado']] ?? $c['estado']); ?>
+                                </span>
+                            </a>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+
         </div>
 
     </main>

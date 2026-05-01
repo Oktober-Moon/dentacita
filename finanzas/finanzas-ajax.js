@@ -109,8 +109,8 @@ async function cargar() {
         $('#kpiIngresoMes').textContent = fmtDinero(k.ingresos_mes);
         $('#kpiEgresoMes').textContent  = fmtDinero(k.egresos_mes);
         $('#kpiBalanceMes').textContent = fmtDinero(k.balance_mes);
-        $('#kpiBalanceMesCard').classList.toggle('kpi-card-verde', k.balance_mes >= 0);
-        $('#kpiBalanceMesCard').classList.toggle('kpi-card-rojo',  k.balance_mes < 0);
+        $('#kpiBalanceMesCard').classList.toggle('exito',   k.balance_mes >= 0);
+        $('#kpiBalanceMesCard').classList.toggle('peligro', k.balance_mes < 0);
 
         const kpiProm = $('#kpiPromedioMes');
         if (kpiProm) kpiProm.textContent = fmtDinero(k.promedio_mes);

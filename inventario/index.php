@@ -203,14 +203,29 @@ $nav_base_url = '../';
 
         <div class="page-header">
             <div>
+                <div class="page-pre-titulo">Negocio · Inventario</div>
                 <h1 class="page-titulo">Inventario</h1>
-                <div class="page-subtitulo" id="pageSubtitulo">Cargando…</div>
+                <div class="page-subtitulo">
+                    <span id="pageSubtitulo">Cargando…</span>
+                </div>
             </div>
             <div class="page-acciones">
-                <a href="bitacora.php" class="btn btn-secundario">Bitácora</a>
-                <a href="exportar.php?tab=productos" class="btn btn-secundario">↓ CSV</a>
-                <button type="button" class="btn btn-secundario" id="btnNuevoMovimientoGlobal">+ Movimiento</button>
-                <button type="button" class="btn btn-primario" id="btnNuevo">+ Nuevo producto</button>
+                <a href="bitacora.php" class="btn btn-secundario">
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Bitácora
+                </a>
+                <a href="exportar.php?tab=productos" class="btn btn-secundario">
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    CSV
+                </a>
+                <button type="button" class="btn btn-secundario" id="btnNuevoMovimientoGlobal">
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    Movimiento
+                </button>
+                <button type="button" class="btn btn-primario" id="btnNuevo">
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nuevo producto
+                </button>
             </div>
         </div>
 
@@ -223,23 +238,27 @@ $nav_base_url = '../';
             <ul id="lowStockLista" class="ficha-lista"></ul>
         </div>
 
-        <!-- KPIs -->
-        <div class="kpi-grid kpi-grid-4" id="kpisInventario">
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Productos totales</div>
-                <div class="kpi-card-valor" id="kpiTotal">—</div>
+        <!-- KPIs · stats strip -->
+        <div class="stats-strip" id="kpisInventario">
+            <div class="stat-cell">
+                <div class="stat-label">Productos totales</div>
+                <div class="stat-valor" id="kpiTotal">—</div>
+                <div class="stat-sub">en catálogo</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Stock bajo</div>
-                <div class="kpi-card-valor" id="kpiBajos">—</div>
+            <div class="stat-cell advert">
+                <div class="stat-label">Stock bajo</div>
+                <div class="stat-valor" id="kpiBajos">—</div>
+                <div class="stat-sub">bajo el mínimo</div>
             </div>
-            <div class="kpi-card kpi-card-rojo">
-                <div class="kpi-card-titulo">Agotados</div>
-                <div class="kpi-card-valor" id="kpiAgotados">—</div>
+            <div class="stat-cell peligro">
+                <div class="stat-label">Agotados</div>
+                <div class="stat-valor" id="kpiAgotados">—</div>
+                <div class="stat-sub">sin existencias</div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-card-titulo">Valor del inventario</div>
-                <div class="kpi-card-valor" id="kpiValor">—</div>
+            <div class="stat-cell acento">
+                <div class="stat-label">Valor</div>
+                <div class="stat-valor" id="kpiValor">—</div>
+                <div class="stat-sub">del inventario</div>
             </div>
         </div>
 
@@ -263,12 +282,17 @@ $nav_base_url = '../';
             </div>
         </div>
 
+        <!-- Filtros · solo búsqueda en vivo -->
+        <div class="filtros-bar">
+            <div class="buscar-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="busquedaInv" placeholder="Buscar producto por nombre, SKU o categoría…">
+            </div>
+        </div>
+
         <!-- Tabla -->
         <div class="ficha-card">
-            <div class="ficha-card-titulo">
-                Productos
-                <input type="search" class="campo-busqueda" id="busquedaInv" placeholder="Buscar…">
-            </div>
+            <div class="ficha-card-titulo">Productos</div>
             <div id="tablaContenedor">
                 <div class="tabla-cargando">Cargando…</div>
             </div>

@@ -30,7 +30,7 @@ dentacita/
 ├── instalar.sql                    schema multi-tenant + cuenta de servicio + datos seed (12 tablas)
 ├── conexion.php                    conexión MySQL + helpers de sesión + bootstrap de perfil
 ├── styles.css                      estilos compartidos
-├── _nav.php                        sidebar reusable (6 enlaces)
+├── _nav.php                        sidebar reusable (6 enlaces en 3 secciones: Operación / Negocio / Cuenta)
 │
 ├── index.php                       login (email + contraseña, autenticado contra `usuarios`)
 ├── registro.php                    alta de cuenta nueva (bcrypt + bootstrap de perfil)
@@ -69,11 +69,12 @@ dentacita/
 │   ├── guardar.php · actualizar.php · eliminar.php
 │   ├── index.php · finanzas.js
 │
-├── perfil/                         2 pestañas: datos (nombre + foto) y tema visual
+├── perfil/                         datos (nombre + foto), tema visual y zona peligrosa (eliminar cuenta)
 │   ├── _validaciones.php
 │   ├── mostrar.php · guardar.php
 │   ├── foto-subir.php (recibe imagen recortada en canvas)
 │   ├── tema-actualizar.php
+│   ├── cuenta-eliminar.php (soft delete reversible)
 │   ├── onboarding-completar.php
 │   ├── index.php · perfil.js
 │
@@ -144,3 +145,41 @@ Estos flujos viven en endpoints PHP con transacciones atómicas (`begin_transact
 - **Seguridad de uploads:** `uploads/.htaccess` bloquea ejecución de cualquier script PHP/CGI dentro de la carpeta.
 - **Tema visual:** se persiste en `perfil_dentista.variante_tema` y `_nav.php` lo cachea en `$_SESSION['variante_tema']` para evitar una query por request.
 - **Sin frameworks:** el frontend es JS vanilla. Sin React, sin jQuery, sin Vue.
+
+---
+
+## Mantenimiento
+
+### Historial de schema
+
+- **v9 (2026-05-01):** se eliminan las tablas `acuerdos_servicio` y `solicitudes_servicio`. La funcionalidad asociada (pestaña "Acuerdos" en la ficha del paciente y bandeja de solicitudes/leads) ya estaba removida de la UI desde el 2026-04-29 / 2026-04-30; las tablas habían quedado huérfanas en la BD viva. Para una BD ya poblada que aún las tiene:
+
+  ```sql
+  DROP TABLE IF EXISTS acuerdos_servicio;
+  DROP TABLE IF EXISTS solicitudes_servicio;
+  ```
+
+  El `instalar.sql` actual ya declara solo las 12 tablas vigentes — instalaciones nuevas no necesitan este DROP.
+
+### Reactivar una cuenta eliminada (soft delete)
+
+El borrado desde "Mi perfil → Zona peligrosa → Eliminar mi cuenta" es **reversible**: la fila de `perfil_dentista` se conserva con `cuenta_eliminada = 1` y un timestamp en `cuenta_eliminada_en`. El `index.php` valida ese flag después de `password_verify()` y rechaza el login con un mensaje específico.
+
+Para reactivar manualmente desde phpMyAdmin (o consola MySQL):
+
+```sql
+UPDATE perfil_dentista
+   SET cuenta_eliminada = 0,
+       cuenta_eliminada_en = NULL
+ WHERE usuario_id = 1;   -- reemplazar por el usuario_id correspondiente
+```
+
+Para una BD ya poblada que aún no tiene estas columnas (instaladas con un `instalar.sql` previo), el ALTER TABLE es:
+
+```sql
+ALTER TABLE perfil_dentista
+  ADD COLUMN cuenta_eliminada    TINYINT(1) NOT NULL DEFAULT 0,
+  ADD COLUMN cuenta_eliminada_en DATETIME NULL;
+```
+
+No se borra ninguna fila ni el usuario MySQL `dentista`@`localhost`. Pacientes, citas, transacciones y archivos quedan intactos: el flag solo bloquea el login.

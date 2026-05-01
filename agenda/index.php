@@ -254,66 +254,89 @@ $conexion->close();
 
         <div class="page-header">
             <div>
+                <div class="page-pre-titulo">Operación · Agenda</div>
                 <h1 class="page-titulo">Agenda</h1>
-                <div class="page-subtitulo">Calendario y citas de tus pacientes.</div>
+                <div class="page-subtitulo">
+                    Calendario y citas de tus pacientes
+                    <span class="sep"></span>
+                    <span class="mono" id="agendaMetaConteo">—</span>
+                </div>
             </div>
             <div class="page-acciones">
-                <div class="filtros-inline" style="margin-right: var(--espacio-sm)">
-                    <button type="button" class="btn btn-secundario btn-sm" data-vista="mensual" id="btnVistaMensual">Mensual</button>
-                    <button type="button" class="btn btn-secundario btn-sm" data-vista="semanal" id="btnVistaSemanal">Semanal</button>
+                <div class="seg-vista" role="tablist" aria-label="Vista de agenda">
+                    <button type="button" data-vista="mensual" id="btnVistaMensual" class="activo">Mes</button>
+                    <button type="button" data-vista="semanal" id="btnVistaSemanal">Semana</button>
                 </div>
-                <button type="button" class="btn btn-primario" id="btnNuevaCita">+ Nueva cita</button>
+                <button type="button" class="btn btn-primario" id="btnNuevaCita">
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nueva cita
+                </button>
             </div>
         </div>
 
-        <!-- Vista semanal · 7 columnas × franjas horarias (8-20h). Visible solo cuando vista=semanal. -->
-        <div id="vistaSemanal" class="ficha-card" style="display:none">
-            <div class="ficha-card-titulo">
-                <button type="button" class="btn-icono" id="semAnterior" aria-label="Semana anterior">‹</button>
-                <span id="semanaTitulo" style="margin: 0 var(--espacio-sm)">—</span>
-                <button type="button" class="btn-icono" id="semSiguiente" aria-label="Semana siguiente">›</button>
-            </div>
-            <div id="semanaContenedor" class="semana-grid">
-                <div class="tabla-cargando">Cargando…</div>
-            </div>
-        </div>
+        <div class="agenda-grid">
 
-        <div class="agenda-grid" id="vistaMensual">
+            <!-- Columna principal · alterna entre vista mensual y vista semanal -->
+            <div class="agenda-grid-principal">
 
-            <!-- Calendario -->
-            <div class="calendario-card">
-                <div class="calendario-header">
-                    <button type="button" class="btn-icono" id="mesAnterior" aria-label="Mes anterior">‹</button>
-                    <div class="calendario-mes" id="calendarioMes"></div>
-                    <button type="button" class="btn-icono" id="mesSiguiente" aria-label="Mes siguiente">›</button>
+                <!-- Vista semanal · 7 columnas × franjas horarias (8-20h). Visible solo cuando vista=semanal. -->
+                <div id="vistaSemanal" class="ficha-card" style="display:none">
+                    <div class="semana-header">
+                        <div class="semana-header-nav">
+                            <button type="button" class="btn-icono" id="semAnterior" aria-label="Semana anterior">‹</button>
+                            <span id="semanaTitulo" class="semana-titulo">—</span>
+                            <button type="button" class="btn-icono" id="semSiguiente" aria-label="Semana siguiente">›</button>
+                        </div>
+                        <button type="button" class="btn btn-secundario btn-sm" id="semHoy">Hoy</button>
+                    </div>
+                    <div id="semanaContenedor" class="semana-grid">
+                        <div class="tabla-cargando">Cargando…</div>
+                    </div>
                 </div>
-                <div class="calendario-dias-semana">
-                    <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+
+                <!-- Vista mensual · solo el calendario; el aside (citas del día y memorias)
+                     vive fuera de este contenedor para que persista al cambiar de vista. -->
+                <div id="vistaMensual" class="calendario-card">
+                    <div class="calendario-header">
+                        <div class="calendario-header-nav">
+                            <button type="button" class="btn-icono" id="mesAnterior" aria-label="Mes anterior">‹</button>
+                            <div class="calendario-mes" id="calendarioMes"></div>
+                            <button type="button" class="btn-icono" id="mesSiguiente" aria-label="Mes siguiente">›</button>
+                        </div>
+                        <button type="button" class="btn btn-secundario btn-sm" id="mesHoy">Hoy</button>
+                    </div>
+                    <div class="calendario-dias-semana">
+                        <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+                    </div>
+                    <div class="calendario-grid" id="calendarioGrid"></div>
                 </div>
-                <div class="calendario-grid" id="calendarioGrid"></div>
+
             </div>
 
-            <!-- Citas del día -->
-            <div class="citas-dia-card">
-                <div class="citas-dia-header">
-                    <h3 id="citasDiaTitulo">Citas</h3>
-                    <span class="texto-atenuado" id="citasDiaConteo"></span>
+            <!-- Aside permanente · siempre visible en mes y semana -->
+            <aside class="agenda-aside">
+                <!-- Citas del día seleccionado -->
+                <div class="citas-dia-card">
+                    <div class="citas-dia-header">
+                        <h3 id="citasDiaTitulo">Citas</h3>
+                        <span class="texto-atenuado" id="citasDiaConteo"></span>
+                    </div>
+                    <div id="citasDiaContenido">
+                        <div class="tabla-cargando">Cargando…</div>
+                    </div>
                 </div>
-                <div id="citasDiaContenido">
-                    <div class="tabla-cargando">Cargando…</div>
-                </div>
-            </div>
 
-            <!-- Memorias personales del día -->
-            <div class="citas-dia-card">
-                <div class="citas-dia-header">
-                    <h3>Memorias personales</h3>
-                    <button type="button" class="btn btn-secundario btn-sm" id="btnNuevaMemoria">+ Nueva</button>
+                <!-- Memorias personales del día -->
+                <div class="citas-dia-card">
+                    <div class="citas-dia-header">
+                        <h3>Memorias personales</h3>
+                        <button type="button" class="btn btn-secundario btn-sm" id="btnNuevaMemoria">+ Nueva</button>
+                    </div>
+                    <div id="memoriasContenido">
+                        <div class="tabla-cargando">Cargando…</div>
+                    </div>
                 </div>
-                <div id="memoriasContenido">
-                    <div class="tabla-cargando">Cargando…</div>
-                </div>
-            </div>
+            </aside>
 
         </div>
 

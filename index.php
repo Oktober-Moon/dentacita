@@ -44,21 +44,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
 
                 if ($usuario && password_verify($password, $usuario['password_hash'])) {
-                    $_SESSION['usuario_id']     = (int)$usuario['usuario_id'];
-                    $_SESSION['usuario_nombre'] = $usuario['nombre'];
-                    $_SESSION['usuario_email']  = $email;
-
-                    // Marca último login (no bloqueante si falla)
-                    $up = @$conexion->prepare("UPDATE usuarios SET ultimo_login = NOW() WHERE usuario_id = ?");
-                    if ($up) {
-                        $up->bind_param("i", $_SESSION['usuario_id']);
-                        @$up->execute();
-                        $up->close();
+                    // Soft delete: si la cuenta fue marcada como eliminada por el
+                    // dentista desde "Mi perfil", se rechaza el login. La fila de
+                    // perfil_dentista se conserva por integridad histórica; solo
+                    // un UPDATE manual en la BD reactiva la cuenta.
+                    $cuentaEliminada = 0;
+                    $stmtSoft = @$conexion->prepare(
+                        "SELECT cuenta_eliminada FROM perfil_dentista WHERE usuario_id = ?"
+                    );
+                    if ($stmtSoft) {
+                        $stmtSoft->bind_param("i", $usuario['usuario_id']);
+                        @$stmtSoft->execute();
+                        $rSoft = $stmtSoft->get_result()->fetch_assoc();
+                        $stmtSoft->close();
+                        $cuentaEliminada = $rSoft ? (int)$rSoft['cuenta_eliminada'] : 0;
                     }
 
-                    $conexion->close();
-                    header('Location: dashboard.php');
-                    exit;
+                    if ($cuentaEliminada === 1) {
+                        $error = "Esta cuenta fue marcada como eliminada y no puede iniciar sesión.";
+                        // El close global de línea 89 cierra la conexión.
+                    } else {
+                        $_SESSION['usuario_id']     = (int)$usuario['usuario_id'];
+                        $_SESSION['usuario_nombre'] = $usuario['nombre'];
+                        $_SESSION['usuario_email']  = $email;
+
+                        // Marca último login (no bloqueante si falla)
+                        $up = @$conexion->prepare("UPDATE usuarios SET ultimo_login = NOW() WHERE usuario_id = ?");
+                        if ($up) {
+                            $up->bind_param("i", $_SESSION['usuario_id']);
+                            @$up->execute();
+                            $up->close();
+                        }
+
+                        $conexion->close();
+                        header('Location: dashboard.php');
+                        exit;
+                    }
                 } else {
                     $error = "Email o contraseña incorrectos.";
                 }

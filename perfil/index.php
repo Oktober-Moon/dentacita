@@ -27,6 +27,36 @@ $nav_base_url = '../';
 <div id="toast" class="toast"></div>
 
 
+<!-- Modal · confirmar eliminación de cuenta (soft delete) -->
+<div id="modalEliminarCuenta" class="modal-fondo">
+    <div class="modal-caja modal-caja-pequena">
+        <button type="button" class="modal-cerrar"
+                data-cerrar-modal="modalEliminarCuenta" aria-label="Cerrar">&times;</button>
+        <h2 class="modal-titulo">Eliminar cuenta</h2>
+        <p>
+            Esta acción es permanente desde tu perspectiva: no podrás volver a iniciar
+            sesión con esta cuenta. Tus datos (pacientes, citas, finanzas, archivos)
+            se conservan en la base de datos por integridad histórica, pero quedan
+            inaccesibles desde la aplicación.
+        </p>
+        <div class="campo">
+            <label for="confirmacionEliminar">
+                Escribe <strong>ELIMINAR</strong> para confirmar
+            </label>
+            <input type="text" id="confirmacionEliminar"
+                   autocomplete="off" maxlength="20" inputmode="text">
+        </div>
+        <div class="modal-acciones">
+            <button type="button" class="btn btn-secundario"
+                    data-cerrar-modal="modalEliminarCuenta">Cancelar</button>
+            <button type="button" class="btn btn-peligro" id="btnConfirmarEliminar" disabled>
+                Eliminar permanentemente
+            </button>
+        </div>
+    </div>
+</div>
+
+
 <!-- Modal · crop de foto -->
 <div id="modalFoto" class="modal-fondo">
     <div class="modal-caja modal-caja-grande">
@@ -67,10 +97,9 @@ $nav_base_url = '../';
         </div>
 
 
-        <div class="ficha-card">
-            <div class="ficha-card-titulo">Foto y nombre</div>
-
-            <div class="perfil-foto-row">
+        <div class="perfil-hero">
+            <div class="perfil-hero-top"></div>
+            <div class="perfil-hero-cuerpo">
                 <div class="perfil-foto-bloque">
                     <img id="fotoPerfilImg" src="" alt="Foto de perfil" class="perfil-foto-img">
                     <button type="button" class="btn btn-secundario btn-sm" id="btnCambiarFoto">Cambiar foto</button>
@@ -79,7 +108,7 @@ $nav_base_url = '../';
                     <div class="campo">
                         <label for="d_nombre">
                             Nombre completo *
-                            <span id="autosaveIndicador" class="texto-pequeno texto-atenuado" style="font-style:italic; margin-left: var(--espacio-sm)"></span>
+                            <span id="autosaveIndicador" class="texto-pequeno texto-atenuado autosave-indicador-inline"></span>
                         </label>
                         <input type="text" name="nombre_completo" id="d_nombre" maxlength="150" required>
                         <div class="campo-ayuda">Los cambios se guardan automáticamente.</div>
@@ -127,6 +156,18 @@ $nav_base_url = '../';
                     <div class="tema-nombre">Grafito</div>
                 </button>
             </div>
+        </div>
+
+
+        <div class="ficha-card ficha-card-peligro">
+            <div class="ficha-card-titulo">Zona peligrosa</div>
+            <p class="texto-atenuado">
+                Al eliminar tu cuenta no podrás volver a iniciar sesión.
+                Los datos clínicos se conservan en la base de datos por integridad histórica.
+            </p>
+            <button type="button" class="btn btn-peligro" id="btnAbrirEliminarCuenta">
+                Eliminar mi cuenta
+            </button>
         </div>
 
     </main>

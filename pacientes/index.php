@@ -9,6 +9,39 @@
 require __DIR__ . '/../conexion.php';
 $conexion = obtenerConexion();
 exigirSesionVista($conexion, '../');
+
+$uid = getUsuarioId();
+
+/* Stats calculadas para la barra superior · usan datos existentes,
+   sin endpoints ni columnas nuevas. */
+function pacScalar($conexion, $sql, $uid) {
+    $stmt = @$conexion->prepare($sql);
+    if (!$stmt) return 0;
+    $stmt->bind_param("i", $uid);
+    @$stmt->execute();
+    $f = $stmt->get_result()->fetch_array(MYSQLI_NUM);
+    $stmt->close();
+    return $f ? (int)$f[0] : 0;
+}
+$pacTotal      = pacScalar($conexion, "SELECT COUNT(*) FROM pacientes WHERE usuario_id = ?", $uid);
+$pacConAlergia = pacScalar($conexion,
+    "SELECT COUNT(*) FROM pacientes
+     WHERE usuario_id = ? AND alergias IS NOT NULL AND TRIM(alergias) <> ''", $uid);
+$pacTratActivo = pacScalar($conexion,
+    "SELECT COUNT(DISTINCT c.paciente_id) FROM citas c
+     WHERE c.usuario_id = ?
+       AND c.estado IN ('programada','confirmada')
+       AND c.fecha_hora_inicio >= NOW()", $uid);
+$pacSinVisita3m = pacScalar($conexion,
+    "SELECT COUNT(*) FROM pacientes p
+     WHERE p.usuario_id = ?
+       AND NOT EXISTS (
+         SELECT 1 FROM citas c
+         WHERE c.usuario_id = p.usuario_id
+           AND c.paciente_id = p.paciente_id
+           AND c.fecha_hora_inicio >= CURDATE() - INTERVAL 3 MONTH
+       )", $uid);
+
 $conexion->close();
 
 $nav_actual   = 'pacientes';
@@ -154,27 +187,59 @@ $nav_base_url = '../';
 
         <div class="page-header">
             <div>
+                <div class="page-pre-titulo">Base de datos · Pacientes</div>
                 <h1 class="page-titulo">Pacientes</h1>
-                <div class="page-subtitulo">Lista completa con datos clínicos.</div>
+                <div class="page-subtitulo">
+                    <strong><?php echo $pacTotal; ?> paciente<?php echo $pacTotal === 1 ? '' : 's'; ?></strong>
+                    <span class="sep"></span>
+                    <span class="mono" id="pacientesConteo">—</span>
+                </div>
             </div>
             <div class="page-acciones">
-                <button type="button" class="btn btn-primario" id="btnNuevoPaciente">+ Nuevo paciente</button>
+                <button type="button" class="btn btn-primario" id="btnNuevoPaciente">
+                    <svg class="btn-icono-int" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nuevo paciente
+                </button>
             </div>
         </div>
 
-        <div class="tabla-card">
-            <div class="tabla-toolbar">
-                <input type="search" class="input-buscar" id="buscarPaciente"
-                       placeholder="Buscar por nombre, teléfono o email…" maxlength="100">
-                <span class="tabla-conteo" id="pacientesConteo"></span>
+        <!-- Stats strip · 4 métricas calculadas desde datos existentes -->
+        <div class="stats-strip">
+            <div class="stat-cell">
+                <div class="stat-label">Total activos</div>
+                <div class="stat-valor"><?php echo $pacTotal; ?></div>
+                <div class="stat-sub">en tu base</div>
             </div>
-
-            <div id="pacientesTablaContenido">
-                <div class="tabla-cargando">Cargando…</div>
+            <div class="stat-cell peligro">
+                <div class="stat-label">Con alergias</div>
+                <div class="stat-valor"><?php echo $pacConAlergia; ?></div>
+                <div class="stat-sub">marcados con alerta</div>
             </div>
-
-            <div class="tabla-paginacion" id="pacientesPaginacion"></div>
+            <div class="stat-cell acento">
+                <div class="stat-label">Tratamiento activo</div>
+                <div class="stat-valor"><?php echo $pacTratActivo; ?></div>
+                <div class="stat-sub">con cita futura</div>
+            </div>
+            <div class="stat-cell advert">
+                <div class="stat-label">Sin visita 3m+</div>
+                <div class="stat-valor"><?php echo $pacSinVisita3m; ?></div>
+                <div class="stat-sub">candidatos a re-cita</div>
+            </div>
         </div>
+
+        <!-- Filtros · solo búsqueda en vivo -->
+        <div class="filtros-bar">
+            <div class="buscar-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="buscarPaciente" placeholder="Buscar por nombre, teléfono o email…" maxlength="100">
+            </div>
+        </div>
+
+        <div id="pacientesTablaContenido">
+            <div class="tabla-cargando">Cargando…</div>
+        </div>
+
+        <div class="tabla-paginacion" id="pacientesPaginacion"></div>
 
     </main>
 

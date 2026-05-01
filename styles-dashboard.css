@@ -1,0 +1,173 @@
+/* ============================================================
+   DASHBOARD · timeline de citas de hoy + lista próximas citas
+   ------------------------------------------------------------
+   Componentes específicos del dashboard (vista de inicio):
+   - .dual-grid: layout 2 columnas (timeline | lista)
+   - .timeline + .tl-cita: lista vertical con punto/línea
+   - .prox-* : tickets de día con info compacta
+   ============================================================ */
+.dual-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: var(--espacio-md);
+    margin-bottom: var(--espacio-xl);
+    align-items: start;
+}
+@media (max-width: 1100px) { .dual-grid { grid-template-columns: 1fr; } }
+
+
+/* Timeline de citas de hoy · línea vertical 1px con desvanecido */
+.timeline {
+    position: relative;
+    padding-left: 90px;
+}
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 76px; top: 6px; bottom: 6px;
+    width: 1px;
+    background: linear-gradient(180deg,
+        transparent,
+        var(--vidrio-borde-hover) 10%,
+        var(--vidrio-borde-hover) 90%,
+        transparent);
+}
+
+.tl-cita {
+    position: relative;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-sm);
+    box-shadow: var(--hairline-int);
+    transition: all var(--dur-rapida);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.tl-cita:hover {
+    border-color: var(--vidrio-borde-hover);
+    transform: translateX(2px);
+}
+.tl-cita-hora {
+    position: absolute;
+    left: -90px; top: 12px;
+    width: 70px;
+    text-align: right;
+    font-family: var(--fuente-mono);
+    font-size: 13px; font-weight: 600;
+    color: var(--color-acento-claro);
+    font-variant-numeric: tabular-nums;
+}
+.tl-cita-hora-fin {
+    display: block;
+    font-size: 10px;
+    color: var(--texto-atenuado);
+    font-weight: 500;
+    margin-top: 2px;
+}
+/* Punto en la línea vertical · cabecera del nodo timeline */
+.tl-cita::before {
+    content: "";
+    position: absolute;
+    left: -19px; top: 18px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--color-fondo-profundo);
+    border: 2px solid var(--color-acento);
+}
+.tl-cita-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-xm);
+}
+.tl-cita-info { min-width: 0; flex: 1; }
+.tl-cita-titulo {
+    font-size: 14px; font-weight: 600;
+    color: var(--texto-primario);
+    margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tl-cita-paciente {
+    font-size: 12px;
+    color: var(--texto-secundario);
+    display: flex; align-items: center; gap: var(--espacio-sm);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tl-cita.ahora {
+    border-color: var(--color-acento-borde);
+    background: linear-gradient(90deg, var(--color-acento-sutil), rgba(255, 255, 255, 0.02) 60%);
+    box-shadow: var(--hairline-int), 0 0 0 1px var(--color-acento-borde);
+}
+.tl-cita.ahora::before {
+    background: var(--color-acento);
+    border-color: var(--color-acento-claro);
+}
+.tl-cita.completada { opacity: 0.55; }
+.tl-cita.completada .tl-cita-titulo {
+    text-decoration: line-through;
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+}
+
+
+/* Lista de próximas citas · día como "ticket" + paciente y meta */
+.prox-lista { list-style: none; margin: 0; padding: 0; }
+.prox-item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px dashed var(--vidrio-borde);
+    transition: background var(--dur-rapida);
+    text-decoration: none;
+    color: inherit;
+}
+.prox-item:hover { background: var(--vidrio-fondo-hover); }
+.prox-item:last-child { border-bottom: 0; }
+
+.prox-fecha {
+    text-align: center;
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-sm);
+    padding: 6px 4px;
+    background: rgba(0, 0, 0, 0.18);
+    box-shadow: var(--hairline-int);
+}
+.prox-fecha-dia {
+    font-family: var(--fuente-ui);
+    font-size: 10px; font-weight: 700;
+    color: var(--color-acento-claro);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+}
+.prox-fecha-num {
+    font-family: var(--fuente-titular);
+    font-size: 22px; font-weight: 700;
+    color: var(--texto-primario);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+}
+.prox-cuerpo { min-width: 0; }
+.prox-titulo {
+    font-size: 14px; font-weight: 600;
+    color: var(--texto-primario);
+    margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.prox-meta {
+    font-size: 12px;
+    color: var(--texto-secundario);
+    display: flex; align-items: center; gap: var(--espacio-sm);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.prox-meta .mono {
+    font-size: 11px;
+    color: var(--color-acento-texto);
+    font-weight: 600;
+}
