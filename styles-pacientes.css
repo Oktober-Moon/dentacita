@@ -1,0 +1,724 @@
+/* ============================================================
+   CONTROLES NATIVOS DEL NAVEGADOR
+   Tematiza los pseudo-elementos webkit/moz para que selects,
+   datepickers, file inputs y demás nativos respeten el dark mode.
+   ============================================================ */
+
+/* Selección de texto · acento cyan en toda la app */
+::selection {
+    background: var(--color-acento-borde);
+    color: var(--texto-primario);
+}
+
+/* <option> dentro del dropdown · Chrome/Edge en Windows respetan estos */
+option {
+    background: var(--color-fondo-secundario);
+    color: var(--texto-primario);
+}
+optgroup {
+    background: var(--color-fondo-primario);
+    color: var(--texto-atenuado);
+    font-family: var(--fuente-mono);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+}
+
+/* Icono de calendario nativo (date / time / datetime-local) */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator,
+input[type="week"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(0.55);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radio-xs);
+    transition: opacity var(--dur-rapida), background var(--dur-rapida);
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+input[type="month"]::-webkit-calendar-picker-indicator:hover,
+input[type="week"]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(1) opacity(1);
+}
+/* Texto del datetime (placeholder dd/mm/yyyy en Chrome) */
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit { color: var(--texto-primario); }
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-text,
+input[type="datetime-local"]::-webkit-datetime-edit-text { color: var(--texto-atenuado); }
+
+/* Botón X de input[type="search"] · X cyan-clara en hover */
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px; height: 16px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path fill='rgba(255,255,255,0.55)' d='M12.7 4.7l-1.4-1.4L8 6.6 4.7 3.3 3.3 4.7 6.6 8l-3.3 3.3 1.4 1.4L8 9.4l3.3 3.3 1.4-1.4L9.4 8z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity var(--dur-rapida);
+}
+input[type="search"]::-webkit-search-cancel-button:hover { opacity: 1; }
+
+/* Flechitas de input[type="number"] · más sutiles que el default */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.6;
+    cursor: pointer;
+    height: 22px;
+}
+input[type="number"]:hover::-webkit-inner-spin-button,
+input[type="number"]:focus::-webkit-inner-spin-button { opacity: 1; }
+
+/* Botón "Choose file" / "Seleccionar archivo" del input file */
+input[type="file"] {
+    cursor: pointer;
+    color: var(--texto-secundario);
+    height: auto;
+    min-height: 44px;
+    padding: 6px 12px;
+    line-height: 1.4;
+}
+input[type="file"]::-webkit-file-upload-button,
+input[type="file"]::file-selector-button {
+    background: var(--color-acento-sutil);
+    color: var(--color-acento-claro);
+    border: 1px solid var(--color-acento-borde);
+    border-radius: var(--radio-xs);
+    padding: 6px 12px;
+    margin-right: 12px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--dur-rapida), border-color var(--dur-rapida);
+}
+input[type="file"]::-webkit-file-upload-button:hover,
+input[type="file"]::file-selector-button:hover {
+    background: var(--color-acento-borde);
+    border-color: var(--color-acento);
+}
+
+/* Slider <input type="range"> · usado en el crop de foto del perfil */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    padding: 0;
+    background: var(--vidrio-fondo-activo);
+    border: 0;
+    border-radius: var(--radio-completo);
+    cursor: pointer;
+    outline: none;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    background: var(--vidrio-fondo-activo);
+    border-radius: var(--radio-completo);
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px; height: 18px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: var(--color-acento);
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+    transition: transform var(--dur-rapida);
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 2px 6px rgba(0,0,0,.4),
+                0 0 0 4px var(--color-acento-borde);
+}
+/* Firefox */
+input[type="range"]::-moz-range-track {
+    height: 6px;
+    background: var(--vidrio-fondo-activo);
+    border-radius: var(--radio-completo);
+    border: 0;
+}
+input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--color-acento);
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+
+
+/* ============================================================
+   SCROLLBARS · finos para combinar con el dark mode
+   ============================================================ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--vidrio-fondo-hover);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-acento-borde); }
+
+
+/* ============================================================
+   AUTOFILL · evitar el background blanco de Chrome
+   ============================================================ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--color-fondo-secundario) inset !important;
+    -webkit-text-fill-color: var(--texto-primario) !important;
+    caret-color: var(--texto-primario);
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+
+/* ============================================================
+   TEMAS VISUALES · sólo redefinen el accent (resto de la paleta
+   permanece). El selector [data-tema=...] se aplica en <html>.
+   ============================================================ */
+
+/* --- Paleta CYAN (variantes clara / media / oscura) --- */
+[data-tema="cyan-clara"] {
+    --color-acento:        #22d3ee;
+    --color-acento-claro:  #67e8f9;
+    --color-acento-brillo: rgba(34, 211, 238, 0.25);
+    --color-acento-sutil:  rgba(34, 211, 238, 0.10);
+    --color-acento-borde:  rgba(34, 211, 238, 0.32);
+    --color-acento-texto:  #a5f3fc;
+}
+[data-tema="cyan-media"] {
+    --color-acento:        #14b8a6;
+    --color-acento-claro:  #5eead4;
+    --color-acento-brillo: rgba(20, 184, 166, 0.25);
+    --color-acento-sutil:  rgba(20, 184, 166, 0.10);
+    --color-acento-borde:  rgba(20, 184, 166, 0.32);
+    --color-acento-texto:  #99f6e4;
+}
+[data-tema="cyan-oscura"] {
+    --color-acento:        #0e7490;
+    --color-acento-claro:  #22d3ee;
+    --color-acento-brillo: rgba(14, 116, 144, 0.30);
+    --color-acento-sutil:  rgba(14, 116, 144, 0.14);
+    --color-acento-borde:  rgba(14, 116, 144, 0.40);
+    --color-acento-texto:  #67e8f9;
+}
+
+/* --- Paleta AZUL --- */
+[data-tema="azul-clara"] {
+    --color-acento:        #60a5fa;
+    --color-acento-claro:  #93c5fd;
+    --color-acento-brillo: rgba(96, 165, 250, 0.25);
+    --color-acento-sutil:  rgba(96, 165, 250, 0.10);
+    --color-acento-borde:  rgba(96, 165, 250, 0.32);
+    --color-acento-texto:  #bfdbfe;
+}
+[data-tema="azul-media"] {
+    --color-acento:        #3b82f6;
+    --color-acento-claro:  #93c5fd;
+    --color-acento-brillo: rgba(59, 130, 246, 0.25);
+    --color-acento-sutil:  rgba(59, 130, 246, 0.10);
+    --color-acento-borde:  rgba(59, 130, 246, 0.32);
+    --color-acento-texto:  #bfdbfe;
+}
+[data-tema="azul-oscura"] {
+    --color-acento:        #1d4ed8;
+    --color-acento-claro:  #60a5fa;
+    --color-acento-brillo: rgba(29, 78, 216, 0.30);
+    --color-acento-sutil:  rgba(29, 78, 216, 0.14);
+    --color-acento-borde:  rgba(29, 78, 216, 0.40);
+    --color-acento-texto:  #93c5fd;
+}
+
+/* --- Paleta VERDE --- */
+[data-tema="verde-clara"] {
+    --color-acento:        #4ade80;
+    --color-acento-claro:  #86efac;
+    --color-acento-brillo: rgba(74, 222, 128, 0.25);
+    --color-acento-sutil:  rgba(74, 222, 128, 0.10);
+    --color-acento-borde:  rgba(74, 222, 128, 0.32);
+    --color-acento-texto:  #bbf7d0;
+}
+[data-tema="verde-media"] {
+    --color-acento:        #22c55e;
+    --color-acento-claro:  #86efac;
+    --color-acento-brillo: rgba(34, 197, 94, 0.25);
+    --color-acento-sutil:  rgba(34, 197, 94, 0.10);
+    --color-acento-borde:  rgba(34, 197, 94, 0.32);
+    --color-acento-texto:  #bbf7d0;
+}
+[data-tema="verde-oscura"] {
+    --color-acento:        #15803d;
+    --color-acento-claro:  #4ade80;
+    --color-acento-brillo: rgba(21, 128, 61, 0.30);
+    --color-acento-sutil:  rgba(21, 128, 61, 0.14);
+    --color-acento-borde:  rgba(21, 128, 61, 0.40);
+    --color-acento-texto:  #86efac;
+}
+
+/* --- Paleta PÚRPURA --- */
+[data-tema="purpura-clara"] {
+    --color-acento:        #a78bfa;
+    --color-acento-claro:  #c4b5fd;
+    --color-acento-brillo: rgba(167, 139, 250, 0.25);
+    --color-acento-sutil:  rgba(167, 139, 250, 0.10);
+    --color-acento-borde:  rgba(167, 139, 250, 0.32);
+    --color-acento-texto:  #ddd6fe;
+}
+[data-tema="purpura-media"] {
+    --color-acento:        #8b5cf6;
+    --color-acento-claro:  #c4b5fd;
+    --color-acento-brillo: rgba(139, 92, 246, 0.25);
+    --color-acento-sutil:  rgba(139, 92, 246, 0.10);
+    --color-acento-borde:  rgba(139, 92, 246, 0.32);
+    --color-acento-texto:  #ddd6fe;
+}
+[data-tema="purpura-oscura"] {
+    --color-acento:        #6d28d9;
+    --color-acento-claro:  #a78bfa;
+    --color-acento-brillo: rgba(109, 40, 217, 0.30);
+    --color-acento-sutil:  rgba(109, 40, 217, 0.14);
+    --color-acento-borde:  rgba(109, 40, 217, 0.40);
+    --color-acento-texto:  #c4b5fd;
+}
+
+/* --- Variantes legacy (compatibilidad con valores antiguos en BD) --- */
+[data-tema="azul-marino"] {
+    --color-acento:        #3b82f6;
+    --color-acento-claro:  #93c5fd;
+    --color-acento-brillo: rgba(59, 130, 246, 0.25);
+    --color-acento-sutil:  rgba(59, 130, 246, 0.10);
+    --color-acento-borde:  rgba(59, 130, 246, 0.32);
+    --color-acento-texto:  #bfdbfe;
+}
+[data-tema="verde-bosque"] {
+    --color-acento:        #22c55e;
+    --color-acento-claro:  #86efac;
+    --color-acento-brillo: rgba(34, 197, 94, 0.25);
+    --color-acento-sutil:  rgba(34, 197, 94, 0.10);
+    --color-acento-borde:  rgba(34, 197, 94, 0.32);
+    --color-acento-texto:  #bbf7d0;
+}
+[data-tema="naranja-citrico"] {
+    --color-acento:        #f97316;
+    --color-acento-claro:  #fdba74;
+    --color-acento-brillo: rgba(249, 115, 22, 0.25);
+    --color-acento-sutil:  rgba(249, 115, 22, 0.10);
+    --color-acento-borde:  rgba(249, 115, 22, 0.32);
+    --color-acento-texto:  #fed7aa;
+}
+[data-tema="violeta-real"] {
+    --color-acento:        #8b5cf6;
+    --color-acento-claro:  #c4b5fd;
+    --color-acento-brillo: rgba(139, 92, 246, 0.25);
+    --color-acento-sutil:  rgba(139, 92, 246, 0.10);
+    --color-acento-borde:  rgba(139, 92, 246, 0.32);
+    --color-acento-texto:  #ddd6fe;
+}
+[data-tema="rosa-coral"] {
+    --color-acento:        #ec4899;
+    --color-acento-claro:  #f9a8d4;
+    --color-acento-brillo: rgba(236, 72, 153, 0.25);
+    --color-acento-sutil:  rgba(236, 72, 153, 0.10);
+    --color-acento-borde:  rgba(236, 72, 153, 0.32);
+    --color-acento-texto:  #fbcfe8;
+}
+[data-tema="ambar-sol"] {
+    --color-acento:        #eab308;
+    --color-acento-claro:  #fde047;
+    --color-acento-brillo: rgba(234, 179, 8, 0.25);
+    --color-acento-sutil:  rgba(234, 179, 8, 0.10);
+    --color-acento-borde:  rgba(234, 179, 8, 0.32);
+    --color-acento-texto:  #fef08a;
+}
+[data-tema="grafito"] {
+    --color-acento:        #94a3b8;
+    --color-acento-claro:  #cbd5e1;
+    --color-acento-brillo: rgba(148, 163, 184, 0.25);
+    --color-acento-sutil:  rgba(148, 163, 184, 0.18);
+    --color-acento-borde:  rgba(148, 163, 184, 0.40);
+    --color-acento-texto:  #e2e8f0;
+}
+
+
+/* ============================================================
+   PACIENTE · cabecera de la ficha (avatar grande + meta)
+   ============================================================ */
+.paciente-cabecera-fila {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-lg);
+    flex-wrap: wrap;
+}
+.paciente-avatar-grande {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--vidrio-fondo-activo);
+    border: 2px solid var(--vidrio-borde-hover);
+    flex-shrink: 0;
+}
+.paciente-avatar-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--fuente-titular);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--color-acento-claro);
+    background: var(--color-acento-sutil);
+    border-color: var(--color-acento-borde);
+}
+.paciente-cabecera-info { flex: 1; min-width: 200px; }
+.paciente-cabecera-meta {
+    margin-top: var(--espacio-xs);
+    font-size: 13px;
+    color: var(--texto-secundario);
+}
+
+
+/* ============================================================
+   PACIENTES · cards en lista (en lugar de tabla)
+   ============================================================ */
+.pacientes-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 340px));
+    gap: var(--espacio-md);
+    justify-content: start;
+}
+.paciente-card {
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-md);
+    padding: var(--espacio-md);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    gap: var(--espacio-md);
+    align-items: flex-start;
+    transition: border-color var(--dur-rapida), transform var(--dur-rapida);
+}
+.paciente-card:hover {
+    border-color: var(--color-acento-borde);
+    transform: translateY(-1px);
+}
+.paciente-card-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--color-acento-sutil);
+    border: 1px solid var(--color-acento-borde);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-acento-claro);
+    font-family: var(--fuente-titular);
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+.paciente-card-cuerpo { flex: 1; min-width: 0; }
+.paciente-card-nombre {
+    font-weight: 600;
+    color: var(--texto-primario);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.paciente-card-meta {
+    font-size: 12px;
+    color: var(--texto-atenuado);
+    font-family: var(--fuente-mono);
+}
+.paciente-card-info {
+    margin-top: var(--espacio-sm);
+    font-size: 12px;
+    color: var(--texto-secundario);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espacio-xs) var(--espacio-sm);
+}
+.paciente-card-wrap {
+    display: flex;
+    flex-direction: column;
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-md);
+    transition: border-color var(--dur-rapida);
+}
+.paciente-card-wrap:hover { border-color: var(--color-acento-borde); }
+.paciente-card-wrap > .paciente-card {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    transform: none !important;
+}
+.paciente-card-acciones {
+    display: flex;
+    gap: var(--espacio-sm);
+    padding: 0 var(--espacio-md) var(--espacio-sm);
+    border-top: 1px solid var(--vidrio-borde);
+    padding-top: var(--espacio-sm);
+}
+
+/* Countdown de papelera (S3 · auto-purga 30 días) */
+.dias-restantes-ok       { color: var(--texto-secundario); }
+.dias-restantes-urgente  {
+    color: var(--color-peligro-texto);
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   FILE MANAGER · drag-drop overlay + tree
+   ============================================================ */
+.archivos-drag-overlay {
+    display: none;
+    position: absolute; inset: 0;
+    background: var(--color-acento-sutil);
+    border: 2px dashed var(--color-acento);
+    border-radius: var(--radio-md);
+    z-index: 50;
+    align-items: center; justify-content: center;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+}
+.archivos-drag-overlay.visible { display: flex; }
+.archivos-drag-mensaje {
+    text-align: center;
+    color: var(--color-acento-claro);
+    font-weight: 600;
+    font-size: 18px;
+}
+#archivosCard { position: relative; }
+.carpeta-bloque { transition: opacity var(--dur-rapida); }
+.carpeta-colapsada .carpeta-titulo { opacity: 0.7; }
+.carpeta-toggle {
+    margin-right: 4px;
+    padding: 0 6px !important;
+    font-size: 11px !important;
+}
+.carpeta-flecha {
+    display: inline-block;
+    width: 10px;
+    color: var(--color-acento-texto);
+}
+
+
+/* ============================================================
+   AGENDA · vista semanal
+   ============================================================ */
+.semana-grid {
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+}
+.semana-cabecera {
+    display: grid;
+    grid-template-columns: 60px repeat(7, 1fr);
+    border-bottom: 1px solid var(--vidrio-borde);
+    position: sticky; top: 0;
+    background: var(--vidrio-fondo);
+    z-index: 2;
+}
+.semana-col-titulo {
+    padding: 8px;
+    text-align: center;
+    border-left: 1px solid var(--vidrio-borde);
+}
+.semana-col-titulo .mono {
+    font-size: 18px;
+    font-weight: 600;
+}
+.semana-col-hoy {
+    background: var(--color-acento-sutil);
+    color: var(--color-acento-claro);
+}
+.semana-cuerpo {
+    display: grid;
+    grid-template-columns: 60px repeat(7, 1fr);
+    position: relative;
+    min-height: 540px;
+}
+.semana-col-hora {
+    border-right: 1px solid var(--vidrio-borde);
+}
+.semana-fila-hora {
+    height: 40px;
+    padding: 4px 6px;
+    font-size: 10px;
+    color: var(--texto-atenuado);
+    border-bottom: 1px dashed rgba(255,255,255,0.04);
+}
+.semana-col {
+    position: relative;
+    border-left: 1px solid var(--vidrio-borde);
+}
+.semana-celda-hora {
+    height: 40px;
+    border-bottom: 1px dashed rgba(255,255,255,0.04);
+}
+.semana-cita {
+    position: absolute;
+    left: 2px; right: 2px;
+    background: var(--color-info-sutil);
+    border: 1px solid var(--color-info-borde);
+    color: var(--color-info-texto);
+    border-radius: var(--radio-xs);
+    padding: 4px 6px;
+    font-size: 11px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform var(--dur-rapida);
+}
+.semana-cita:hover { transform: scale(1.02); z-index: 1; }
+.semana-cita-hora { font-weight: 700; font-size: 10px; }
+.semana-cita-titulo { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.semana-cita-paciente { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.85; }
+.semana-cita-confirmada { background: var(--color-exito-sutil); border-color: var(--color-exito-borde); color: var(--color-exito-texto); }
+.semana-cita-completada { background: var(--vidrio-fondo); border-color: var(--vidrio-borde); color: var(--texto-secundario); }
+.semana-cita-cancelada  { background: var(--color-peligro-sutil); border-color: var(--color-peligro-borde); color: var(--color-peligro-texto); opacity: 0.7; text-decoration: line-through; }
+.semana-cita-no_asistio { background: var(--color-advertencia-sutil); border-color: var(--color-advertencia-borde); color: var(--color-advertencia-texto); }
+.semana-cita-overdue {
+    border-color: var(--color-advertencia-borde) !important;
+    box-shadow: 0 0 0 1px var(--color-advertencia-borde);
+}
+
+
+/* Selector de tema · grid de variantes (3 cols) */
+/* Dropdown inline de cambio de estado en lista de citas */
+.cita-estado-select {
+    margin-left: 6px;
+    height: 26px;
+    padding: 0 6px;
+    font-size: 11px;
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-xs);
+    color: var(--texto-secundario);
+    cursor: pointer;
+}
+.cita-estado-select:hover { border-color: var(--color-acento-borde); }
+
+
+/* Notas clínicas con edición inline + auto-save. */
+.nota-contenido-editable {
+    width: 100%;
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-sm);
+    padding: 10px 12px;
+    color: var(--texto-primario);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color var(--dur-rapida);
+}
+.nota-contenido-editable:focus {
+    outline: none;
+    border-color: var(--color-acento-borde);
+    background: var(--vidrio-fondo-hover);
+}
+.nota-autosave-indicador {
+    margin-left: var(--espacio-sm);
+    font-style: italic;
+}
+
+/* Icono de archivo (emoji) en la lista de archivos del paciente. */
+.archivo-icono {
+    display: inline-block;
+    width: 22px;
+    text-align: center;
+    margin-right: 4px;
+    font-size: 16px;
+}
+
+
+/* ============================================================
+   CENTRO DE NOTIFICACIONES
+   ============================================================ */
+.notif-badge {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--color-peligro);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: var(--radio-completo);
+    min-width: 18px;
+    text-align: center;
+    border: 2px solid var(--color-fondo-secundario);
+}
+.notif-item {
+    display: flex;
+    gap: var(--espacio-sm);
+    padding: var(--espacio-sm) var(--espacio-md);
+    border-bottom: 1px solid var(--vidrio-borde);
+    text-decoration: none;
+    color: inherit;
+    transition: background var(--dur-rapida);
+}
+.notif-item:last-child { border-bottom: 0; }
+.notif-item:hover { background: var(--vidrio-fondo-hover); }
+.notif-item-no-leida {
+    background: var(--color-acento-sutil);
+    border-left: 3px solid var(--color-acento);
+}
+.notif-item-leida {
+    opacity: 0.7;
+    border-left: 3px solid transparent;
+}
+.notif-item-leida:hover { opacity: 1; }
+.notif-item-leida .notif-titulo { font-weight: 500; }
+.notif-icono {
+    flex-shrink: 0;
+    font-size: 18px;
+    width: 28px;
+    text-align: center;
+    line-height: 1.4;
+}
+.notif-cuerpo { flex: 1; min-width: 0; }
+.notif-titulo {
+    font-weight: 600;
+    color: var(--texto-primario);
+    margin-bottom: 2px;
+    font-size: 13px;
+}
+.notif-mensaje {
+    color: var(--texto-secundario);
+    font-size: 12px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+.notif-meta {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--texto-atenuado);
+    font-family: var(--fuente-mono);
+}
+
+/* Modal del centro de notificaciones · clases que reemplazan inline styles
+   en _nav.php para que la cabecera del módulo no lleve estilos inline. */
+.modal-caja-notif { max-width: 480px; }
+.notif-lista-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+.modal-acciones-spread {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--espacio-sm);
+}

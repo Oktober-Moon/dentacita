@@ -326,73 +326,7 @@ $nav_base_url = '';
 
 
 <!-- ===== Gráfico finanzas en dashboard ===== -->
-<script>
-(function() {
-    var cv = document.getElementById('dashReporteCanvas');
-    if (!cv) return;
-
-    function renderGrafico(serie) {
-        if (!serie.length) return;
-        var dpr = window.devicePixelRatio || 1;
-        var cssW = cv.clientWidth || 600;
-        var cssH = cv.clientHeight || 180;
-        cv.width  = cssW * dpr;
-        cv.height = cssH * dpr;
-        var ctx = cv.getContext('2d');
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, cssW, cssH);
-
-        var padding = { top: 12, right: 10, bottom: 26, left: 50 };
-        var w = cssW - padding.left - padding.right;
-        var h = cssH - padding.top - padding.bottom;
-
-        var root = getComputedStyle(document.documentElement);
-        var colExito  = root.getPropertyValue('--color-exito').trim()    || '#2ECC8A';
-        var colPelig  = root.getPropertyValue('--color-peligro').trim()  || '#E84545';
-        var colTexto  = root.getPropertyValue('--texto-atenuado').trim() || 'rgba(255,255,255,.42)';
-        var colBorde  = root.getPropertyValue('--vidrio-borde').trim()   || 'rgba(255,255,255,.09)';
-
-        var max = Math.max(1);
-        serie.forEach(function(s) {
-            if (s.ingresos > max) max = s.ingresos;
-            if (s.egresos  > max) max = s.egresos;
-        });
-        var yTicks = 4;
-        ctx.strokeStyle = colBorde; ctx.lineWidth = 1;
-        ctx.fillStyle = colTexto; ctx.font = '10px "JetBrains Mono", monospace';
-        ctx.textBaseline = 'middle';
-        for (var i = 0; i <= yTicks; i++) {
-            var y = padding.top + (h * i / yTicks);
-            ctx.beginPath(); ctx.moveTo(padding.left, y); ctx.lineTo(padding.left + w, y); ctx.stroke();
-            var v = max * (1 - i / yTicks);
-            ctx.textAlign = 'right';
-            ctx.fillText('$' + Math.round(v / 1000) + 'k', padding.left - 6, y);
-        }
-        var grupos = serie.length;
-        var grupoW = w / grupos;
-        var barW = Math.min(20, (grupoW - 14) / 2);
-        serie.forEach(function(s, i) {
-            var x0 = padding.left + grupoW * i + grupoW / 2;
-            var hI = (s.ingresos / max) * h;
-            var hE = (s.egresos / max) * h;
-            ctx.fillStyle = colExito;
-            ctx.fillRect(x0 - barW - 2, padding.top + h - hI, barW, hI);
-            ctx.fillStyle = colPelig;
-            ctx.fillRect(x0 + 2, padding.top + h - hE, barW, hE);
-            ctx.fillStyle = colTexto;
-            ctx.textAlign = 'center';
-            ctx.fillText(s.etiqueta, x0, padding.top + h + 14);
-        });
-    }
-
-    fetch('finanzas/reporte.php?meses=3')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data && data.ok) renderGrafico(data.serie || []);
-        })
-        .catch(function() { /* silencioso · no crítico para el dashboard */ });
-})();
-</script>
+<script src="dashboard-grafico.js?v=<?php echo @filemtime(__DIR__ . '/dashboard-grafico.js'); ?>"></script>
 
 <?php if (!$onboardingCompletado): ?>
 <!-- Tour de onboarding (primera visita) -->
@@ -418,82 +352,8 @@ $nav_base_url = '';
     </div>
 </div>
 
-<script>
-(function() {
-    var pasos = [
-        {
-            titulo: '¡Bienvenido a DentaCita!',
-            cuerpo: '<p>Hola <?php echo htmlspecialchars($nombreDentista); ?> 👋</p>'
-                  + '<p>Esta app es tu centro de operaciones diario. En 5 pasos rápidos te muestro qué puedes hacer.</p>'
-        },
-        {
-            titulo: 'Agenda y citas',
-            cuerpo: '<p>En la <strong>Agenda</strong> ves un calendario con tus citas. Puedes:</p>'
-                  + '<ul>'
-                  + '<li>Crear citas con paciente, hora, precio y estado.</li>'
-                  + '<li>Marcar como completadas (genera ingreso automático en Finanzas).</li>'
-                  + '<li>Anotar memorias personales privadas para cada día.</li>'
-                  + '</ul>'
-        },
-        {
-            titulo: 'Pacientes y ficha clínica',
-            cuerpo: '<p>Cada paciente tiene su ficha con 5 pestañas:</p>'
-                  + '<ul>'
-                  + '<li><strong>Datos:</strong> contacto, alergias, padecimientos.</li>'
-                  + '<li><strong>Citas:</strong> historial completo.</li>'
-                  + '<li><strong>Acuerdos:</strong> propuestas de servicio (al aceptar, crea cita).</li>'
-                  + '<li><strong>Archivos:</strong> radiografías, PDFs, organizados en carpetas con papelera.</li>'
-                  + '<li><strong>Notas:</strong> bitácora clínica del paciente.</li>'
-                  + '</ul>'
-        },
-        {
-            titulo: 'Finanzas e Inventario',
-            cuerpo: '<p>Todo conectado entre sí:</p>'
-                  + '<ul>'
-                  + '<li><strong>Cita completada</strong> → ingreso automático.</li>'
-                  + '<li><strong>Compra de inventario</strong> → egreso automático.</li>'
-                  + '<li><strong>Venta de producto</strong> → ingreso automático.</li>'
-                  + '<li><strong>Stock bajo</strong> → notificación.</li>'
-                  + '</ul>'
-                  + '<p>Reembolsos, anulaciones y reportes mensuales también disponibles.</p>'
-        },
-        {
-            titulo: 'Tu perfil',
-            cuerpo: '<p>En <strong>Mi perfil</strong> configuras lo esencial:</p>'
-                  + '<ul>'
-                  + '<li><strong>Nombre:</strong> tu nombre completo (se guarda automáticamente al editar).</li>'
-                  + '<li><strong>Foto:</strong> sube y recorta tu foto de perfil para que se muestre en cabecera.</li>'
-                  + '<li><strong>Tema visual:</strong> 8 colores para personalizar el panel.</li>'
-                  + '</ul>'
-                  + '<p>Cuando quieras, vuelve aquí para ajustar lo que sea.</p>'
-        }
-    ];
-
-    var paso = 0;
-    var overlay = document.getElementById('onboardingOverlay');
-    overlay.classList.add('visible');
-
-    function pintar() {
-        var p = pasos[paso];
-        document.getElementById('obTitulo').textContent  = p.titulo;
-        document.getElementById('obPasoInfo').textContent = 'Paso ' + (paso + 1) + ' de ' + pasos.length;
-        document.getElementById('obCuerpo').innerHTML    = p.cuerpo;
-        var pts = document.querySelectorAll('#obProgreso span');
-        pts.forEach(function(s, i){ s.classList.toggle('activo', i <= paso); });
-        document.getElementById('obSiguiente').textContent =
-            (paso === pasos.length - 1) ? 'Listo, empezar' : 'Siguiente →';
-    }
-    function cerrar() {
-        overlay.classList.remove('visible');
-        fetch('perfil/onboarding-completar.php', { method: 'POST', body: new FormData() }).catch(function(){});
-    }
-    document.getElementById('obSaltar').addEventListener('click', cerrar);
-    document.getElementById('obSiguiente').addEventListener('click', function() {
-        if (paso < pasos.length - 1) { paso++; pintar(); }
-        else { cerrar(); }
-    });
-})();
-</script>
+<script>window.DC_NOMBRE = <?php echo json_encode(htmlspecialchars($nombreDentista, ENT_QUOTES)); ?>;</script>
+<script src="dashboard-onboarding.js?v=<?php echo @filemtime(__DIR__ . '/dashboard-onboarding.js'); ?>"></script>
 <?php endif; ?>
 
 

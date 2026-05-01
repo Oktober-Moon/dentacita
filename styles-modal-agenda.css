@@ -1,0 +1,325 @@
+/* ============================================================
+   AGENDA · calendario + citas del día
+   ============================================================ */
+.agenda-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: var(--espacio-lg);
+    align-items: flex-start;
+}
+@media (max-width: 960px) {
+    .agenda-grid { grid-template-columns: 1fr; }
+}
+
+.calendario-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: var(--espacio-md);
+}
+.calendario-mes {
+    font-family: var(--fuente-titular);
+    font-size: 16px; font-weight: 700;
+    color: var(--texto-primario);
+    text-transform: capitalize;
+}
+.calendario-dias-semana {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: var(--espacio-sm);
+}
+.calendario-dias-semana > div {
+    text-align: center;
+    font-family: var(--fuente-mono);
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase;
+    color: var(--texto-atenuado);
+    letter-spacing: 0.12em;
+    padding: 4px 0;
+}
+.calendario-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+.calendario-celda {
+    aspect-ratio: 1 / 1;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radio-sm);
+    color: var(--texto-secundario);
+    font-family: inherit;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    padding: 4px;
+    transition: all var(--dur-rapida);
+}
+.calendario-celda:hover {
+    background: var(--vidrio-fondo);
+    color: var(--texto-primario);
+}
+.calendario-celda-num { font-size: 13px; font-weight: 500; }
+.calendario-celda-vacia { cursor: default; }
+.calendario-celda-vacia:hover { background: transparent; }
+.calendario-celda-hoy {
+    border-color: var(--color-acento-borde);
+    color: var(--color-acento-claro);
+    font-weight: 700;
+}
+.calendario-celda-seleccionada {
+    background: var(--color-acento);
+    color: var(--color-fondo-profundo);
+    font-weight: 700;
+    box-shadow: 0 4px 12px var(--color-acento-sutil);
+}
+.calendario-celda-seleccionada:hover { background: var(--color-acento-claro); color: var(--color-fondo-profundo); }
+.calendario-celda-puntos {
+    display: flex; gap: 2px; height: 4px;
+}
+.punto {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--color-acento-claro);
+}
+/* Punto coloreado según el estado de la cita correspondiente. */
+.punto-programada { background: var(--color-info-texto); }
+.punto-confirmada { background: var(--color-exito-texto); }
+.punto-completada { background: var(--texto-secundario); }
+.punto-cancelada  { background: var(--color-peligro-texto); }
+.punto-no_asistio { background: var(--color-advertencia-texto); }
+.calendario-celda-seleccionada .punto { background: var(--color-fondo-profundo); }
+
+/* Citas vencidas: badge naranja "Vencida" + tinte sutil del item entero. */
+.badge-overdue {
+    background: var(--color-advertencia-sutil);
+    border-color: var(--color-advertencia-borde);
+    color: var(--color-advertencia-texto);
+}
+.cita-overdue {
+    border-color: var(--color-advertencia-borde);
+    background: linear-gradient(0deg, var(--color-advertencia-sutil), var(--color-advertencia-sutil)), var(--vidrio-fondo);
+}
+
+.citas-dia-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: var(--espacio-md);
+    flex-wrap: wrap;
+    gap: var(--espacio-sm);
+}
+.citas-dia-header h3 { text-transform: capitalize; }
+
+.lista-citas { list-style: none; padding: 0; margin: 0; }
+.cita-item {
+    display: grid;
+    grid-template-columns: 110px 1fr auto auto;
+    gap: var(--espacio-md);
+    align-items: center;
+    padding: var(--espacio-md);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-sm);
+    margin-bottom: var(--espacio-sm);
+    background: var(--vidrio-fondo);
+    transition: all var(--dur-rapida);
+}
+.cita-item:hover { border-color: var(--color-acento-borde); transform: translateY(-1px); }
+.cita-cuerpo { min-width: 0; }
+.cita-hora {
+    font-family: var(--fuente-mono);
+    font-size: 13px; font-weight: 600;
+    color: var(--color-acento-claro);
+}
+.cita-titulo { font-weight: 600; margin-bottom: 2px; }
+.cita-paciente { font-size: 13px; color: var(--texto-secundario); }
+.cita-acciones { display: flex; gap: 4px; }
+.cita-estado { display: flex; align-items: center; }
+
+@media (max-width: 720px) {
+    .cita-item { grid-template-columns: 1fr; gap: 8px; }
+    .cita-acciones { flex-wrap: wrap; }
+}
+
+
+/* ============================================================
+   MODAL · entrada/salida simétricas + glassmorphism
+   El JS togglea solo .visible; CSS controla visibility/opacity
+   y el transform de la caja para que el cierre también anime.
+   ============================================================ */
+.modal-fondo {
+    position: fixed; inset: 0;
+    display: flex;
+    align-items: flex-start; justify-content: center;
+    background: rgba(6, 10, 30, 0.68);
+    backdrop-filter: blur(var(--vidrio-desenfoque-overlay));
+    -webkit-backdrop-filter: blur(var(--vidrio-desenfoque-overlay));
+    z-index: 100;
+    padding: var(--espacio-lg);
+    overflow-y: auto;
+
+    /* Estado oculto · transición simétrica entrada/salida */
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-base) var(--ease-salida),
+                visibility 0s linear var(--dur-base);
+}
+.modal-fondo.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity var(--dur-base) var(--ease-salida),
+                visibility 0s linear 0s;
+}
+
+.modal-caja {
+    background: var(--color-fondo-secundario);
+    border: 1px solid var(--vidrio-borde-hover);
+    border-radius: var(--radio-xl);
+    padding: var(--espacio-xl);
+    width: 100%; max-width: 540px;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--sombra-modal);
+    margin: var(--espacio-lg) 0;
+
+    /* Entrada/salida con transition (no animation) · simétrico */
+    transform: translateY(12px) scale(0.98);
+    opacity: 0;
+    transition: transform var(--dur-base) var(--ease-salida),
+                opacity   var(--dur-base) var(--ease-salida);
+}
+.modal-fondo.visible .modal-caja {
+    transform: none;
+    opacity: 1;
+}
+.modal-caja-grande   { max-width: 880px; }
+.modal-caja-pequena  { max-width: 440px; }
+
+.modal-cerrar {
+    position: absolute; top: 12px; right: 12px;
+    width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; border: 0;
+    color: var(--texto-atenuado);
+    font-size: 24px; line-height: 1;
+    cursor: pointer; padding: 0;
+    border-radius: var(--radio-sm);
+    transition: color var(--dur-rapida), background var(--dur-rapida);
+}
+.modal-cerrar:hover { color: var(--texto-primario); background: var(--vidrio-fondo); }
+.modal-cerrar:focus-visible {
+    outline: 2px solid var(--color-acento);
+    outline-offset: 2px;
+    color: var(--texto-primario);
+}
+
+.modal-titulo {
+    font-family: var(--fuente-titular);
+    font-size: 22px; font-weight: 700;
+    margin-bottom: var(--espacio-xs);
+}
+.modal-subtitulo {
+    color: var(--texto-secundario);
+    margin-bottom: var(--espacio-md);
+    font-size: 13px;
+}
+
+.modal-paso { display: block; }
+.modal-paso.oculto { display: none; }
+
+.modal-acciones {
+    display: flex; gap: var(--espacio-sm); justify-content: flex-end;
+    margin-top: var(--espacio-md);
+    padding-top: var(--espacio-md);
+    border-top: 1px solid var(--vidrio-borde);
+    flex-wrap: wrap;
+}
+
+.modal-seccion {
+    margin-bottom: var(--espacio-lg);
+    padding-bottom: var(--espacio-md);
+    border-bottom: 1px solid var(--vidrio-borde);
+}
+.modal-seccion:last-of-type {
+    border-bottom: 0; padding-bottom: 0; margin-bottom: 0;
+}
+
+/* Modal · paso 1 (opciones) */
+.opciones-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: var(--espacio-sm);
+}
+@media (max-width: 540px) { .opciones-grid { grid-template-columns: 1fr; } }
+.opcion-card {
+    background: var(--vidrio-fondo);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-md);
+    padding: var(--espacio-md);
+    cursor: pointer;
+    text-align: left;
+    color: var(--texto-primario);
+    font-family: inherit;
+    transition: all var(--dur-rapida);
+}
+.opcion-card:hover {
+    background: var(--vidrio-fondo-hover);
+    border-color: var(--color-acento-borde);
+    transform: translateY(-1px);
+}
+.opcion-card:focus-visible {
+    outline: 2px solid var(--color-acento);
+    outline-offset: 2px;
+    border-color: var(--color-acento-borde);
+}
+.opcion-card:active { transform: translateY(0); }
+.opcion-card-titulo { font-weight: 700; margin-bottom: 4px; }
+.opcion-card-desc   { font-size: 12px; color: var(--texto-secundario); }
+
+/* Modal · paso 2 (búsqueda pacientes) */
+.lista-resultados {
+    max-height: 280px; overflow-y: auto;
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-md);
+    background: var(--color-fondo-primario);
+}
+.resultado-paciente {
+    display: block; width: 100%;
+    background: transparent; border: 0;
+    border-bottom: 1px solid var(--vidrio-borde);
+    padding: 12px var(--espacio-md);
+    text-align: left;
+    color: var(--texto-primario);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background var(--dur-rapida);
+}
+.resultado-paciente:last-child { border-bottom: 0; }
+.resultado-paciente:hover { background: var(--color-acento-sutil); }
+.resultado-paciente:focus-visible {
+    outline: 2px solid var(--color-acento);
+    outline-offset: -2px;
+    background: var(--color-acento-sutil);
+}
+.resultado-paciente-nombre { font-weight: 500; margin-bottom: 2px; }
+.resultado-paciente-info {
+    font-family: var(--fuente-mono); font-size: 11px;
+    color: var(--texto-atenuado);
+}
+
+/* Modal · paso 4 (resumen paciente) */
+.paciente-resumen {
+    background: var(--color-acento-sutil);
+    border: 1px solid var(--color-acento-borde);
+    border-radius: var(--radio-md);
+    padding: 10px var(--espacio-md);
+    margin-bottom: var(--espacio-md);
+}
+.paciente-resumen-nombre {
+    font-weight: 700; color: var(--color-acento-claro);
+}
+.paciente-resumen-telefono {
+    font-family: var(--fuente-mono);
+    font-size: 12px;
+    color: var(--texto-atenuado);
+}
+
+
