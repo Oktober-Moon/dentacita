@@ -394,6 +394,7 @@ input:-webkit-autofill:active {
     grid-template-columns: repeat(auto-fill, minmax(260px, 340px));
     gap: var(--espacio-md);
     justify-content: start;
+    padding: var(--espacio-md);
 }
 .paciente-card {
     background: var(--vidrio-fondo);
