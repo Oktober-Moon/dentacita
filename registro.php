@@ -143,7 +143,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="nombre">Nombre completo</label>
                 <input type="text" id="nombre" name="nombre"
                        placeholder="Dra. Camila Reyes"
-                       maxlength="150"
+                       minlength="2" maxlength="150"
+                       pattern="[A-Za-zÁÉÍÓÚÑáéíóúñÜü .'\-]+"
+                       title="Solo letras, espacios, apóstrofes, guiones y puntos."
                        value="<?php echo htmlspecialchars($nombreValor); ?>"
                        required autofocus>
             </div>

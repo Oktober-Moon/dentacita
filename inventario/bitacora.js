@@ -93,9 +93,10 @@ function renderTabla(movs) {
 
     const filas = movs.map(m => {
         const motivo = motivosLabel[m.motivo] || m.motivo;
-        let signo = '', claseSigno = '';
+        let signo = '', claseSigno = '', etiquetaCantidad = '';
         if (m.tipo === 'entrada') { signo = '+'; claseSigno = 'texto-verde'; }
         else if (m.tipo === 'salida') { signo = '−'; claseSigno = 'texto-rojo'; }
+        else if (m.tipo === 'ajuste') { etiquetaCantidad = '→ stock '; claseSigno = 'texto-atenuado'; }
         let monto = '—';
         if (m.tipo === 'entrada' && m.tiene_costo == 1 && m.costo_unitario)
             monto = fmtDinero(Number(m.costo_unitario) * Number(m.cantidad));
@@ -107,7 +108,7 @@ function renderTabla(movs) {
                 <td>${escapar(m.item_nombre)}</td>
                 <td><span class="badge badge-${escapar(m.tipo)}">${escapar(m.tipo)}</span></td>
                 <td>${escapar(motivo)}</td>
-                <td style="text-align:right" class="mono ${claseSigno}">${signo}${m.cantidad} ${escapar(m.unidad || '')}</td>
+                <td style="text-align:right" class="mono ${claseSigno}">${etiquetaCantidad}${signo}${m.cantidad} ${escapar(m.unidad || '')}</td>
                 <td style="text-align:right" class="mono">${monto}</td>
                 <td class="texto-pequeno">${escapar(m.notas || '')}</td>
             </tr>`;

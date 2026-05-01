@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="campo">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" name="password"
-                       placeholder="••••••••" required>
+                       placeholder="••••••••" maxlength="128" required>
             </div>
 
             <button type="submit" class="btn btn-primario btn-bloque">

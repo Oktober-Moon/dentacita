@@ -115,11 +115,13 @@ if ($stmtKM) {
     $stmtKM->close();
 }
 
-/* ----- Promedio por transacción del mes (solo activas, valor absoluto) ----- */
+/* ----- Promedio por transacción del mes (solo activas, excluyendo reembolsos
+   para que los reembolsos parciales no inflen el promedio de cobros). ----- */
 $promedioMes = 0;
 $stmtAvg = @$conexion->prepare(
-    "SELECT AVG(ABS(monto)) AS prom FROM transacciones
+    "SELECT AVG(monto) AS prom FROM transacciones
      WHERE usuario_id = ? AND estado='activa'
+       AND categoria != 'Reembolso'
        AND YEAR(fecha)=YEAR(CURDATE()) AND MONTH(fecha)=MONTH(CURDATE())");
 if ($stmtAvg) {
     $stmtAvg->bind_param("i", $usuarioId);
@@ -145,7 +147,10 @@ if ($stmtKA) {
     $stmtKA->close();
 }
 
-/* ----- Citas completadas SIN ingreso registrado (para "Cobrar cita") ----- */
+/* ----- Citas completadas SIN ingreso registrado (para "Cobrar cita") -----
+   Excluye citas con cualquier transacción de ingreso (activa o anulada). Si
+   tuvieron una anulada, el dentista debe cobrarla manualmente desde el botón
+   "Nueva transacción" para evitar reaparición silenciosa en este listado. */
 $citasCobrables = [];
 $stmtCC = @$conexion->prepare(
     "SELECT c.cita_id, c.titulo, c.paciente_nombre, c.fecha_hora_inicio, c.precio
@@ -156,7 +161,7 @@ $stmtCC = @$conexion->prepare(
        AND NOT EXISTS (
            SELECT 1 FROM transacciones t
            WHERE t.cita_id = c.cita_id AND t.usuario_id = ?
-             AND t.estado='activa' AND t.categoria != 'Reembolso'
+             AND t.categoria != 'Reembolso'
        )
      ORDER BY c.fecha_hora_inicio DESC LIMIT 20");
 if ($stmtCC) {

@@ -77,6 +77,11 @@ function renderTabla() {
                 let vinculo = '—';
                 if (t.cita_titulo)         vinculo = `<span class="texto-atenuado">Cita:</span> ${escapar(t.cita_titulo)}`;
                 else if (t.item_nombre)    vinculo = `<span class="texto-atenuado">Inventario:</span> ${escapar(t.item_nombre)}`;
+                else if (t.descripcion && t.descripcion.startsWith('Inventario:')) {
+                    // Item eliminado pero la descripción aún lo identifica.
+                    const nombreEx = t.descripcion.substring(11).split(' x ')[0].trim();
+                    vinculo = `<span class="texto-atenuado">Inventario (item eliminado):</span> ${escapar(nombreEx)}`;
+                }
                 else if (t.paciente_nombre)vinculo = escapar(t.paciente_nombre);
                 return `
                 <tr class="${anulada ? 'fila-anulada' : ''}">

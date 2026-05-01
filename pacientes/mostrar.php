@@ -48,7 +48,7 @@ if (isset($_GET['id'])) {
     // Contadores relacionados v5
     $extra = [];
     $sqlsContadores = [
-        'citas'    => "SELECT COUNT(*) FROM citas              WHERE paciente_id = ? AND usuario_id = ?",
+        'citas'    => "SELECT COUNT(*) FROM citas              WHERE paciente_id = ? AND usuario_id = ? AND estado NOT IN ('cancelada','no_asistio')",
         'archivos' => "SELECT COUNT(*) FROM archivos_paciente a
                        JOIN pacientes p ON a.paciente_id = p.paciente_id
                        WHERE a.paciente_id = ? AND p.usuario_id = ? AND a.eliminado_en IS NULL",
@@ -88,8 +88,8 @@ if (mb_strlen($q) > 100) {
 
 $colsBase = "p.paciente_id, p.nombre_completo, p.telefono, p.email, p.fecha_nacimiento,
              p.genero, p.foto_url, p.creado_en,
-             (SELECT COUNT(*) FROM citas c WHERE c.paciente_id = p.paciente_id AND c.usuario_id = p.usuario_id) AS total_citas,
-             (SELECT MAX(c.fecha_hora_inicio) FROM citas c WHERE c.paciente_id = p.paciente_id AND c.usuario_id = p.usuario_id) AS ultima_cita";
+             (SELECT COUNT(*) FROM citas c WHERE c.paciente_id = p.paciente_id AND c.usuario_id = p.usuario_id AND c.estado NOT IN ('cancelada','no_asistio')) AS total_citas,
+             (SELECT MAX(c.fecha_hora_inicio) FROM citas c WHERE c.paciente_id = p.paciente_id AND c.usuario_id = p.usuario_id AND c.estado NOT IN ('cancelada','no_asistio')) AS ultima_cita";
 
 if ($q === '') {
     // Listado completo paginado

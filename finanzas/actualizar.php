@@ -37,7 +37,7 @@ $err = validarTransMetodo($metodo_pago); if ($err) { echo json_encode(["ok"=>fal
 // Verificar que no esté vinculada a inventario (esas son auditadas, no editables)
 // y que pertenezca al usuario actual (anti-IDOR)
 $check = @$conexion->prepare(
-    "SELECT inventario_movimiento_id, categoria FROM transacciones
+    "SELECT inventario_movimiento_id, categoria, fecha FROM transacciones
      WHERE transaccion_id=? AND usuario_id=?"
 );
 $check->bind_param("ii", $idInt, $usuarioId);
@@ -53,6 +53,15 @@ if ($row['inventario_movimiento_id'] !== null) {
 }
 if ($row['categoria'] === 'Reembolso') {
     echo json_encode(["ok"=>false,"mensaje"=>"Los reembolsos no se editan: anúlalo y crea uno nuevo."]);
+    $conexion->close(); exit;
+}
+
+// La fecha solo puede moverse dentro del MISMO MES de la transacción original.
+// Editar fechas de meses cerrados desincroniza KPIs y reportes históricos.
+$mesOriginal  = substr($row['fecha'], 0, 7);   // 'YYYY-MM'
+$mesPropuesto = substr($fecha,        0, 7);
+if ($mesOriginal !== $mesPropuesto) {
+    echo json_encode(["ok"=>false,"mensaje"=>"Solo puedes mover la fecha dentro del mismo mes ($mesOriginal). Para cambios mayores, anula la transacción y crea una nueva."]);
     $conexion->close(); exit;
 }
 

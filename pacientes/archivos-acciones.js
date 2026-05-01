@@ -114,8 +114,8 @@ if (card && overlay) {
         const archivos = Array.from(e.dataTransfer.files || []);
         if (!archivos.length) return;
         for (const f of archivos) {
-            if (f.size > 50 * 1024 * 1024) {
-                toast(`"${f.name}" excede 50 MB y se omitió.`, 'advertencia');
+            if (f.size > 10 * 1024 * 1024) {
+                toast(`"${f.name}" excede 10 MB y se omitió.`, 'advertencia');
                 continue;
             }
             const datos = new FormData();

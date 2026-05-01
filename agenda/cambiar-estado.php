@@ -65,11 +65,12 @@ try {
         $conexion->close(); exit;
     }
 
-    // ¿Hay ingreso activo vinculado a esta cita?
+    // ¿La cita ya tuvo algún cobro? (activo o anulado, excluyendo reembolsos)
     $sCobro = @$conexion->prepare(
-        "SELECT transaccion_id FROM transacciones
+        "SELECT transaccion_id, estado FROM transacciones
          WHERE cita_id = ? AND usuario_id = ?
-           AND estado = 'activa' AND categoria != 'Reembolso'
+           AND categoria != 'Reembolso'
+         ORDER BY estado = 'activa' DESC, transaccion_id DESC
          LIMIT 1
          FOR UPDATE"
     );
@@ -79,6 +80,7 @@ try {
     $rowCobro = $sCobro->get_result()->fetch_assoc();
     $sCobro->close();
     $transaccionExistente = $rowCobro ? (int)$rowCobro['transaccion_id'] : null;
+    $cobroEstado          = $rowCobro['estado'] ?? null;
 
     // 3) UPDATE estado
     $stmt = @$conexion->prepare(
@@ -117,9 +119,9 @@ try {
         $infoExtra = " Se generó un ingreso de \$" . number_format($precioFinal, 2) . " en finanzas.";
     }
 
-    // 5) Downgrade desde 'completada' → anular ingreso
+    // 5) Downgrade desde 'completada' → anular ingreso (solo si seguía activa)
     if ($estadoAnterior === 'completada' && $estado !== 'completada'
-        && $transaccionExistente !== null) {
+        && $transaccionExistente !== null && $cobroEstado === 'activa') {
         $motivoAnul = "Cita revertida a '$estado'";
         $sa = @$conexion->prepare(
             "UPDATE transacciones

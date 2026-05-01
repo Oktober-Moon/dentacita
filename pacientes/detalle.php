@@ -112,7 +112,7 @@ if ($tab === 'notas') {
 $cnt = [];
 $sqlsCnt = [
     'citas'    => "SELECT COUNT(*) FROM citas
-                   WHERE paciente_id = ? AND usuario_id = ?",
+                   WHERE paciente_id = ? AND usuario_id = ? AND estado NOT IN ('cancelada','no_asistio')",
     'archivos' => "SELECT COUNT(*) FROM archivos_paciente a
                    JOIN pacientes p ON a.paciente_id = p.paciente_id
                    WHERE a.paciente_id = ? AND p.usuario_id = ? AND a.eliminado_en IS NULL",

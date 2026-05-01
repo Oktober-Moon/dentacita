@@ -72,9 +72,20 @@
         document.getElementById('obSiguiente').textContent =
             (paso === pasos.length - 1) ? 'Listo, empezar' : 'Siguiente →';
     }
-    function cerrar() {
+    async function cerrar() {
         overlay.classList.remove('visible');
-        fetch('perfil/onboarding-completar.php', { method: 'POST', body: new FormData() }).catch(function(){});
+        // Marca onboarding como completado en BD. Reintenta una vez si falla.
+        async function intentar() {
+            const resp = await fetch('perfil/onboarding-completar.php', { method: 'POST', body: new FormData() });
+            return resp.ok;
+        }
+        try {
+            const ok = await intentar();
+            if (!ok) await new Promise(r => setTimeout(r, 1500)).then(intentar);
+        } catch (e) {
+            await new Promise(r => setTimeout(r, 1500));
+            try { await intentar(); } catch (e2) { /* el tour reaparecerá; aceptable */ }
+        }
     }
     document.getElementById('obSaltar').addEventListener('click', cerrar);
     document.getElementById('obSiguiente').addEventListener('click', function() {

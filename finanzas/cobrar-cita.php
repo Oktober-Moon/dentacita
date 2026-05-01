@@ -61,19 +61,23 @@ try {
         throw new Exception("Solo se cobran citas completadas. La cita está en estado '{$cita['estado']}'.");
     }
 
-    // ¿Ya hay un cobro activo? (lock incluido para evitar carrera)
+    // ¿Ya hay un cobro? (activo bloquea, anulado solo informa)
     $s2 = @$conexion->prepare(
-        "SELECT 1 FROM transacciones
-         WHERE cita_id = ? AND usuario_id = ? AND estado='activa' AND categoria != 'Reembolso'
+        "SELECT estado FROM transacciones
+         WHERE cita_id = ? AND usuario_id = ? AND categoria != 'Reembolso'
+         ORDER BY estado = 'activa' DESC, transaccion_id DESC
          LIMIT 1
          FOR UPDATE"
     );
     if (!$s2) throw new Exception(mensajeErrorMysql($conexion->errno, $conexion->error));
     $s2->bind_param("ii", $citaIdInt, $usuarioId);
     @$s2->execute();
-    $yaCobrada = (bool)$s2->get_result()->fetch_assoc();
+    $cobroPrev = $s2->get_result()->fetch_assoc();
     $s2->close();
-    if ($yaCobrada) throw new Exception("Esta cita ya tiene un cobro registrado.");
+    if ($cobroPrev && $cobroPrev['estado'] === 'activa') {
+        throw new Exception("Esta cita ya tiene un cobro registrado.");
+    }
+    $tuvoAnulada = $cobroPrev && $cobroPrev['estado'] === 'anulada';
 
     // Determinar monto + validar contra precio de la cita
     $precioCita = $cita['precio'] !== null ? (float)$cita['precio'] : 0;
@@ -106,9 +110,13 @@ try {
 
     @$conexion->commit();
 
+    $mensajeOk = "Ingreso de \$" . number_format($monto, 2) . " registrado por la cita.";
+    if ($tuvoAnulada) {
+        $mensajeOk .= " (Nota: esta cita tenía un cobro anulado previo; este es un nuevo cobro.)";
+    }
     echo json_encode([
         "ok"=>true,
-        "mensaje"=>"Ingreso de \$" . number_format($monto, 2) . " registrado por la cita.",
+        "mensaje"=>$mensajeOk,
         "transaccion_id"=>$insertId
     ]);
 } catch (Exception $e) {

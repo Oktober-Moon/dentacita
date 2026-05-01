@@ -177,11 +177,15 @@ try {
     if (!$rowEst) throw new Exception("La cita ya no existe.");
     $estadoAnterior = $rowEst['estado'];
 
-    // ¿La cita ya tiene un ingreso activo? (excluye reembolsos)
+    // ¿La cita ya tuvo algún cobro? (activo o anulado, excluyendo reembolsos)
+    // No filtramos por estado porque si tuvo un cobro anulado, queremos evitar
+    // que auto-cobre de nuevo (riesgo doble cobro). El dentista debe cobrar
+    // manualmente desde Finanzas si corresponde.
     $sCobro = @$conexion->prepare(
-        "SELECT transaccion_id FROM transacciones
+        "SELECT transaccion_id, estado FROM transacciones
          WHERE cita_id = ? AND usuario_id = ?
-           AND estado = 'activa' AND categoria != 'Reembolso'
+           AND categoria != 'Reembolso'
+         ORDER BY estado = 'activa' DESC, transaccion_id DESC
          LIMIT 1
          FOR UPDATE"
     );
@@ -191,6 +195,7 @@ try {
     $rowCobro = $sCobro->get_result()->fetch_assoc();
     $sCobro->close();
     $transaccionExistente = $rowCobro ? (int)$rowCobro['transaccion_id'] : null;
+    $cobroEstado          = $rowCobro['estado'] ?? null; // 'activa' | 'anulada' | null
 
     // 3) UPDATE cita
     $sql = "UPDATE citas
@@ -222,6 +227,9 @@ try {
     $infoExtra = "";
 
     // 4) Auto-cobro al pasar a 'completada'
+    // Solo si NO hay ninguna transacción previa (ni activa ni anulada).
+    // Si hubo una anulada, el dentista debe cobrar manualmente para evitar
+    // sorpresas de doble cobro automático.
     if ($estadoCita === 'completada' && $precioFinal !== null && $precioFinal > 0
         && $transaccionExistente === null) {
         $descTrans = "Cita: {$titulo} · {$paciente_nombre}";
@@ -244,8 +252,9 @@ try {
     }
 
     // 5) Downgrade desde 'completada' → anular ingreso huérfano
+    //    (solo si la transacción seguía activa)
     if ($estadoAnterior === 'completada' && $estadoCita !== 'completada'
-        && $transaccionExistente !== null) {
+        && $transaccionExistente !== null && $cobroEstado === 'activa') {
         $motivoAnul = "Cita revertida a '$estadoCita'";
         $sa = @$conexion->prepare(
             "UPDATE transacciones
