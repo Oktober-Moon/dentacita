@@ -125,10 +125,6 @@ $nombresEstado = [
     'no_asistio' => 'No asistió',
 ];
 function fmtDinero($n) { return '$' . number_format((float)$n, 2, '.', ','); }
-function fmtFechaCorta($iso) {
-    $ts = strtotime($iso);
-    return $ts ? date('d/m/Y', $ts) : $iso;
-}
 function fmtDiaCorto($iso) {
     $ts = strtotime($iso);
     if (!$ts) return $iso;

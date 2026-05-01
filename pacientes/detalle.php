@@ -178,18 +178,6 @@ function generoBonito($g) {
     return ['femenino'=>'Femenino','masculino'=>'Masculino',
             'otro'=>'Otro','no_especificado'=>'No especificado'][$g] ?? $g;
 }
-function iconoArchivo($tipo) {
-    $iconos = [
-        'imagen'      => '🖼',
-        'pdf'         => '📕',
-        'radiografia' => '🦷',
-        'documento'   => '📄',
-        'laboratorio' => '🧪',
-        'otro'        => '📎',
-    ];
-    return $iconos[$tipo] ?? '📎';
-}
-
 $edad = calcularEdad($paciente['fecha_nacimiento']);
 
 $nav_actual   = 'pacientes';

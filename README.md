@@ -31,7 +31,6 @@ dentacita/
 ├── conexion.php                    conexión MySQL + helpers de sesión + bootstrap de perfil
 ├── styles.css                      estilos compartidos
 ├── _nav.php                        sidebar reusable (6 enlaces)
-├── _placeholder.php                ya no se usa, queda por compatibilidad
 │
 ├── index.php                       login (email + contraseña, autenticado contra `usuarios`)
 ├── registro.php                    alta de cuenta nueva (bcrypt + bootstrap de perfil)
