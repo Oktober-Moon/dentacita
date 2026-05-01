@@ -7,6 +7,7 @@
 
 header('Content-Type: application/json');
 require __DIR__ . '/../conexion.php';
+require __DIR__ . '/../_uploads-helpers.php';
 
 $conexion = obtenerConexion();
 exigirSesionAjax($conexion);
@@ -41,12 +42,8 @@ $stmt = @$conexion->prepare(
 $stmt->bind_param("ii", $idInt, $usuarioId);
 
 if (@$stmt->execute()) {
-    /* Borrar archivo físico (best-effort) */
-    $url = $row['archivo_url'];
-    if ($url && str_starts_with($url, '../uploads/')) {
-        $rutaFisica = __DIR__ . '/' . $url;
-        if (is_file($rutaFisica)) @unlink($rutaFisica);
-    }
+    /* Borrar archivo físico (best-effort, confinado a uploads/) */
+    borrarArchivoUploadSeguro($row['archivo_url'], __DIR__);
     echo json_encode(["ok"=>true,"mensaje"=>"Archivo eliminado permanentemente."]);
 } else {
     echo json_encode(["ok"=>false,"mensaje"=>mensajeErrorMysql($stmt->errno, $stmt->error)]);

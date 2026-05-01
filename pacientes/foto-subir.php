@@ -12,6 +12,7 @@
 
 header('Content-Type: application/json');
 require __DIR__ . '/../conexion.php';
+require __DIR__ . '/../_uploads-helpers.php';
 
 $conexion = obtenerConexion();
 exigirSesionAjax($conexion);
@@ -65,7 +66,7 @@ if (!is_dir($baseDir)) {
     }
 }
 
-$nombreNuevo = 'foto-' . time() . '.' . $ext;
+$nombreNuevo = uniqid('foto_', true) . '.' . $ext;
 $rutaFisica  = $baseDir . '/' . $nombreNuevo;
 $urlRelativa = '../uploads/pacientes/' . $pacIdInt . '/' . $nombreNuevo;
 
@@ -79,10 +80,8 @@ $stmt = @$conexion->prepare(
 );
 $stmt->bind_param("sii", $urlRelativa, $pacIdInt, $usuarioId);
 if (@$stmt->execute()) {
-    if ($fotoAnterior && str_starts_with($fotoAnterior, '../uploads/pacientes/')) {
-        $rutaVieja = __DIR__ . '/' . $fotoAnterior;
-        if (is_file($rutaVieja)) @unlink($rutaVieja);
-    }
+    /* Borrar foto anterior (best-effort, confinado a uploads/) */
+    borrarArchivoUploadSeguro($fotoAnterior, __DIR__);
     echo json_encode(["ok"=>true,"mensaje"=>"Foto guardada.","foto_url"=>$urlRelativa]);
 } else {
     @unlink($rutaFisica);

@@ -7,6 +7,7 @@
 
 header('Content-Type: application/json');
 require __DIR__ . '/../conexion.php';
+require __DIR__ . '/../_uploads-helpers.php';
 
 $conexion = obtenerConexion();
 exigirSesionAjax($conexion);
@@ -58,12 +59,9 @@ $stmt->bind_param("ii", $pacIdInt, $usuarioId);
 
 if (@$stmt->execute()) {
     $eliminados = $stmt->affected_rows;
-    /* Borrar archivos físicos */
+    /* Borrar archivos físicos (confinados a uploads/) */
     foreach ($urls as $url) {
-        if ($url && str_starts_with($url, '../uploads/')) {
-            $rutaFisica = __DIR__ . '/' . $url;
-            if (is_file($rutaFisica)) @unlink($rutaFisica);
-        }
+        borrarArchivoUploadSeguro($url, __DIR__);
     }
     echo json_encode([
         "ok"          => true,

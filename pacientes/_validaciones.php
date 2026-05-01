@@ -90,6 +90,32 @@ function validarArchivoSubido($file) {
     if (!in_array($ext, $extPermitidas, true)) {
         return "Extensión no permitida: $ext. Solo: " . implode(', ', $extPermitidas) . ".";
     }
+
+    // Validar magic bytes (tipo MIME real del archivo) contra la extensión declarada
+    if (function_exists('finfo_open') && is_uploaded_file($file['tmp_name'])) {
+        $mimeReal = @mime_content_type($file['tmp_name']) ?: '';
+        // Pares ext → MIMEs aceptables (un archivo .jpg legítimo es image/jpeg, etc.)
+        $mimePorExt = [
+            'jpg'  => ['image/jpeg'],
+            'jpeg' => ['image/jpeg'],
+            'png'  => ['image/png'],
+            'gif'  => ['image/gif'],
+            'webp' => ['image/webp'],
+            'pdf'  => ['application/pdf'],
+            'txt'  => ['text/plain'],
+            'doc'  => ['application/msword', 'application/octet-stream'],
+            'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                       'application/zip', 'application/octet-stream'],
+            'xls'  => ['application/vnd.ms-excel', 'application/octet-stream'],
+            'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                       'application/zip', 'application/octet-stream'],
+        ];
+        $aceptables = $mimePorExt[$ext] ?? [];
+        if ($aceptables && $mimeReal && !in_array($mimeReal, $aceptables, true)) {
+            return "El contenido del archivo no coincide con la extensión .$ext (detectado: $mimeReal).";
+        }
+    }
+
     return null;
 }
 

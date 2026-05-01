@@ -11,6 +11,7 @@
 
 header('Content-Type: application/json');
 require __DIR__ . '/../conexion.php';
+require __DIR__ . '/../_uploads-helpers.php';
 $conexion = obtenerConexion();
 exigirSesionAjax($conexion);
 
@@ -54,11 +55,7 @@ if ($sp) {
     $idsAPurgar = [];
     while ($f = $rp->fetch_assoc()) {
         $idsAPurgar[] = (int)$f['archivo_id'];
-        $url = $f['archivo_url'];
-        if ($url && str_starts_with($url, '../uploads/')) {
-            $rutaFisica = __DIR__ . '/' . $url;
-            if (is_file($rutaFisica)) @unlink($rutaFisica);
-        }
+        borrarArchivoUploadSeguro($f['archivo_url'], __DIR__);
     }
     $sp->close();
     if (!empty($idsAPurgar)) {
@@ -137,9 +134,8 @@ $conexion->close();
 
 /* ----- Storage stats: suma del filesize() de archivos en disco ----- */
 function tamanoBytesArchivo($urlRelativa) {
-    if (!$urlRelativa) return 0;
-    $ruta = __DIR__ . '/' . $urlRelativa;
-    return is_file($ruta) ? (int)@filesize($ruta) : 0;
+    $ruta = rutaFisicaUploadSegura($urlRelativa, __DIR__);
+    return $ruta && is_file($ruta) ? (int)@filesize($ruta) : 0;
 }
 $totalActivos  = 0;
 $totalPapelera = 0;

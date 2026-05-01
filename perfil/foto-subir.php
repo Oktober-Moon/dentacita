@@ -11,6 +11,7 @@
 
 header('Content-Type: application/json');
 require __DIR__ . '/../conexion.php';
+require __DIR__ . '/../_uploads-helpers.php';
 
 $conexion = obtenerConexion();
 exigirSesionAjax($conexion);
@@ -47,7 +48,7 @@ if (!is_dir($baseDir)) {
     }
 }
 
-$nombreNuevo = 'foto-' . time() . '.' . $ext;
+$nombreNuevo = uniqid('foto_', true) . '.' . $ext;
 $rutaFisica  = $baseDir . '/' . $nombreNuevo;
 $urlRelativa = '../uploads/perfil/' . $userClean . '/' . $nombreNuevo;
 
@@ -67,11 +68,8 @@ $so->close();
 $stmt = @$conexion->prepare("UPDATE perfil_dentista SET foto_url = ? WHERE usuario_id = ?");
 $stmt->bind_param("si", $urlRelativa, $usuarioId);
 if (@$stmt->execute()) {
-    /* Borrar anterior */
-    if ($fotoAnterior && str_starts_with($fotoAnterior, '../uploads/perfil/')) {
-        $rutaVieja = __DIR__ . '/' . $fotoAnterior;
-        if (is_file($rutaVieja)) @unlink($rutaVieja);
-    }
+    /* Borrar foto anterior (best-effort, confinado a uploads/) */
+    borrarArchivoUploadSeguro($fotoAnterior, __DIR__);
     echo json_encode(["ok"=>true,"mensaje"=>"Foto actualizada.","foto_url"=>$urlRelativa]);
 } else {
     @unlink($rutaFisica);
