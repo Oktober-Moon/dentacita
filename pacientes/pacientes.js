@@ -45,7 +45,7 @@ function toast(msj, tipo = 'ok') {
     const cls = tiposValidos[tipo] || 'toast-ok';
     toastEl.textContent = msj;
     toastEl.className = 'toast ' + cls + ' visible';
-    setTimeout(() => toastEl.classList.remove('visible'), 2400);
+    setTimeout(() => toastEl.classList.remove('visible'), 2800);
 }
 
 
@@ -59,9 +59,9 @@ function escapar(t) {
 
 function fmtFecha(iso) {
     if (!iso) return '';
-    const partes = iso.split('-');
-    if (partes.length !== 3) return iso;
-    return partes[2] + '/' + partes[1] + '/' + partes[0];
+    const d = new Date(iso.replace(' ', 'T'));
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('es-MX');
 }
 
 function calcularEdad(fechaNac) {

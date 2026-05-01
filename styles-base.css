@@ -326,8 +326,7 @@ code, .mono { font-family: var(--fuente-mono); font-variant-numeric: tabular-num
    CAMPOS DE FORMULARIO
    ============================================================ */
 .campo { margin-bottom: var(--espacio-md); }
-.campo label,
-.modal-seccion-titulo {
+.campo label {
     display: block;
     font-size: 12px; font-weight: 600;
     margin-bottom: 6px;
@@ -336,6 +335,8 @@ code, .mono { font-family: var(--fuente-mono); font-variant-numeric: tabular-num
 }
 
 .modal-seccion-titulo {
+    display: block;
+    font-weight: 600;
     font-family: var(--fuente-mono);
     text-transform: uppercase;
     letter-spacing: 0.10em;

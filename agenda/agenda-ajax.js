@@ -33,7 +33,7 @@ function toast(mensaje, exito) {
     var t = $('toast');
     t.textContent = mensaje;
     t.className = 'toast ' + (exito ? 'toast-exito' : 'toast-error') + ' toast-visible';
-    setTimeout(function(){ t.className = 'toast'; }, 4000);
+    setTimeout(function(){ t.className = 'toast'; }, 2800);
 }
 
 function fmtFecha(d) {

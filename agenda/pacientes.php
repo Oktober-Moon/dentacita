@@ -121,22 +121,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'crear
     $err = validarGeneroOpcional($genero);
     if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-    $err = validarLongitudOpcional($ocupacion,     100, "La ocupación");
+    $err = validarTextoOpcional($ocupacion,     100, "La ocupación");
     if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-    $err = validarLongitudOpcional($direccion,     200, "La dirección");
+    $err = validarTextoOpcional($direccion,     200, "La dirección");
     if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-    $err = validarLongitudOpcional($alergias,      500, "El campo de alergias");
+    $err = validarTextoOpcional($alergias,      500, "El campo de alergias");
     if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-    $err = validarLongitudOpcional($padecimientos, 500, "El campo de padecimientos");
+    $err = validarTextoOpcional($padecimientos, 500, "El campo de padecimientos");
     if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-    $err = validarLongitudOpcional($medicamentos,  500, "El campo de medicamentos");
+    $err = validarTextoOpcional($medicamentos,  500, "El campo de medicamentos");
     if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-    $err = validarLongitudOpcional($notas, 1000, "Las notas");
+    $err = validarTextoOpcional($notas, 1000, "Las notas");
     if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
     /* Conversión de strings vacíos a NULL para columnas opcionales */

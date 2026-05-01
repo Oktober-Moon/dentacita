@@ -79,19 +79,19 @@ $notas            = trim($_POST['notas'] ?? '');
 
 
 /* ----- Validaciones (mismas del guardar) ----- */
-$err = validarPacienteNombreCompleto($nombre_completo);
+$err = validarPacienteNombre($nombre_completo);
 if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-$err = validarPacienteTelefono($telefono);
+$err = validarTelefonoOpcional($telefono);
 if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-$err = validarPacienteEmail($email);
+$err = validarEmailOpcional($email);
 if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-$err = validarFechaNacimiento($fecha_nacimiento);
+$err = validarFechaNacimientoOpcional($fecha_nacimiento);
 if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
-$err = validarGenero($genero);
+$err = validarGeneroOpcional($genero);
 if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
 $err = validarDireccionOpcional($direccion);

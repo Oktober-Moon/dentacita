@@ -18,7 +18,7 @@ function toast(m, t='ok') {
     const cls = tiposValidos[t] || 'toast-ok';
     toastEl.textContent = m;
     toastEl.className = 'toast ' + cls + ' visible';
-    setTimeout(() => toastEl.classList.remove('visible'), 2400);
+    setTimeout(() => toastEl.classList.remove('visible'), 2800);
 }
 function manejarRedirect(json) {
     if (json && json.redirect) { window.location.href = '../index.php'; return false; }

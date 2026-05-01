@@ -16,7 +16,7 @@
         if (!toastEl) { alert(m); return; }
         toastEl.textContent = m;
         toastEl.className = 'toast ' + (t==='error' ? 'toast-error' : 'toast-ok') + ' visible';
-        setTimeout(() => toastEl.classList.remove('visible'), 2400);
+        setTimeout(() => toastEl.classList.remove('visible'), 2800);
     }
     function manejarRedirect(json) {
         if (json && json.redirect) { window.location.href = '../index.php'; return false; }
