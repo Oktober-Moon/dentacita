@@ -632,10 +632,10 @@
 }
 .filtros-inline select {
     height: 36px;
-    padding: 0 var(--espacio-sm);
+    padding: 0 32px 0 var(--espacio-sm);
     border: 1px solid var(--vidrio-borde);
     border-radius: var(--radio-sm);
-    background: var(--vidrio-fondo);
+    background-color: var(--vidrio-fondo);
     font-size: 13px;
     color: var(--texto-primario);
 }

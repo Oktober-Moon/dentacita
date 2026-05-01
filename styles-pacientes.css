@@ -608,9 +608,10 @@ input:-webkit-autofill:active {
 .cita-estado-select {
     margin-left: 6px;
     height: 26px;
-    padding: 0 6px;
+    padding: 0 22px 0 6px;
     font-size: 11px;
-    background: var(--vidrio-fondo);
+    background-color: var(--vidrio-fondo);
+    background-position: right 6px center;
     border: 1px solid var(--vidrio-borde);
     border-radius: var(--radio-xs);
     color: var(--texto-secundario);

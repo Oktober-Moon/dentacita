@@ -352,31 +352,36 @@ input[type="text"], input[type="email"], input[type="password"],
 input[type="number"], input[type="tel"], input[type="date"],
 input[type="time"], input[type="search"], select, textarea {
     width: 100%;
-    background: var(--vidrio-fondo);
+    background-color: var(--vidrio-fondo);
     border: 1px solid var(--vidrio-borde);
     border-radius: var(--radio-sm);
     padding: 0 14px;
     height: 44px;
     color: var(--texto-primario);
     font-family: inherit; font-size: 14px;
-    transition: border-color var(--dur-rapida), background var(--dur-rapida), box-shadow var(--dur-rapida);
+    transition: border-color var(--dur-rapida), background-color var(--dur-rapida), box-shadow var(--dur-rapida);
 }
 .campo textarea, textarea {
     height: auto; min-height: 88px; padding: 12px 14px; resize: vertical;
 }
 select {
     appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='rgba(255,255,255,0.5)' d='M6 8L0 0h12z'/></svg>");
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='10' viewBox='0 0 14 10'><path fill='none' stroke='rgba(255,255,255,0.85)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2 2 l5 5 l5-5'/></svg>");
     background-repeat: no-repeat;
     background-position: right 14px center;
     padding-right: 36px;
+    cursor: pointer;
+}
+select:hover {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='10' viewBox='0 0 14 10'><path fill='none' stroke='rgba(255,255,255,1)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M2 2 l5 5 l5-5'/></svg>");
 }
 
 .campo input:focus, .campo select:focus, .campo textarea:focus,
 input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--color-acento);
-    background: var(--vidrio-fondo-hover);
+    background-color: var(--vidrio-fondo-hover);
     box-shadow: var(--sombra-glow);
 }
 
@@ -384,13 +389,13 @@ input:disabled, select:disabled, textarea:disabled,
 .campo input:disabled, .campo select:disabled, .campo textarea:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.03);
+    background-color: rgba(255, 255, 255, 0.03);
     color: var(--texto-atenuado);
 }
 
 .campo-invalido input, .campo-invalido select, .campo-invalido textarea {
     border-color: var(--color-peligro-borde);
-    background: var(--color-peligro-sutil);
+    background-color: var(--color-peligro-sutil);
 }
 .campo-error {
     display: none;
