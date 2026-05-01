@@ -10,7 +10,7 @@ Aplicación de gestión para consultorio dental, hecha en **PHP plano + MariaDB*
 2. Inicia Apache y MySQL desde el panel de XAMPP.
 3. Abre phpMyAdmin (`http://localhost/phpmyadmin/`).
 4. Pega el contenido de `instalar.sql` y ejecútalo. Esto crea:
-   - La base de datos `dentacita` con 13 tablas
+   - La base de datos `dentacita` con 12 tablas
    - El usuario MySQL **de servicio** `dentista`@`localhost` (password `dentista`) con permisos `SELECT, INSERT, UPDATE, DELETE` sobre la base
    - Un **usuario demo de la app**: email `dentista@demo.com`, contraseña `dentista`
    - Datos seed de prueba (pacientes, citas, inventario, transacciones)
@@ -27,7 +27,7 @@ Aplicación de gestión para consultorio dental, hecha en **PHP plano + MariaDB*
 ```
 dentacita/
 ├── README.md                       este archivo
-├── instalar.sql                    schema multi-tenant + cuenta de servicio + datos seed (13 tablas)
+├── instalar.sql                    schema multi-tenant + cuenta de servicio + datos seed (12 tablas)
 ├── conexion.php                    conexión MySQL + helpers de sesión + bootstrap de perfil
 ├── styles.css                      estilos compartidos
 ├── _nav.php                        sidebar reusable (6 enlaces)
@@ -85,7 +85,7 @@ dentacita/
 
 ---
 
-## Las 13 tablas
+## Las 12 tablas
 
 | Tabla | Para qué sirve |
 |---|---|

@@ -1,18 +1,22 @@
 -- ============================================================
--- DENTACITA · INSTALACIÓN COMPLETA · v6 (multi-tenant)
+-- DENTACITA · ARCHIVO MAESTRO DE BASE DE DATOS · v8 multi-tenant
 -- ------------------------------------------------------------
+-- Único archivo SQL del proyecto. Crea la BD desde cero, las 12
+-- tablas, la cuenta MySQL de servicio y los datos seed demo.
 -- Cada cuenta `usuarios` tiene su propio espacio aislado: sus
--- pacientes, citas, finanzas, inventario, perfil, etc. Todas las
--- tablas raíz cargan `usuario_id` y los queries de la app filtran
--- siempre por la sesión.
+-- pacientes, citas, finanzas, inventario, perfil, etc.
 --
 -- Cómo correr:
 --   1. Abrir phpMyAdmin (http://localhost/phpmyadmin/).
 --   2. Pegar TODO este archivo y ejecutarlo (DROP DATABASE incluido).
---   3. Crea: BD `dentacita`, 13 tablas, la cuenta MySQL de servicio
+--   3. Crea: BD `dentacita`, 12 tablas, la cuenta MySQL de servicio
 --      `dentista`@`localhost` (password `dentista`) con permisos
 --      SELECT/INSERT/UPDATE/DELETE, y un usuario demo de la app
 --      (email: dentista@demo.com · password: dentista).
+--
+-- Si ya tienes una BD anterior, este script la sobrescribe (DROP).
+-- No hay scripts de migración separados: este archivo es la fuente
+-- de verdad y siempre refleja la última versión del schema.
 -- ============================================================
 
 
