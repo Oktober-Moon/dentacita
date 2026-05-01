@@ -56,6 +56,32 @@ $tsIni  = strtotime($inicio);
 $tsFin  = $tsIni + ((int)$duracion) * 60;
 $fin    = date('Y-m-d H:i:s', $tsFin);
 
+/* ----- Detección de solapamiento con otras citas activas del mismo usuario ----- */
+$chkOverlap = @$conexion->prepare(
+    "SELECT cita_id, titulo, fecha_hora_inicio, fecha_hora_fin
+     FROM citas
+     WHERE usuario_id = ?
+       AND estado NOT IN ('cancelada', 'no_asistio')
+       AND fecha_hora_inicio < ?
+       AND fecha_hora_fin    > ?
+     LIMIT 1"
+);
+if ($chkOverlap) {
+    $chkOverlap->bind_param("iss", $usuarioId, $fin, $inicio);
+    @$chkOverlap->execute();
+    $citaSolapada = $chkOverlap->get_result()->fetch_assoc();
+    $chkOverlap->close();
+    if ($citaSolapada) {
+        $hi = substr($citaSolapada['fecha_hora_inicio'], 11, 5);
+        $hf = substr($citaSolapada['fecha_hora_fin'],    11, 5);
+        echo json_encode([
+            "ok" => false,
+            "mensaje" => "Hay una cita que se solapa: \"" . $citaSolapada['titulo'] . "\" ($hi–$hf). Cambia el horario."
+        ]);
+        $conexion->close(); exit;
+    }
+}
+
 
 /* ----- paciente_id puede ser NULL si la cita es solo "nombre + tel" ----- */
 $pacienteIdInt = is_numeric($paciente_id) ? (int)$paciente_id : null;

@@ -50,7 +50,9 @@ $itemIdInt = (int)$item_id;
 
 $err = validarMovimientoTipo($tipo);                         if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 $err = validarMovimientoMotivo($motivo, $tipo);              if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
-$err = validarItemCantidadEntera($cantidad, "La cantidad", false); if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
+// En 'ajuste' la cantidad es el stock objetivo; permitir 0 (producto agotado intencional).
+$permiteCero = ($tipo === 'ajuste');
+$err = validarItemCantidadEntera($cantidad, ($tipo === 'ajuste' ? "El stock objetivo" : "La cantidad"), $permiteCero); if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 $err = validarMovimientoFecha($fecha);                       if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 $err = validarItemPrecioOpcional($costo_unitario, "El costo unitario"); if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 $err = validarItemPrecioOpcional($precio_venta_unitario, "El precio de venta"); if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }

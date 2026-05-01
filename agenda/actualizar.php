@@ -125,105 +125,153 @@ $motivoCancV   = ($estadoCita === 'cancelada' && $motivoCancelacion !== '')
     ? mb_substr($motivoCancelacion, 0, 200) : null;
 $idInt         = (int)$id;
 
-
-/* ----- Update ----- */
-$sql = "UPDATE citas
-        SET paciente_id        = ?,
-            paciente_nombre    = ?,
-            paciente_telefono  = ?,
-            titulo             = ?,
-            descripcion        = ?,
-            fecha_hora_inicio  = ?,
-            fecha_hora_fin     = ?,
-            estado             = ?,
-            notas              = ?,
-            motivo_cancelacion = ?,
-            precio             = ?
-        WHERE cita_id = ? AND usuario_id = ?";
-
-$stmt = @$conexion->prepare($sql);
-if (!$stmt) {
-    echo json_encode(["ok"=>false,"mensaje"=>mensajeErrorMysql($conexion->errno, $conexion->error)]);
-    $conexion->close(); exit;
+/* ----- Detección de solapamiento (excluyendo la propia cita) ----- */
+$chkOverlap = @$conexion->prepare(
+    "SELECT cita_id, titulo, fecha_hora_inicio, fecha_hora_fin
+     FROM citas
+     WHERE usuario_id = ?
+       AND cita_id != ?
+       AND estado NOT IN ('cancelada', 'no_asistio')
+       AND fecha_hora_inicio < ?
+       AND fecha_hora_fin    > ?
+     LIMIT 1"
+);
+if ($chkOverlap) {
+    $chkOverlap->bind_param("iiss", $usuarioId, $idInt, $fin, $inicio);
+    @$chkOverlap->execute();
+    $citaSolapada = $chkOverlap->get_result()->fetch_assoc();
+    $chkOverlap->close();
+    if ($citaSolapada) {
+        $hi = substr($citaSolapada['fecha_hora_inicio'], 11, 5);
+        $hf = substr($citaSolapada['fecha_hora_fin'],    11, 5);
+        echo json_encode([
+            "ok" => false,
+            "mensaje" => "Hay una cita que se solapa: \"" . $citaSolapada['titulo'] . "\" ($hi–$hf). Cambia el horario."
+        ]);
+        $conexion->close(); exit;
+    }
 }
 
-// Tipos: i=int, s=string, d=double. precio=DECIMAL→'d', cita_id=INT→'i' final.
-$stmt->bind_param("isssssssssdii",
-    $pacienteIdInt,
-    $paciente_nombre,
-    $telefonoV,
-    $titulo,
-    $descripcionV,
-    $inicio,
-    $fin,
-    $estadoCita,
-    $notasV,
-    $motivoCancV,
-    $precioFinal,
-    $idInt,
-    $usuarioId
-);
 
-if (@$stmt->execute()) {
-    if ($stmt->affected_rows === 0) {
-        $check = @$conexion->prepare("SELECT 1 FROM citas WHERE cita_id = ? AND usuario_id = ?");
-        $check->bind_param("ii", $idInt, $usuarioId);
-        @$check->execute();
-        $existe = $check->get_result()->fetch_row();
-        $check->close();
-        if (!$existe) {
-            echo json_encode(["ok"=>false,"mensaje"=>"La cita ya no existe."]);
-            $stmt->close(); $conexion->close(); exit;
-        }
+/* =============================================================
+ * Flujo atómico:
+ *   1) BEGIN TRANSACTION
+ *   2) SELECT estado_actual + cita ya cobrada (FOR UPDATE evita
+ *      race condition con cobro paralelo).
+ *   3) UPDATE cita.
+ *   4) Si transición a 'completada' y no había cobro → INSERT ingreso.
+ *   5) Si transición DESDE 'completada' (downgrade) → anular ingreso.
+ *   6) COMMIT o ROLLBACK si algo falla.
+ * ============================================================= */
+@$conexion->begin_transaction();
+try {
+    // 2) Estado actual + lock para evitar cobros simultáneos
+    $sEst = @$conexion->prepare(
+        "SELECT estado FROM citas WHERE cita_id = ? AND usuario_id = ? FOR UPDATE"
+    );
+    if (!$sEst) throw new Exception(mensajeErrorMysql($conexion->errno, $conexion->error));
+    $sEst->bind_param("ii", $idInt, $usuarioId);
+    @$sEst->execute();
+    $rowEst = $sEst->get_result()->fetch_assoc();
+    $sEst->close();
+    if (!$rowEst) throw new Exception("La cita ya no existe.");
+    $estadoAnterior = $rowEst['estado'];
+
+    // ¿La cita ya tiene un ingreso activo? (excluye reembolsos)
+    $sCobro = @$conexion->prepare(
+        "SELECT transaccion_id FROM transacciones
+         WHERE cita_id = ? AND usuario_id = ?
+           AND estado = 'activa' AND categoria != 'Reembolso'
+         LIMIT 1
+         FOR UPDATE"
+    );
+    if (!$sCobro) throw new Exception(mensajeErrorMysql($conexion->errno, $conexion->error));
+    $sCobro->bind_param("ii", $idInt, $usuarioId);
+    @$sCobro->execute();
+    $rowCobro = $sCobro->get_result()->fetch_assoc();
+    $sCobro->close();
+    $transaccionExistente = $rowCobro ? (int)$rowCobro['transaccion_id'] : null;
+
+    // 3) UPDATE cita
+    $sql = "UPDATE citas
+            SET paciente_id        = ?,
+                paciente_nombre    = ?,
+                paciente_telefono  = ?,
+                titulo             = ?,
+                descripcion        = ?,
+                fecha_hora_inicio  = ?,
+                fecha_hora_fin     = ?,
+                estado             = ?,
+                notas              = ?,
+                motivo_cancelacion = ?,
+                precio             = ?
+            WHERE cita_id = ? AND usuario_id = ?";
+    $stmt = @$conexion->prepare($sql);
+    if (!$stmt) throw new Exception(mensajeErrorMysql($conexion->errno, $conexion->error));
+    $stmt->bind_param("isssssssssdii",
+        $pacienteIdInt, $paciente_nombre, $telefonoV, $titulo, $descripcionV,
+        $inicio, $fin, $estadoCita, $notasV, $motivoCancV,
+        $precioFinal, $idInt, $usuarioId
+    );
+    if (!@$stmt->execute()) {
+        $errno = $stmt->errno; $error = $stmt->error; $stmt->close();
+        throw new Exception(mensajeErrorMysql($errno, $error));
     }
     $stmt->close();
 
-    /* =========================================================
-     * FLUJO CRUZADO: cita completada con precio → ingreso
-     * Si el dentista cambió el estado a 'completada' y hay precio,
-     * generamos automáticamente la transacción de ingreso si aún no existe.
-     * ========================================================= */
     $infoExtra = "";
-    if ($estadoCita === 'completada' && $precioFinal !== null && $precioFinal > 0) {
-        // ¿Ya hay transacción activa para esta cita (que no sea reembolso)?
-        $sc = @$conexion->prepare(
-            "SELECT 1 FROM transacciones
-             WHERE cita_id = ? AND usuario_id = ? AND estado='activa' AND categoria != 'Reembolso' LIMIT 1"
-        );
-        $sc->bind_param("ii", $idInt, $usuarioId);
-        @$sc->execute();
-        $yaCobrada = (bool)$sc->get_result()->fetch_assoc();
-        $sc->close();
 
-        if (!$yaCobrada) {
-            $descTrans = "Cita: {$titulo} · {$paciente_nombre}";
-            $hoyStr = date('Y-m-d');
-            // Validar metodo_pago; si inválido o vacío, default 'efectivo'.
-            $metodosValidos = ['efectivo','tarjeta','transferencia','cheque','otro'];
-            $metodoPagoFinal = in_array($metodoPagoCobro, $metodosValidos, true) ? $metodoPagoCobro : 'efectivo';
-            $st = @$conexion->prepare(
-                "INSERT INTO transacciones
-                   (usuario_id, tipo, categoria, monto, fecha, descripcion, paciente_id, cita_id, metodo_pago, estado)
-                 VALUES (?, 'ingreso', 'Tratamiento', ?, ?, ?, ?, ?, ?, 'activa')"
-            );
-            if ($st) {
-                $st->bind_param("idssiis", $usuarioId, $precioFinal, $hoyStr, $descTrans, $pacienteIdInt, $idInt, $metodoPagoFinal);
-                if (@$st->execute()) {
-                    $infoExtra = " Se generó un ingreso de \$" . number_format($precioFinal, 2) . " en finanzas (" . $metodoPagoFinal . ").";
-                }
-                $st->close();
-            }
+    // 4) Auto-cobro al pasar a 'completada'
+    if ($estadoCita === 'completada' && $precioFinal !== null && $precioFinal > 0
+        && $transaccionExistente === null) {
+        $descTrans = "Cita: {$titulo} · {$paciente_nombre}";
+        $hoyStr = date('Y-m-d');
+        $metodosValidos = ['efectivo','tarjeta','transferencia','cheque','otro'];
+        $metodoPagoFinal = in_array($metodoPagoCobro, $metodosValidos, true) ? $metodoPagoCobro : 'efectivo';
+        $st = @$conexion->prepare(
+            "INSERT INTO transacciones
+               (usuario_id, tipo, categoria, monto, fecha, descripcion, paciente_id, cita_id, metodo_pago, estado)
+             VALUES (?, 'ingreso', 'Tratamiento', ?, ?, ?, ?, ?, ?, 'activa')"
+        );
+        if (!$st) throw new Exception(mensajeErrorMysql($conexion->errno, $conexion->error));
+        $st->bind_param("idssiis", $usuarioId, $precioFinal, $hoyStr, $descTrans, $pacienteIdInt, $idInt, $metodoPagoFinal);
+        if (!@$st->execute()) {
+            $errno = $st->errno; $error = $st->error; $st->close();
+            throw new Exception(mensajeErrorMysql($errno, $error));
         }
+        $st->close();
+        $infoExtra = " Se generó un ingreso de \$" . number_format($precioFinal, 2) . " en finanzas (" . $metodoPagoFinal . ").";
     }
+
+    // 5) Downgrade desde 'completada' → anular ingreso huérfano
+    if ($estadoAnterior === 'completada' && $estadoCita !== 'completada'
+        && $transaccionExistente !== null) {
+        $motivoAnul = "Cita revertida a '$estadoCita'";
+        $sa = @$conexion->prepare(
+            "UPDATE transacciones
+             SET estado = 'anulada', anulada_en = NOW(), motivo_anulacion = ?
+             WHERE transaccion_id = ? AND usuario_id = ?"
+        );
+        if (!$sa) throw new Exception(mensajeErrorMysql($conexion->errno, $conexion->error));
+        $sa->bind_param("sii", $motivoAnul, $transaccionExistente, $usuarioId);
+        if (!@$sa->execute()) {
+            $errno = $sa->errno; $error = $sa->error; $sa->close();
+            throw new Exception(mensajeErrorMysql($errno, $error));
+        }
+        $sa->close();
+        $infoExtra = " El ingreso vinculado fue anulado automáticamente.";
+    }
+
+    @$conexion->commit();
 
     echo json_encode([
         "ok"      => true,
         "mensaje" => "Cita actualizada correctamente." . $infoExtra,
         "fecha"   => $fecha
     ]);
-} else {
-    echo json_encode(["ok"=>false,"mensaje"=>mensajeErrorMysql($stmt->errno, $stmt->error)]);
-    $stmt->close();
+} catch (Exception $e) {
+    @$conexion->rollback();
+    echo json_encode(["ok"=>false, "mensaje"=>$e->getMessage()]);
 }
 
 $conexion->close();
