@@ -183,13 +183,20 @@ $nav_base_url = '../';
             <div class="paciente-cabecera">
                 <a href="./" class="link-volver">‹ Volver a pacientes</a>
                 <div class="paciente-cabecera-fila">
-                    <?php if (!empty($paciente['foto_url'])): ?>
-                        <img class="paciente-avatar-grande" src="<?php echo htmlspecialchars($paciente['foto_url']); ?>" alt="" onerror="this.style.display='none'">
-                    <?php else: ?>
-                        <div class="paciente-avatar-grande paciente-avatar-placeholder">
-                            <?php echo htmlspecialchars(mb_strtoupper(mb_substr($paciente['nombre_completo'], 0, 1))); ?>
-                        </div>
-                    <?php endif; ?>
+                    <div class="paciente-avatar-bloque">
+                        <?php if (!empty($paciente['foto_url'])): ?>
+                            <img id="pf_avatar" class="paciente-avatar-grande" src="<?php echo htmlspecialchars($paciente['foto_url']); ?>" alt="">
+                            <span id="pf_avatar_inicial" class="paciente-avatar-grande paciente-avatar-placeholder" style="display:none">
+                                <?php echo htmlspecialchars(mb_strtoupper(mb_substr($paciente['nombre_completo'], 0, 1))); ?>
+                            </span>
+                        <?php else: ?>
+                            <img id="pf_avatar" class="paciente-avatar-grande" src="" alt="" style="display:none">
+                            <span id="pf_avatar_inicial" class="paciente-avatar-grande paciente-avatar-placeholder">
+                                <?php echo htmlspecialchars(mb_strtoupper(mb_substr($paciente['nombre_completo'], 0, 1))); ?>
+                            </span>
+                        <?php endif; ?>
+                        <button type="button" class="btn btn-secundario btn-sm" id="pf_btnCambiar">Cambiar foto</button>
+                    </div>
                     <div class="paciente-cabecera-info">
                         <h1 class="page-titulo"><?php echo htmlspecialchars($paciente['nombre_completo']); ?></h1>
                         <div class="page-subtitulo">
@@ -238,6 +245,36 @@ $nav_base_url = '../';
     </main>
 
 </div>
+
+
+<!-- Modal · cambiar foto del paciente -->
+<div id="modalFotoPaciente" class="modal-fondo">
+    <div class="modal-caja modal-caja-grande">
+        <button type="button" class="modal-cerrar" data-cerrar-modal-pf aria-label="Cerrar">&times;</button>
+        <h2 class="modal-titulo">Foto del paciente</h2>
+        <div class="campo">
+            <input type="file" id="pf_inputFoto" accept="image/jpeg,image/png,image/webp">
+            <div class="campo-ayuda">Recorta una zona cuadrada arrastrando la imagen.</div>
+        </div>
+        <div id="pf_cropContenedor" style="display:none">
+            <div class="crop-area">
+                <canvas id="pf_cropCanvas" width="320" height="320"></canvas>
+            </div>
+            <div class="crop-controles">
+                <label>Zoom <input type="range" id="pf_cropZoom" min="100" max="400" value="100"></label>
+                <label>Rotación <input type="range" id="pf_cropRotar" min="-180" max="180" value="0" step="1"></label>
+            </div>
+        </div>
+        <div class="modal-acciones">
+            <button type="button" class="btn btn-secundario" data-cerrar-modal-pf>Cancelar</button>
+            <button type="button" class="btn btn-primario" id="pf_btnGuardar" disabled>Guardar foto</button>
+        </div>
+    </div>
+</div>
+
+
+<script>window.PACIENTE_ID = <?php echo $idInt; ?>;</script>
+<script src="detalle-foto.js?v=<?php echo @filemtime(__DIR__ . '/detalle-foto.js'); ?>"></script>
 
 </body>
 </html>

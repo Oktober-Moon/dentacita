@@ -1,11 +1,9 @@
 <?php
 /*
- * PERFIL · vista principal v7 (mínimo: nombre + foto)
+ * PERFIL · vista principal v7 (mínimo: nombre + foto + tema)
  *
- * El selector de tema visual se removió de la UI · los usuarios que ya
- * tenían un tema guardado en BD lo siguen viendo (las reglas CSS
- * [data-tema=...] permanecen activas en styles.css y _nav.php las
- * aplica al cargar). Solo se quitó la UI para cambiarlo.
+ * Tres secciones apiladas: foto (con cropper), nombre (con autosave)
+ * y selector de tema visual (8 variantes de color planos).
  */
 
 require __DIR__ . '/../conexion.php';
