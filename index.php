@@ -1,6 +1,6 @@
 <?php
 /*
- * PANTALLA DE LOGIN · v6 (web)
+ * PANTALLA DE LOGIN · v8 (web)
  * ----------------------------
  * El usuario teclea su email y contraseña. La autenticación la
  * hace la tabla `usuarios` con bcrypt (`password_verify`).

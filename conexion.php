@@ -2,7 +2,7 @@
 /*
  * CONEXIÓN A MySQL · cuenta de servicio fija
  * -------------------------------------------------
- * v6 multi-tenant: la app usa siempre la cuenta MySQL `dentista`
+ * v8 multi-tenant: la app usa siempre la cuenta MySQL `dentista`
  * (creada por instalar.sql). El control de acceso lo hace la
  * tabla `usuarios` + sesión PHP, NO MySQL.
  *

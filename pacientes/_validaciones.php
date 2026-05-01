@@ -26,7 +26,7 @@ function validarOcupacionOpcional($ocupacion) {
 
 
 /* ============================================================
- * Validaciones · ARCHIVOS, CARPETAS, NOTAS (v4)
+ * Validaciones · ARCHIVOS, CARPETAS, NOTAS (v8)
  * ============================================================ */
 
 function validarRutaCarpeta($ruta) {

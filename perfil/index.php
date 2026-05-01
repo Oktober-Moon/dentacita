@@ -1,6 +1,6 @@
 <?php
 /*
- * PERFIL · vista principal v7 (mínimo: nombre + foto + tema)
+ * PERFIL · vista principal v8 (mínimo: nombre + foto + tema)
  *
  * Tres secciones apiladas: foto (con cropper), nombre (con autosave)
  * y selector de tema visual (8 variantes de color planos).

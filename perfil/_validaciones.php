@@ -1,6 +1,6 @@
 <?php
 /*
- * VALIDACIONES · módulo perfil v7 (mínimo)
+ * VALIDACIONES · módulo perfil v8 (mínimo)
  */
 
 function validarPerfilNombre($nombre) {

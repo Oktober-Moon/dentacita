@@ -1,6 +1,6 @@
 <?php
 /*
- * GUARDAR PERFIL · UPDATE de los datos del dentista logueado (v7 mínimo)
+ * GUARDAR PERFIL · UPDATE de los datos del dentista logueado (v8 mínimo)
  */
 
 header('Content-Type: application/json');

@@ -1,6 +1,6 @@
 <?php
 /*
- * MOSTRAR PERFIL · v7 (mínimo)
+ * MOSTRAR PERFIL · v8 (mínimo)
  * Devuelve solo nombre, foto, tema y onboarding.
  */
 

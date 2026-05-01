@@ -1,6 +1,6 @@
 <?php
 /*
- * REGISTRO DE CUENTA · v6
+ * REGISTRO DE CUENTA · v8
  * ------------------------
  * Crea una cuenta nueva en `usuarios`. Tras el INSERT exitoso,
  * inicia sesión automáticamente y redirige al dashboard.

@@ -1,6 +1,6 @@
 <?php
 /*
- * NAVEGACIÓN LATERAL · sidebar del dentista (v6)
+ * NAVEGACIÓN LATERAL · sidebar del dentista (v8)
  * ----------------------------------------------
  * 6 enlaces principales. Sin mensajes ni portafolio (decisión de
  * alcance: la app la usa solo el dentista, no hay vista pública).
