@@ -269,9 +269,8 @@
     color: var(--texto-atenuado);
 }
 
-/* Profesiones / vacaciones / acuerdos / archivos / notas (cards genéricas) */
+/* Profesiones / vacaciones / archivos / notas (cards genéricas) */
 .lista-prof,
-.lista-acuerdos,
 .lista-vacaciones,
 .lista-nodisp,
 .lista-notas {
@@ -286,8 +285,7 @@
 .prof-card,
 .profesion-card,
 .nodisp-card,
-.vacacion-card,
-.acuerdo-card {
+.vacacion-card {
     border: 1px solid var(--vidrio-borde);
     border-radius: var(--radio-md);
     padding: var(--espacio-md);
@@ -299,7 +297,6 @@
     box-shadow: 0 0 0 1px var(--color-acento) inset, 0 8px 32px var(--color-acento-sutil);
 }
 .prof-head, .profesion-header,
-.acuerdo-header,
 .vacacion-header,
 .nodisp-card {
     display: flex;
@@ -316,8 +313,7 @@
 }
 .prof-acciones,
 .profesion-acciones,
-.vacacion-acciones,
-.acuerdo-acciones {
+.vacacion-acciones {
     margin-top: var(--espacio-sm);
     padding-top: var(--espacio-sm);
     border-top: 1px dashed var(--vidrio-borde);
@@ -390,14 +386,7 @@
     border-top: 1px dashed var(--vidrio-borde);
 }
 
-/* Acuerdo · monto + barra de progreso */
-.acuerdo-monto { margin-top: var(--espacio-sm); margin-bottom: var(--espacio-sm); }
-.acuerdo-detalles {
-    font-size: 13px;
-    margin-bottom: var(--espacio-sm);
-    color: var(--texto-secundario);
-}
-.acuerdo-detalles div { margin-bottom: 2px; }
+/* Barra de progreso (uso compartido: top categorías de finanzas, etc.) */
 .progreso {
     margin-top: 6px;
     height: 6px;

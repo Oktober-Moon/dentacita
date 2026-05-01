@@ -60,7 +60,6 @@
             <div class="ficha-card-titulo">Resumen</div>
             <ul class="ficha-lista">
                 <li><strong><?php echo $cnt['citas']; ?></strong> cita(s) registradas</li>
-                <li><strong><?php echo $cnt['acuerdos']; ?></strong> acuerdo(s) de servicio</li>
                 <li><strong><?php echo $cnt['archivos']; ?></strong> archivo(s)</li>
                 <li><strong><?php echo $cnt['notas']; ?></strong> nota(s) clínicas</li>
             </ul>

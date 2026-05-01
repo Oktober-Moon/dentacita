@@ -26,11 +26,10 @@
         },
         {
             titulo: 'Pacientes y ficha clínica',
-            cuerpo: '<p>Cada paciente tiene su ficha con 5 pestañas:</p>'
+            cuerpo: '<p>Cada paciente tiene su ficha con 4 pestañas:</p>'
                   + '<ul>'
                   + '<li><strong>Datos:</strong> contacto, alergias, padecimientos.</li>'
                   + '<li><strong>Citas:</strong> historial completo.</li>'
-                  + '<li><strong>Acuerdos:</strong> propuestas de servicio (al aceptar, crea cita).</li>'
                   + '<li><strong>Archivos:</strong> radiografías, PDFs, organizados en carpetas con papelera.</li>'
                   + '<li><strong>Notas:</strong> bitácora clínica del paciente.</li>'
                   + '</ul>'

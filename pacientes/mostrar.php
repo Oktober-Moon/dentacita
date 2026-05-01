@@ -49,9 +49,6 @@ if (isset($_GET['id'])) {
     $extra = [];
     $sqlsContadores = [
         'citas'    => "SELECT COUNT(*) FROM citas              WHERE paciente_id = ? AND usuario_id = ?",
-        'acuerdos' => "SELECT COUNT(*) FROM acuerdos_servicio a
-                       JOIN pacientes p ON a.paciente_id = p.paciente_id
-                       WHERE a.paciente_id = ? AND p.usuario_id = ?",
         'archivos' => "SELECT COUNT(*) FROM archivos_paciente a
                        JOIN pacientes p ON a.paciente_id = p.paciente_id
                        WHERE a.paciente_id = ? AND p.usuario_id = ? AND a.eliminado_en IS NULL",

@@ -642,12 +642,6 @@
 .badge-documento   { background: var(--vidrio-fondo);         border-color: var(--vidrio-borde);         color: var(--texto-secundario); }
 .badge-laboratorio { background: var(--color-advertencia-sutil); border-color: var(--color-advertencia-borde); color: var(--color-advertencia-texto); }
 .badge-otro        { background: var(--vidrio-fondo);         border-color: var(--vidrio-borde);         color: var(--texto-atenuado); }
-/* Acuerdos · usar siempre con la clase base .badge */
-.badge-acuerdo-pendiente { background: var(--color-advertencia-sutil); border-color: var(--color-advertencia-borde); color: var(--color-advertencia-texto); }
-.badge-acuerdo-aceptado  { background: var(--color-exito-sutil);       border-color: var(--color-exito-borde);       color: var(--color-exito-texto); }
-.badge-acuerdo-rechazado { background: var(--color-peligro-sutil);     border-color: var(--color-peligro-borde);     color: var(--color-peligro-texto); }
-.badge-acuerdo-cancelado { background: var(--vidrio-fondo);             border-color: var(--vidrio-borde);             color: var(--texto-atenuado); }
-.badge-acuerdo-completado{ background: var(--color-purpura-sutil);     border-color: var(--color-purpura-borde);     color: var(--color-purpura-texto); }
 /* Otros */
 .badge-warn      { background: var(--color-advertencia-sutil); border-color: var(--color-advertencia-borde); color: var(--color-advertencia-texto); }
 .badge-reembolso { background: var(--color-purpura-sutil);     border-color: var(--color-purpura-borde);     color: var(--color-purpura-texto); }

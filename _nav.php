@@ -135,7 +135,7 @@ $modulosMenu = [
        inventario/index.php (banner ⚠), agenda (📅 citas) y centro de
        notificaciones (esta tabla es la fuente de verdad). */
     function iconoTipo(tipo) {
-        var map = { cita:'📅', acuerdo:'📝', stock_bajo:'⚠', stock_agotado:'❌', exito:'✅', error:'⛔', info:'ℹ' };
+        var map = { cita:'📅', stock_bajo:'⚠', stock_agotado:'❌', exito:'✅', error:'⛔', info:'ℹ' };
         return map[tipo] || '🔔';
     }
 

@@ -132,8 +132,8 @@ $nav_base_url = '../';
         <h2 class="modal-titulo">Eliminar paciente</h2>
         <p>Vas a eliminar a <strong id="eliminarNombre"></strong>.</p>
         <p class="texto-atenuado" style="font-size:.92em">
-            Sus <strong>acuerdos de servicio</strong>, <strong>notas clínicas</strong>,
-            <strong>archivos</strong> (incluyendo carpetas y papelera) también se borrarán.
+            Sus <strong>notas clínicas</strong> y <strong>archivos</strong>
+            (incluyendo carpetas y papelera) también se borrarán.
             Sus <strong>citas</strong> y <strong>transacciones financieras</strong> se conservarán
             pero ya no estarán vinculadas a este paciente. Esta acción es irreversible.
         </p>

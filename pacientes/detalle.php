@@ -1,15 +1,12 @@
 <?php
 /*
- * PACIENTES · ficha de detalle con 5 pestañas
+ * PACIENTES · ficha de detalle con 4 pestañas
  * --------------------------------------------
- * Replica funcional de ClientHistory.tsx del original.
- *
  * Pestañas (parciales en _detalle/):
  *   1. Datos      — datos personales y clínicos
  *   2. Citas      — historial de citas con esta persona
- *   3. Acuerdos   — acuerdos de servicio (≈ planes de tratamiento)
- *   4. Archivos   — archivos del paciente organizados en carpetas
- *   5. Notas      — bitácora libre del dentista
+ *   3. Archivos   — archivos del paciente organizados en carpetas
+ *   4. Notas      — bitácora libre del dentista
  */
 
 require __DIR__ . '/../conexion.php';
@@ -23,7 +20,7 @@ if (!is_numeric($id)) { $conexion->close(); header('Location: ./'); exit; }
 $idInt = (int)$id;
 
 // Pestaña activa por query string (default: datos)
-$tabValidas = ['datos','citas','acuerdos','archivos','notas'];
+$tabValidas = ['datos','citas','archivos','notas'];
 $tab = $_GET['tab'] ?? 'datos';
 if (!in_array($tab, $tabValidas, true)) $tab = 'datos';
 
@@ -41,7 +38,7 @@ $stmt->close();
 if (!$paciente) { $conexion->close(); header('Location: ./'); exit; }
 
 /* ----- Datos por pestaña ----- */
-$citas = $acuerdos = $archivosPorCarpeta = $archivosSinCarpeta = $notas = [];
+$citas = $archivosPorCarpeta = $archivosSinCarpeta = $notas = [];
 $carpetas = [];
 
 if ($tab === 'citas' || $tab === 'datos') {
@@ -53,22 +50,6 @@ if ($tab === 'citas' || $tab === 'datos') {
         $s->bind_param("ii", $idInt, $usuarioId); @$s->execute();
         $r = $s->get_result();
         while ($f = $r->fetch_assoc()) $citas[] = $f;
-        $s->close();
-    }
-}
-
-if ($tab === 'acuerdos') {
-    if ($s = @$conexion->prepare(
-        "SELECT a.acuerdo_id, a.servicio, a.descripcion, a.fecha_programada, a.duracion_minutos,
-                a.precio, a.estado, a.cita_id, a.creado_en
-         FROM acuerdos_servicio a
-         JOIN pacientes p ON a.paciente_id = p.paciente_id
-         WHERE a.paciente_id = ? AND p.usuario_id = ?
-         ORDER BY a.creado_en DESC"
-    )) {
-        $s->bind_param("ii", $idInt, $usuarioId); @$s->execute();
-        $r = $s->get_result();
-        while ($f = $r->fetch_assoc()) $acuerdos[] = $f;
         $s->close();
     }
 }
@@ -132,9 +113,6 @@ $cnt = [];
 $sqlsCnt = [
     'citas'    => "SELECT COUNT(*) FROM citas
                    WHERE paciente_id = ? AND usuario_id = ?",
-    'acuerdos' => "SELECT COUNT(*) FROM acuerdos_servicio a
-                   JOIN pacientes p ON a.paciente_id = p.paciente_id
-                   WHERE a.paciente_id = ? AND p.usuario_id = ?",
     'archivos' => "SELECT COUNT(*) FROM archivos_paciente a
                    JOIN pacientes p ON a.paciente_id = p.paciente_id
                    WHERE a.paciente_id = ? AND p.usuario_id = ? AND a.eliminado_en IS NULL",
@@ -245,9 +223,6 @@ $nav_base_url = '../';
             <a href="?id=<?php echo $idInt; ?>&tab=datos"     class="tab-link <?php echo $tab==='datos' ? 'activo':''; ?>">Datos</a>
             <a href="?id=<?php echo $idInt; ?>&tab=citas"     class="tab-link <?php echo $tab==='citas' ? 'activo':''; ?>">
                 Citas <span class="tab-badge"><?php echo $cnt['citas']; ?></span>
-            </a>
-            <a href="?id=<?php echo $idInt; ?>&tab=acuerdos"  class="tab-link <?php echo $tab==='acuerdos' ? 'activo':''; ?>">
-                Acuerdos <span class="tab-badge"><?php echo $cnt['acuerdos']; ?></span>
             </a>
             <a href="?id=<?php echo $idInt; ?>&tab=archivos"  class="tab-link <?php echo $tab==='archivos' ? 'activo':''; ?>">
                 Archivos <span class="tab-badge"><?php echo $cnt['archivos']; ?></span>

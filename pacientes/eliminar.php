@@ -2,8 +2,8 @@
 /*
  * ELIMINAR PACIENTE · endpoint AJAX (JSON)
  * -----------------------------------------
- * Borra un paciente. Por las FK definidas en instalar.sql (v6):
- *   - acuerdos_servicio, archivos_paciente, carpetas_paciente,
+ * Borra un paciente. Por las FK definidas en instalar.sql:
+ *   - archivos_paciente, carpetas_paciente,
  *     notas_paciente → ON DELETE CASCADE (se borran con el paciente)
  *   - citas, transacciones → ON DELETE SET NULL
  *     (la fila queda pero pierde el vínculo al paciente)

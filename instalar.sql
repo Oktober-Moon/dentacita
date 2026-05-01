@@ -109,24 +109,6 @@ CREATE TABLE citas (
 -- BLOQUE C · FICHA DEL PACIENTE
 -- ============================================================
 
-CREATE TABLE acuerdos_servicio (
-    acuerdo_id        INT AUTO_INCREMENT PRIMARY KEY,
-    paciente_id       INT NOT NULL,
-    cita_id           INT NULL,
-    servicio          VARCHAR(150) NOT NULL,
-    descripcion       TEXT,
-    fecha_programada  DATETIME NOT NULL,
-    duracion_minutos  INT NOT NULL DEFAULT 60,
-    precio            DECIMAL(10,2) NOT NULL,
-    estado            ENUM('pendiente','aceptado','rechazado','cancelado','completado')
-                      NOT NULL DEFAULT 'pendiente',
-    creado_en         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    actualizado_en    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (paciente_id) REFERENCES pacientes(paciente_id) ON DELETE CASCADE,
-    FOREIGN KEY (cita_id)     REFERENCES citas(cita_id)         ON DELETE SET NULL,
-    INDEX idx_acuerdo_paciente (paciente_id, estado)
-);
-
 CREATE TABLE carpetas_paciente (
     carpeta_id        INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id       INT NOT NULL,
@@ -265,7 +247,7 @@ CREATE TABLE personal_memories (
 CREATE TABLE notificaciones (
     notificacion_id  INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id       INT NOT NULL,
-    tipo             ENUM('info','cita','acuerdo','stock_bajo','stock_agotado','exito','error') NOT NULL,
+    tipo             ENUM('info','cita','stock_bajo','stock_agotado','exito','error') NOT NULL,
     titulo           VARCHAR(150) NOT NULL,
     mensaje          TEXT,
     enlace           VARCHAR(255),
@@ -327,18 +309,11 @@ INSERT INTO citas (usuario_id, paciente_id, paciente_nombre, paciente_telefono, 
         CURDATE() + INTERVAL 9 HOUR,
         CURDATE() + INTERVAL 9 HOUR + INTERVAL 30 MINUTE, 'completada', 500.00);
 
-INSERT INTO acuerdos_servicio (paciente_id, servicio, descripcion, fecha_programada, duracion_minutos, precio, estado) VALUES
-    (5, 'Ortodoncia · próximo ajuste', 'Cambio de brackets y elásticos.',
-     DATE_ADD(CURDATE(), INTERVAL 14 DAY) + INTERVAL 11 HOUR, 45, 500.00, 'pendiente'),
-    (1, 'Blanqueamiento profesional',  'Sesión completa con luz LED.',
-     DATE_ADD(CURDATE(), INTERVAL 7 DAY) + INTERVAL 17 HOUR, 60, 2500.00, 'aceptado');
-
 INSERT INTO citas (usuario_id, paciente_id, paciente_nombre, paciente_telefono, titulo, descripcion,
                    fecha_hora_inicio, fecha_hora_fin, estado, precio) VALUES
     (@uid, 1, 'Ana Torres', '5512345678', 'Blanqueamiento profesional', 'Sesión completa con luz LED.',
      DATE_ADD(CURDATE(), INTERVAL 7 DAY) + INTERVAL 17 HOUR,
      DATE_ADD(CURDATE(), INTERVAL 7 DAY) + INTERVAL 18 HOUR, 'confirmada', 2500.00);
-UPDATE acuerdos_servicio SET cita_id = LAST_INSERT_ID() WHERE acuerdo_id = 2;
 
 INSERT INTO carpetas_paciente (paciente_id, ruta_carpeta, nombre) VALUES
     (5, 'Ortodoncia',          'Ortodoncia'),
@@ -394,5 +369,4 @@ INSERT INTO personal_memories (usuario_id, contenido, fecha, color) VALUES
 
 INSERT INTO notificaciones (usuario_id, tipo, titulo, mensaje, enlace, leida, fecha) VALUES
     (@uid, 'cita',        'Cita confirmada',       'Ana Torres confirmó su cita.',                        '/agenda/',      1, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-    (@uid, 'acuerdo',     'Acuerdo aceptado',      'Ana Torres aceptó el acuerdo de blanqueamiento.',     '/pacientes/detalle.php?id=1&tab=acuerdos', 0, DATE_SUB(NOW(), INTERVAL 4 HOUR)),
     (@uid, 'stock_bajo',  'Stock bajo',            'Pasta profiláctica tiene stock bajo: 3/8 pieza.',     '/inventario/',  0, DATE_SUB(NOW(), INTERVAL 3 DAY));

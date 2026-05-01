@@ -44,11 +44,10 @@ dentacita/
 │   ├── memorias-listar.php · memoria-guardar.php · memoria-eliminar.php
 │   ├── index.php · agenda.js
 │
-├── pacientes/                      ficha completa del paciente con 5 pestañas
-│   ├── _validaciones.php · _validaciones-acuerdos.php
+├── pacientes/                      ficha completa del paciente con 4 pestañas
+│   ├── _validaciones.php
 │   ├── mostrar.php · guardar.php · actualizar.php · eliminar.php
-│   ├── detalle.php (vista de ficha con pestañas)
-│   ├── acuerdo-crear.php · acuerdo-aceptar.php · acuerdo-cambiar-estado.php
+│   ├── detalle.php (vista de ficha con pestañas: datos, citas, archivos, notas)
 │   ├── archivos-listar.php · archivos-subir.php · archivos-renombrar.php
 │   ├── archivos-mover.php · archivos-papelera.php · archivos-restaurar.php
 │   ├── archivos-eliminar-permanente.php · archivos-vaciar-papelera.php
@@ -94,7 +93,6 @@ dentacita/
 | `perfil_dentista` | Datos del dentista, foto, tema visual, flag de onboarding (1 fila por `usuario_id`) |
 | `pacientes` | Datos del paciente: contacto, alergias, padecimientos, foto |
 | `citas` | Citas con paciente, fecha, estado (programada/confirmada/completada/cancelada/no_asistio), precio |
-| `acuerdos_servicio` | Propuestas formales de servicio. Al aceptar, generan cita |
 | `carpetas_paciente` | Carpetas (path-based) para organizar archivos del paciente |
 | `archivos_paciente` | Archivos del paciente con soft-delete (papelera) |
 | `notas_paciente` | Bitácora clínica del paciente |
@@ -102,9 +100,9 @@ dentacita/
 | `inventario_movimientos` | Entradas/salidas/ajustes que cambian el stock |
 | `transacciones` | Ingresos y egresos. Soporta reembolsos (monto negativo) y anulación |
 | `personal_memories` | Notas privadas del dentista en su agenda |
-| `notificaciones` | Alertas internas (citas, acuerdos, stock bajo) |
+| `notificaciones` | Alertas internas (citas, stock bajo) |
 
-Todas las tablas raíz (`pacientes`, `citas`, `inventario_items`, `transacciones`, `personal_memories`, `notificaciones`, `perfil_dentista`) cargan `usuario_id` con `FOREIGN KEY ... ON DELETE CASCADE` hacia `usuarios`. Las tablas hijas (`acuerdos_servicio`, `archivos_paciente`, `notas_paciente`, etc.) heredan el aislamiento a través de su FK al paciente o al item.
+Todas las tablas raíz (`pacientes`, `citas`, `inventario_items`, `transacciones`, `personal_memories`, `notificaciones`, `perfil_dentista`) cargan `usuario_id` con `FOREIGN KEY ... ON DELETE CASCADE` hacia `usuarios`. Las tablas hijas (`archivos_paciente`, `notas_paciente`, etc.) heredan el aislamiento a través de su FK al paciente o al item.
 
 ---
 
@@ -124,9 +122,7 @@ Estos flujos viven en endpoints PHP con transacciones atómicas (`begin_transact
 | Cualquier salida que deje stock ≤ mínimo | INSERT notificación `stock_bajo` |
 | Cualquier salida que deje stock = 0 | INSERT notificación `stock_agotado` |
 | **Eliminar producto** del inventario | INSERT notificación de auditoría; transacciones vinculadas se preservan |
-| **Aceptar acuerdo** de servicio | INSERT en `citas` + UPDATE acuerdo + 2 INSERT en `notificaciones` |
-| **Cancelar acuerdo aceptado** | UPDATE acuerdo + UPDATE cita a `cancelada` + notificación |
-| **Eliminar paciente** | Cascada: borra acuerdos, archivos, carpetas, notas. Citas y transacciones se preservan (SET NULL) |
+| **Eliminar paciente** | Cascada: borra archivos, carpetas, notas. Citas y transacciones se preservan (SET NULL) |
 | **Renombrar carpeta** del paciente | Cascada: actualiza la ruta en sub-carpetas y archivos |
 
 ---
