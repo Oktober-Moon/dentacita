@@ -28,7 +28,9 @@ $totalPacientes = escalarUid($conexion,
     "SELECT COUNT(*) FROM pacientes WHERE usuario_id = ?", $uid);
 $citasHoy = escalarUid($conexion,
     "SELECT COUNT(*) FROM citas
-     WHERE usuario_id = ? AND DATE(fecha_hora_inicio) = CURDATE()
+     WHERE usuario_id = ?
+       AND fecha_hora_inicio >= CURDATE()
+       AND fecha_hora_inicio <  CURDATE() + INTERVAL 1 DAY
        AND estado IN ('programada','confirmada')", $uid);
 $citasSemana = escalarUid($conexion,
     "SELECT COUNT(*) FROM citas
@@ -37,25 +39,28 @@ $citasSemana = escalarUid($conexion,
 $completadasMes = escalarUid($conexion,
     "SELECT COUNT(*) FROM citas
      WHERE usuario_id = ? AND estado = 'completada'
-       AND YEAR(fecha_hora_inicio)  = YEAR(CURDATE())
-       AND MONTH(fecha_hora_inicio) = MONTH(CURDATE())", $uid);
+       AND fecha_hora_inicio >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND fecha_hora_inicio <  DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH", $uid);
 
 /* ----- KPIs financieros ----- */
 $ingresosMes = escalarUid($conexion,
     "SELECT COALESCE(SUM(monto), 0) FROM transacciones
      WHERE usuario_id = ? AND tipo='ingreso' AND estado='activa'
-       AND YEAR(fecha)=YEAR(CURDATE()) AND MONTH(fecha)=MONTH(CURDATE())", $uid);
+       AND fecha >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND fecha <  DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH", $uid);
 $egresosMes = escalarUid($conexion,
     "SELECT COALESCE(SUM(monto), 0) FROM transacciones
      WHERE usuario_id = ? AND tipo='egreso'  AND estado='activa'
-       AND YEAR(fecha)=YEAR(CURDATE()) AND MONTH(fecha)=MONTH(CURDATE())", $uid);
+       AND fecha >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND fecha <  DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH", $uid);
 $balanceMes = (float)$ingresosMes - (float)$egresosMes;
 
 /* ----- Sub-textos contextuales para los KPIs ----- */
 $citasMesCobradas = (int)escalarUid($conexion,
     "SELECT COUNT(DISTINCT cita_id) FROM transacciones
      WHERE usuario_id = ? AND tipo='ingreso' AND estado='activa' AND cita_id IS NOT NULL
-       AND YEAR(fecha)=YEAR(CURDATE()) AND MONTH(fecha)=MONTH(CURDATE())", $uid);
+       AND fecha >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND fecha <  DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH", $uid);
 
 /* ----- Alertas/banners ----- */
 $inventarioBajo = (int)escalarUid($conexion,
@@ -70,7 +75,9 @@ $citasDeHoy = [];
 $stmt = @$conexion->prepare(
     "SELECT cita_id, paciente_nombre, titulo, fecha_hora_inicio, fecha_hora_fin, estado
      FROM citas
-     WHERE usuario_id = ? AND DATE(fecha_hora_inicio) = CURDATE()
+     WHERE usuario_id = ?
+       AND fecha_hora_inicio >= CURDATE()
+       AND fecha_hora_inicio <  CURDATE() + INTERVAL 1 DAY
      ORDER BY fecha_hora_inicio ASC");
 if ($stmt) {
     $stmt->bind_param("i", $uid);
@@ -86,8 +93,8 @@ $stmt = @$conexion->prepare(
     "SELECT cita_id, paciente_nombre, titulo, fecha_hora_inicio, estado
      FROM citas
      WHERE usuario_id = ?
-       AND DATE(fecha_hora_inicio) > CURDATE()
-       AND DATE(fecha_hora_inicio) <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+       AND fecha_hora_inicio >= CURDATE() + INTERVAL 1 DAY
+       AND fecha_hora_inicio <  CURDATE() + INTERVAL 8 DAY
        AND estado IN ('programada','confirmada')
      ORDER BY fecha_hora_inicio ASC
      LIMIT 8");

@@ -22,7 +22,7 @@ function cargarMemorias() {
             pintarMemorias();
         })
         .catch(function(){
-            cont.innerHTML = '<div class="texto-atenuado">Error de conexión.</div>';
+            cont.innerHTML = '<div class="texto-atenuado">No se pudo conectar.</div>';
         });
 }
 
@@ -72,7 +72,7 @@ $('memoriasContenido').addEventListener('click', function(e) {
                 toast(data.mensaje, true);
                 cargarMemorias();
             })
-            .catch(function(){ toast('Error de conexión.', false); });
+            .catch(function(){ toast('No se pudo conectar.', false); });
     }
 });
 
@@ -140,7 +140,7 @@ formMem.addEventListener('submit', function(e) {
             cerrarModalMemoria();
             cargarMemorias();
         })
-        .catch(function(){ toast('Error de conexión.', false); });
+        .catch(function(){ toast('No se pudo conectar.', false); });
 });
 
 

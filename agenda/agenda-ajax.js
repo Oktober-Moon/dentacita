@@ -154,6 +154,6 @@ function cargarPacientesRecientes() {
         })
         .catch(function() {
             $('resultadosPacientes').innerHTML =
-                '<div class="texto-atenuado" style="padding: var(--espacio-md);">Error de conexión.</div>';
+                '<div class="texto-atenuado" style="padding: var(--espacio-md);">No se pudo conectar.</div>';
         });
 }

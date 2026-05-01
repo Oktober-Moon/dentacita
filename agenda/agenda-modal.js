@@ -120,7 +120,7 @@ $('buscarPaciente').addEventListener('input', function() {
             })
             .catch(function() {
                 $('resultadosPacientes').innerHTML =
-                    '<div class="texto-atenuado" style="padding: var(--espacio-md);">Error de conexión.</div>';
+                    '<div class="texto-atenuado" style="padding: var(--espacio-md);">No se pudo conectar.</div>';
             });
     }, 220);
 });
@@ -221,7 +221,7 @@ $('btnContinuarConPaciente').addEventListener('click', function() {
         })
         .catch(function() {
             btn.disabled = false; btn.textContent = 'Continuar →';
-            toast('Error de conexión.', false);
+            toast('No se pudo conectar.', false);
         });
 });
 
@@ -283,7 +283,7 @@ $('formCita').addEventListener('submit', function(e) {
         })
         .catch(function() {
             btn.disabled = false; btn.textContent = 'Guardar cita';
-            toast('Error de conexión.', false);
+            toast('No se pudo conectar.', false);
         });
 });
 
@@ -333,5 +333,5 @@ function abrirEditar(id) {
             mostrarPaso('datos');
             abrirModal();
         })
-        .catch(function(){ toast('Error de conexión.', false); });
+        .catch(function(){ toast('No se pudo conectar.', false); });
 }

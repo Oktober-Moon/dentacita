@@ -165,7 +165,7 @@ $('citasDiaContenido').addEventListener('click', function(e) {
                 if (data.ok) { cargarCitasDelMes(); cargarCitasDelDia(); }
                 if (data.redirect) location.href = '../index.php';
             })
-            .catch(function(){ toast('Error de conexión.', false); });
+            .catch(function(){ toast('No se pudo conectar.', false); });
     }
 });
 
@@ -205,7 +205,7 @@ $('citasDiaContenido').addEventListener('click', function(e) {
                 cargarCitasDelMes();
                 cargarCitasDelDia();
             })
-            .catch(function() { toast('Error de conexión.', false); });
+            .catch(function() { toast('No se pudo conectar.', false); });
     });
 })();
 
@@ -233,7 +233,7 @@ $('citasDiaContenido').addEventListener('change', function(e) {
             toast(data.mensaje, data.ok);
             if (data.ok) { cargarCitasDelMes(); cargarCitasDelDia(); }
         })
-        .catch(function(){ toast('Error de conexión.', false); });
+        .catch(function(){ toast('No se pudo conectar.', false); });
 });
 
 

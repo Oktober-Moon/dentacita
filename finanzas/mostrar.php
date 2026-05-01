@@ -102,7 +102,8 @@ $ingresosMes = $egresosMes = 0;
 $stmtKM = @$conexion->prepare(
     "SELECT tipo, SUM(monto) AS total FROM transacciones
      WHERE usuario_id = ? AND estado='activa'
-       AND YEAR(fecha)=YEAR(CURDATE()) AND MONTH(fecha)=MONTH(CURDATE())
+       AND fecha >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND fecha <  DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH
      GROUP BY tipo");
 if ($stmtKM) {
     $stmtKM->bind_param("i", $usuarioId);
@@ -122,7 +123,8 @@ $stmtAvg = @$conexion->prepare(
     "SELECT AVG(monto) AS prom FROM transacciones
      WHERE usuario_id = ? AND estado='activa'
        AND categoria != 'Reembolso'
-       AND YEAR(fecha)=YEAR(CURDATE()) AND MONTH(fecha)=MONTH(CURDATE())");
+       AND fecha >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND fecha <  DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH");
 if ($stmtAvg) {
     $stmtAvg->bind_param("i", $usuarioId);
     @$stmtAvg->execute();
@@ -134,7 +136,9 @@ if ($stmtAvg) {
 $ingresosAno = $egresosAno = 0;
 $stmtKA = @$conexion->prepare(
     "SELECT tipo, SUM(monto) AS total FROM transacciones
-     WHERE usuario_id = ? AND estado='activa' AND YEAR(fecha)=YEAR(CURDATE())
+     WHERE usuario_id = ? AND estado='activa'
+       AND fecha >= DATE_FORMAT(CURDATE(), '%Y-01-01')
+       AND fecha <  DATE_FORMAT(CURDATE(), '%Y-01-01') + INTERVAL 1 YEAR
      GROUP BY tipo");
 if ($stmtKA) {
     $stmtKA->bind_param("i", $usuarioId);

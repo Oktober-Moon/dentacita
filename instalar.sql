@@ -140,7 +140,8 @@ CREATE TABLE archivos_paciente (
     FOREIGN KEY (paciente_id) REFERENCES pacientes(paciente_id) ON DELETE CASCADE,
     INDEX idx_archivo_paciente (paciente_id),
     INDEX idx_archivo_carpeta  (paciente_id, ruta_carpeta),
-    INDEX idx_archivo_papelera (eliminado_en)
+    INDEX idx_archivo_papelera (eliminado_en),
+    INDEX idx_archivo_paciente_papelera (paciente_id, eliminado_en)
 );
 
 CREATE TABLE notas_paciente (
@@ -228,7 +229,8 @@ CREATE TABLE transacciones (
     INDEX idx_trans_fecha    (fecha),
     INDEX idx_trans_tipo     (tipo),
     INDEX idx_trans_estado   (estado),
-    INDEX idx_trans_categoria (categoria)
+    INDEX idx_trans_categoria (categoria),
+    INDEX idx_trans_cita_estado_cat (cita_id, estado, categoria)
 );
 
 

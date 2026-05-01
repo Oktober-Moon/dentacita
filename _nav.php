@@ -59,6 +59,18 @@ window.CSRF_TOKEN = <?php echo json_encode(csrfToken()); ?>;
         return origFetch(input, init);
     };
 })();
+
+/* Anti doble-click · al hacer submit en cualquier form, deshabilita el
+   botón submit por 1.5s. Evita inserciones duplicadas si el dentista
+   pulsa dos veces rápido o tiene latencia alta. Captura para correr
+   antes que los handlers locales. */
+document.addEventListener('submit', function(e) {
+    if (!(e.target instanceof HTMLFormElement)) return;
+    var btn = e.target.querySelector('button[type="submit"]:not([disabled])');
+    if (!btn) return;
+    btn.disabled = true;
+    setTimeout(function() { btn.disabled = false; }, 1500);
+}, true);
 </script>
 <?php
 

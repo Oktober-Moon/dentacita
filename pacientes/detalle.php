@@ -76,7 +76,8 @@ if ($tab === 'archivos') {
          FROM archivos_paciente a
          JOIN pacientes p ON a.paciente_id = p.paciente_id
          WHERE a.paciente_id = ? AND p.usuario_id = ? AND a.eliminado_en IS NULL
-         ORDER BY a.fecha DESC, a.archivo_id DESC"
+         ORDER BY a.fecha DESC, a.archivo_id DESC
+         LIMIT 500"
     )) {
         $s->bind_param("ii", $idInt, $usuarioId); @$s->execute();
         $r = $s->get_result();
@@ -99,7 +100,8 @@ if ($tab === 'notas') {
          FROM notas_paciente n
          JOIN pacientes p ON n.paciente_id = p.paciente_id
          WHERE n.paciente_id = ? AND p.usuario_id = ?
-         ORDER BY n.fecha DESC, n.nota_id DESC"
+         ORDER BY n.fecha DESC, n.nota_id DESC
+         LIMIT 500"
     )) {
         $s->bind_param("ii", $idInt, $usuarioId); @$s->execute();
         $r = $s->get_result();

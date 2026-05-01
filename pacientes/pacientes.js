@@ -109,7 +109,7 @@ async function cargarPacientes() {
         renderConteo(json.total, json.pagina, json.por_pagina);
         renderPaginacion(json.pagina, json.total_paginas);
     } catch (e) {
-        tablaContenido.innerHTML = '<div class="tabla-vacio">No se pudo conectar con el servidor.</div>';
+        tablaContenido.innerHTML = '<div class="tabla-vacio">No se pudo conectar.</div>';
     }
 }
 
@@ -251,7 +251,7 @@ async function abrirModalEditar(id) {
 
         modalTitulo.textContent = 'Editar · ' + (p.nombre_completo || 'Paciente');
     } catch (e) {
-        toast('No se pudo conectar con el servidor.', 'error');
+        toast('No se pudo conectar.', 'error');
         cerrarModal();
     }
 }
@@ -286,7 +286,7 @@ formPaciente.addEventListener('submit', async (e) => {
         cerrarModal();
         cargarPacientes();
     } catch (err) {
-        toast('No se pudo conectar con el servidor.', 'error');
+        toast('No se pudo conectar.', 'error');
     }
 });
 
@@ -325,7 +325,7 @@ btnConfirmarElim.addEventListener('click', async () => {
         cerrarModalEliminar();
         cargarPacientes();
     } catch (err) {
-        toast('No se pudo conectar con el servidor.', 'error');
+        toast('No se pudo conectar.', 'error');
     }
 });
 

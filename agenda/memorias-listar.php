@@ -30,7 +30,8 @@ if ($hasta !== '' && strtotime($hasta)) {
 $sql = "SELECT memoria_id, contenido, fecha, color, creado_en, actualizado_en
         FROM personal_memories
         WHERE $where
-        ORDER BY fecha ASC, memoria_id ASC";
+        ORDER BY fecha ASC, memoria_id ASC
+        LIMIT 500";
 
 $stmt = @$conexion->prepare($sql);
 if (!$stmt) {
