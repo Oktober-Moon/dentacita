@@ -278,7 +278,9 @@ $nav_base_url = '../';
 
 </div>
 
-<script src="inventario.js?v=<?php echo @filemtime(__DIR__ . '/inventario.js'); ?>"></script>
+<script src="inventario-ajax.js?v=<?php echo @filemtime(__DIR__ . '/inventario-ajax.js'); ?>"></script>
+<script src="inventario-tabla.js?v=<?php echo @filemtime(__DIR__ . '/inventario-tabla.js'); ?>"></script>
+<script src="inventario-modal.js?v=<?php echo @filemtime(__DIR__ . '/inventario-modal.js'); ?>"></script>
 
 </body>
 </html>

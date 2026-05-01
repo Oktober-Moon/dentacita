@@ -357,7 +357,10 @@ $nav_base_url = '../';
 
 </div>
 
-<script src="finanzas.js?v=<?php echo @filemtime(__DIR__ . '/finanzas.js'); ?>"></script>
+<script src="finanzas-ajax.js?v=<?php echo @filemtime(__DIR__ . '/finanzas-ajax.js'); ?>"></script>
+<script src="finanzas-dashboard.js?v=<?php echo @filemtime(__DIR__ . '/finanzas-dashboard.js'); ?>"></script>
+<script src="finanzas-tabla.js?v=<?php echo @filemtime(__DIR__ . '/finanzas-tabla.js'); ?>"></script>
+<script src="finanzas-modal.js?v=<?php echo @filemtime(__DIR__ . '/finanzas-modal.js'); ?>"></script>
 
 </body>
 </html>
