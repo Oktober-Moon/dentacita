@@ -252,9 +252,16 @@ code, .mono { font-family: var(--fuente-mono); font-variant-numeric: tabular-num
     font-weight: 600;
     box-shadow: var(--hairline-int), 0 4px 14px var(--color-acento-sutil);
 }
+/* Hover: mantiene el gradient pero le sobrepone un velo blanco translúcido
+   (efecto "iluminado"). Conserva el contraste del texto oscuro y evita que
+   el botón se aplane a un color sólido cuando el tema usa acentos pálidos. */
 .btn-primario:hover {
-    background: linear-gradient(180deg, var(--color-acento-claro), var(--color-acento-claro));
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 60%),
+        linear-gradient(180deg, var(--color-acento-claro), var(--color-acento));
+    color: var(--color-fondo-profundo);
     transform: translateY(-1px);
+    box-shadow: var(--hairline-int), 0 6px 20px var(--color-acento-brillo);
 }
 
 .btn-secundario {
