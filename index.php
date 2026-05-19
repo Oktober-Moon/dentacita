@@ -145,9 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="registro.php" class="btn btn-secundario btn-bloque">
                 Crear una cuenta nueva
             </a>
-            <p class="login-pista">
-                Cuenta demo: <code class="mono">dentista@demo.com</code> / <code class="mono">dentista</code>
-            </p>
         </div>
 
     </div>

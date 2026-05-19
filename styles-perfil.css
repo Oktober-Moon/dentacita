@@ -60,19 +60,6 @@
     text-transform: uppercase;
     margin-bottom: var(--espacio-sm);
 }
-.login-pista {
-    margin: var(--espacio-sm) 0 0;
-    font-size: 12px;
-    color: var(--texto-atenuado);
-}
-.login-pista code {
-    background: var(--vidrio-fondo);
-    padding: 2px 6px; border-radius: var(--radio-xs);
-    color: var(--color-acento-texto);
-    font-family: var(--fuente-mono);
-}
-
-
 /* ============================================================
    TOAST
    ============================================================ */
