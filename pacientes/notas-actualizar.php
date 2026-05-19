@@ -23,6 +23,8 @@ $idInt = (int)$nota_id;
 $err = validarNotaContenido($contenido); if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 $err = validarNotaFecha($fecha);         if ($err) { echo json_encode(["ok"=>false,"mensaje"=>$err]); exit; }
 
+/* actualizado_en se refresca solo por la cláusula ON UPDATE CURRENT_TIMESTAMP
+   de la columna; no la fijamos a NOW() para no contaminar affected_rows. */
 $stmt = @$conexion->prepare(
     "UPDATE notas_paciente n
      JOIN pacientes p ON n.paciente_id = p.paciente_id

@@ -66,6 +66,70 @@ function escaparHtml(s) {
 }
 
 
+/* ----- Formato de hora 12h/24h -----
+ * Toggle persistido en localStorage 'agenda_formato_hora'. Default '24'.
+ * fmtHora("13:30")  → "13:30"  (24h)  ó  "1:30 PM"  (12h)
+ * fmtHora("13:30", true) → "13:00" o "1 PM" (modo "solo hora", para el eje
+ *   vertical de la vista semanal donde los minutos siempre son :00).
+ */
+var AGENDA_FORMATO_HORA = '24';
+try {
+    var fmtGuardado = localStorage.getItem('agenda_formato_hora');
+    if (fmtGuardado === '12' || fmtGuardado === '24') AGENDA_FORMATO_HORA = fmtGuardado;
+} catch (e) { /* ignorar */ }
+
+function fmtHora(hhmm, soloHora) {
+    if (!hhmm) return '';
+    var partes = String(hhmm).split(':');
+    var h = parseInt(partes[0], 10);
+    var m = parseInt(partes[1] || '0', 10);
+    if (isNaN(h)) return hhmm;
+    if (AGENDA_FORMATO_HORA === '12') {
+        var sufijo = h >= 12 ? 'PM' : 'AM';
+        var h12 = h % 12; if (h12 === 0) h12 = 12;
+        if (soloHora) return h12 + ' ' + sufijo;
+        var mm = (m < 10 ? '0' : '') + m;
+        return h12 + ':' + mm + ' ' + sufijo;
+    }
+    var hh = (h < 10 ? '0' : '') + h;
+    if (soloHora) return hh + ':00';
+    var mm24 = (m < 10 ? '0' : '') + m;
+    return hh + ':' + mm24;
+}
+
+function cambiarFormatoHora(fmt) {
+    if (fmt !== '12' && fmt !== '24') return;
+    AGENDA_FORMATO_HORA = fmt;
+    try { localStorage.setItem('agenda_formato_hora', fmt); } catch (e) { /* ignorar */ }
+    var b12 = $('btnFormato12h'), b24 = $('btnFormato24h');
+    if (b12 && b24) {
+        b12.classList.toggle('activo', fmt === '12');
+        b24.classList.toggle('activo', fmt === '24');
+    }
+    /* Redibujar las tres vistas que muestran horas. */
+    if (typeof pintarCalendario === 'function') pintarCalendario();
+    if (typeof pintarSemana      === 'function') pintarSemana();
+    cargarCitasDelDia();
+    if (typeof actualizarLineaAhora === 'function') actualizarLineaAhora();
+}
+
+/* Listeners del toggle 12h/24h · marca el botón activo según el valor
+   cargado de localStorage y delega los clicks a cambiarFormatoHora(). */
+(function() {
+    var b12 = document.getElementById('btnFormato12h');
+    var b24 = document.getElementById('btnFormato24h');
+    if (b12 && b24) {
+        b12.classList.toggle('activo', AGENDA_FORMATO_HORA === '12');
+        b24.classList.toggle('activo', AGENDA_FORMATO_HORA === '24');
+    }
+    document.querySelectorAll('[data-formato-hora]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            cambiarFormatoHora(btn.dataset.formatoHora);
+        });
+    });
+})();
+
+
 /* ----- Navegación del modal de cita ----- */
 function mostrarPaso(nombre) {
     ['pasoTipoPaciente','pasoSeleccionarPaciente','pasoNuevoPaciente','pasoDatosCita']
@@ -102,6 +166,19 @@ function cargarCitasDelMes() {
             pintarCalendario();
         })
         .catch(function(){ toast('Error al cargar el calendario.', false); });
+}
+
+/* refrescarAgenda · llamar después de cualquier mutación de cita (crear,
+ * editar, eliminar, cambio de estado, reembolso). Repinta la vista mensual
+ * y la lista del día siempre, y la vista semanal solo si está activa
+ * (para no disparar fetches innecesarios cuando el usuario está en mes). */
+function refrescarAgenda() {
+    cargarCitasDelMes();
+    cargarCitasDelDia();
+    var vs = document.getElementById('vistaSemanal');
+    if (vs && vs.style.display !== 'none' && typeof cargarSemana === 'function') {
+        cargarSemana();
+    }
 }
 
 function cargarCitasDelDia() {

@@ -54,7 +54,7 @@ function pintarCalendario() {
                 var hi = (c.fecha_hora_inicio || '').substring(11, 16);
                 var titulo = c.titulo || c.paciente_nombre || '—';
                 html += '<span class="cal-mes-cita cal-mes-cita-' + est + '">' +
-                          '<span class="cal-mes-cita-hora">' + hi + '</span>' +
+                          '<span class="cal-mes-cita-hora">' + fmtHora(hi) + '</span>' +
                           '<span class="cal-mes-cita-titulo">' + escaparHtml(titulo) + '</span>' +
                         '</span>';
             }
@@ -131,7 +131,7 @@ function pintarCitasDelDia(citas) {
                    && inicioTs < ahoraTs;
         html +=
             '<li class="cita-item cita-item-' + c.estado + (vencida ? ' cita-overdue' : '') + '" data-id="' + c.cita_id + '">' +
-                '<div class="cita-hora mono">' + hi + ' – ' + hf + '</div>' +
+                '<div class="cita-hora mono">' + fmtHora(hi) + ' – ' + fmtHora(hf) + '</div>' +
                 '<div class="cita-cuerpo">' +
                     '<div class="cita-titulo">' + escaparHtml(c.titulo) + '</div>' +
                     '<div class="cita-paciente">' + escaparHtml(c.paciente_nombre) +
@@ -179,7 +179,7 @@ $('citasDiaContenido').addEventListener('click', function(e) {
             .then(function(r){ return r.json(); })
             .then(function(data) {
                 toast(data.mensaje, data.ok);
-                if (data.ok) { cargarCitasDelMes(); cargarCitasDelDia(); }
+                if (data.ok) refrescarAgenda();
                 if (data.redirect) location.href = '../index.php';
             })
             .catch(function(){ toast('No se pudo conectar.', false); });
@@ -219,8 +219,7 @@ $('citasDiaContenido').addEventListener('click', function(e) {
                 if (!data.ok) { toast(data.mensaje, false); return; }
                 toast(data.mensaje, true);
                 cerrar();
-                cargarCitasDelMes();
-                cargarCitasDelDia();
+                refrescarAgenda();
             })
             .catch(function() { toast('No se pudo conectar.', false); });
     });
@@ -248,7 +247,7 @@ $('citasDiaContenido').addEventListener('change', function(e) {
         .then(function(data) {
             if (data.redirect) { location.href = '../index.php'; return; }
             toast(data.mensaje, data.ok);
-            if (data.ok) { cargarCitasDelMes(); cargarCitasDelDia(); }
+            if (data.ok) refrescarAgenda();
         })
         .catch(function(){ toast('No se pudo conectar.', false); });
 });
@@ -303,6 +302,11 @@ $('semSiguiente').addEventListener('click', function() {
 });
 $('semHoy').addEventListener('click', function() {
     estadoSemana.inicioSemana = lunesDeLaSemana(new Date());
+    /* Resetear scroll para que pintarSemana() salte a la hora útil al
+       repintar (si el usuario ya había scrolleado manualmente, queremos
+       reseteo en "Hoy"). */
+    var cont = $('semanaContenedor');
+    if (cont) cont.scrollTop = 0;
     cargarSemana();
 });
 
@@ -328,12 +332,25 @@ function cargarSemana() {
         .catch(function(){ cont.innerHTML = '<div class="estado-vacio">Error al cargar.</div>'; });
 }
 
+/* Constantes de rango horario · la agenda cubre el día completo (0:00-23:00)
+   y el contenedor scrollea verticalmente. El scroll inicial salta a las 8:00
+   para mostrar el bloque útil del día sin que el usuario tenga que arrastrar. */
+var SEMANA_HORA_INI    = 0;
+var SEMANA_HORA_FIN    = 23;             // inclusive, así que en total 24 filas
+var SEMANA_FILA_PX     = 56;
+var SEMANA_SCROLL_INI  = 8;              // hora a la que hacemos scrollTop inicial
+
 function pintarSemana() {
     var cont = $('semanaContenedor');
     var inicio = new Date(estadoSemana.inicioSemana);
     var diasNombres = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-    var horaIni = 8, horaFin = 20;   // ventana visible (incluye 20:00)
+    var horaIni = SEMANA_HORA_INI, horaFin = SEMANA_HORA_FIN;
     var ahoraTs = Date.now();
+
+    /* Guardamos el scrollTop actual para conservarlo en repintados (cambio
+       de formato de hora, navegar a otra semana, etc.). Si es la primera
+       carga, scrollTop=0 y abajo saltamos a SEMANA_SCROLL_INI. */
+    var scrollPrevio = cont.scrollTop;
 
     var html = '<div class="semana-cabecera">';
     html += '<div class="semana-col-hora"></div>';
@@ -350,7 +367,8 @@ function pintarSemana() {
     html += '<div class="semana-cuerpo">';
     html += '<div class="semana-col-hora">';
     for (var h = horaIni; h <= horaFin; h++) {
-        html += '<div class="semana-fila-hora mono">' + (h < 10 ? '0' : '') + h + ':00</div>';
+        var hhmm = (h < 10 ? '0' : '') + h + ':00';
+        html += '<div class="semana-fila-hora mono">' + fmtHora(hhmm, true) + '</div>';
     }
     html += '</div>';
     for (var d = 0; d < 7; d++) {
@@ -363,23 +381,16 @@ function pintarSemana() {
         var citasDia = estadoSemana.citas.filter(function(c) {
             return c.fecha_hora_inicio.substring(0, 10) === claveDia;
         });
-        var citasAntes = 0, citasDespues = 0;
         citasDia.forEach(function(c) {
             var ini = new Date(c.fecha_hora_inicio.replace(' ', 'T'));
             var fin = new Date(c.fecha_hora_fin.replace(' ', 'T'));
             var iniHorasFlot = ini.getHours() + ini.getMinutes() / 60;
             var finHorasFlot = fin.getHours() + fin.getMinutes() / 60;
-            /* Citas que terminan antes del horario visible o empiezan
-               después de la última franja se muestran como contador
-               discreto (↑/↓) en lugar de bloque posicionado. */
-            if (finHorasFlot <= horaIni)         { citasAntes++;   return; }
-            if (iniHorasFlot >= horaFin + 1)     { citasDespues++; return; }
-            /* Cita que cruza el límite (ej. 7:30-8:30): clamp visual al
-               rango para que el bloque no se salga del contenedor. */
-            var iniMostrar = Math.max(iniHorasFlot, horaIni);
-            var finMostrar = Math.min(finHorasFlot, horaFin + 1);
-            var top    = (iniMostrar - horaIni) * 56;
-            var height = Math.max(28, (finMostrar - iniMostrar) * 56 - 2);
+            /* Con el rango 0-23 la única forma de quedar fuera es que la
+               cita termine en 24:00 (cruzando medianoche) — el server
+               valida y rechaza ese caso, así que asumimos rango válido. */
+            var top    = (iniHorasFlot - horaIni) * SEMANA_FILA_PX;
+            var height = Math.max(28, (finHorasFlot - iniHorasFlot) * SEMANA_FILA_PX - 2);
             var vencida = (c.estado === 'programada' || c.estado === 'confirmada')
                        && ini.getTime() < ahoraTs;
             var hi = c.fecha_hora_inicio.substring(11, 16);
@@ -387,36 +398,22 @@ function pintarSemana() {
                     (vencida ? ' semana-cita-overdue' : '') +
                     '" style="top:' + top + 'px; height:' + height + 'px;" ' +
                     'data-id="' + c.cita_id + '" title="' + escaparHtml(c.titulo + ' · ' + c.paciente_nombre) + '">' +
-                      '<div class="semana-cita-hora mono">' + hi + '</div>' +
+                      '<div class="semana-cita-hora mono">' + fmtHora(hi) + '</div>' +
                       '<div class="semana-cita-titulo">' + escaparHtml(c.titulo) + '</div>' +
                       '<div class="semana-cita-paciente">' + escaparHtml(c.paciente_nombre) + '</div>' +
                     '</div>';
         });
-        if (citasAntes > 0) {
-            html += '<div class="semana-fuera-horario semana-fuera-arriba" ' +
-                    'title="' + citasAntes + ' cita' + (citasAntes>1?'s':'') +
-                    ' antes de las ' + (horaIni < 10 ? '0' : '') + horaIni + ':00">' +
-                    '↑ ' + citasAntes + '</div>';
-        }
-        if (citasDespues > 0) {
-            html += '<div class="semana-fuera-horario semana-fuera-abajo" ' +
-                    'title="' + citasDespues + ' cita' + (citasDespues>1?'s':'') +
-                    ' después de las ' + horaFin + ':00">' +
-                    '↓ ' + citasDespues + '</div>';
-        }
-        /* Línea horizontal "ahora" · solo en la columna del día actual y
-           si la hora actual cae dentro de la franja visible 8-20h. */
+        /* Línea horizontal "ahora" · solo en la columna del día actual.
+           Con rango 0-23 siempre queda dentro de la franja. */
         if (mismoDia(fechaCol, new Date())) {
             var ahora = new Date();
             var hAhora = ahora.getHours() + ahora.getMinutes() / 60;
-            if (hAhora >= horaIni && hAhora <= horaFin + 1) {
-                var topAhora = (hAhora - horaIni) * 56;
-                var pad2 = function(n) { return n < 10 ? '0' + n : '' + n; };
-                var horaTxt = pad2(ahora.getHours()) + ':' + pad2(ahora.getMinutes());
-                html += '<div class="semana-linea-ahora" style="top:' + topAhora + 'px">' +
-                          '<span class="semana-linea-ahora-label">' + horaTxt + '</span>' +
-                        '</div>';
-            }
+            var topAhora = (hAhora - horaIni) * SEMANA_FILA_PX;
+            var pad2 = function(n) { return n < 10 ? '0' + n : '' + n; };
+            var horaTxt = fmtHora(pad2(ahora.getHours()) + ':' + pad2(ahora.getMinutes()));
+            html += '<div class="semana-linea-ahora" style="top:' + topAhora + 'px">' +
+                      '<span class="semana-linea-ahora-label">' + horaTxt + '</span>' +
+                    '</div>';
         }
         html += '</div>';
     }
@@ -428,6 +425,15 @@ function pintarSemana() {
     }
 
     cont.innerHTML = html;
+
+    /* Scroll vertical · conservar posición previa si el usuario ya scrolleó;
+       en primera carga (scrollPrevio=0) ir a SEMANA_SCROLL_INI para que se
+       vea el bloque útil del día. */
+    if (scrollPrevio > 0) {
+        cont.scrollTop = scrollPrevio;
+    } else {
+        cont.scrollTop = SEMANA_SCROLL_INI * SEMANA_FILA_PX;
+    }
 
     cont.querySelectorAll('.semana-cita').forEach(function(el) {
         el.addEventListener('click', function() { abrirEditar(el.dataset.id); });
@@ -453,11 +459,11 @@ function actualizarLineaAhora() {
     if (!cont) return;
 
     var ahora = new Date();
-    var horaIni = 8, horaFin = 20;            // mismos límites que pintarSemana
+    var horaIni = SEMANA_HORA_INI;
     var hAhora = ahora.getHours() + ahora.getMinutes() / 60;
 
     var pad2 = function(n) { return n < 10 ? '0' + n : '' + n; };
-    var horaTxt = pad2(ahora.getHours()) + ':' + pad2(ahora.getMinutes());
+    var horaTxt = fmtHora(pad2(ahora.getHours()) + ':' + pad2(ahora.getMinutes()));
 
     /* Buscar la columna del día actual dentro de la semana visible.
        Si el usuario está viendo otra semana, no habrá coincidencia
@@ -466,14 +472,14 @@ function actualizarLineaAhora() {
     var colHoy = cont.querySelector('.semana-col[data-fecha="' + hoyStr + '"]');
     var linea  = cont.querySelector('.semana-linea-ahora');
 
-    /* Si hoy no está en la semana visible o la hora cae fuera de la
-       franja 8-20h, quitamos la línea si seguía colgada. */
-    if (!colHoy || hAhora < horaIni || hAhora > horaFin + 1) {
+    /* Si hoy no está en la semana visible, quitamos la línea si seguía
+       colgada. Con rango 0-23 la hora actual siempre cae dentro. */
+    if (!colHoy) {
         if (linea) linea.parentNode.removeChild(linea);
         return;
     }
 
-    var topAhora = (hAhora - horaIni) * 56;
+    var topAhora = (hAhora - horaIni) * SEMANA_FILA_PX;
 
     if (linea && linea.parentNode === colHoy) {
         /* Mismo contenedor: solo movemos y actualizamos texto. */

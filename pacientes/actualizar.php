@@ -129,7 +129,11 @@ $fotoUrlV       = $foto_url         === '' ? null : $foto_url;
 $notasV         = $notas            === '' ? null : $notas;
 
 
-/* ----- UPDATE ----- */
+/* ----- UPDATE -----
+ * No hace falta tocar actualizado_en a mano: la columna está definida con
+ * ON UPDATE CURRENT_TIMESTAMP, así que MariaDB la refresca sola cuando
+ * algún otro campo cambia. Tocarla explícitamente con NOW() rompería la
+ * detección "sin cambios" via affected_rows === 0. */
 $sql = "UPDATE pacientes SET
             nombre_completo  = ?,
             telefono         = ?,

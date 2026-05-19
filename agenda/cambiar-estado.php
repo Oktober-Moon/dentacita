@@ -22,6 +22,13 @@ $cita_id = $_POST['cita_id'] ?? '';
 $estado  = $_POST['estado']  ?? '';
 $motivoCancelacion = trim($_POST['motivo_cancelacion'] ?? '');
 
+/* Método de pago opcional para el auto-cobro al pasar a 'completada'. Si no
+ * viene en el POST (caso del dropdown inline que solo envía estado), se
+ * usa 'efectivo' como default. Valida contra el ENUM de la tabla. */
+$metodoPagoIn = trim($_POST['metodo_pago'] ?? '');
+$metodosValidos = ['efectivo','tarjeta','transferencia','cheque','otro'];
+$metodoPago = in_array($metodoPagoIn, $metodosValidos, true) ? $metodoPagoIn : 'efectivo';
+
 if (!is_numeric($cita_id)) {
     echo json_encode(["ok"=>false,"mensaje"=>"ID de cita no válido."]); exit;
 }
@@ -103,7 +110,7 @@ try {
         $descTrans = "Cita: {$cita['titulo']} · {$cita['paciente_nombre']}";
         $hoyStr = date('Y-m-d');
         $pacIdInt = $cita['paciente_id'] !== null ? (int)$cita['paciente_id'] : null;
-        $metodo = 'efectivo';
+        $metodo = $metodoPago;
         $st = @$conexion->prepare(
             "INSERT INTO transacciones
                (usuario_id, tipo, categoria, monto, fecha, descripcion, paciente_id, cita_id, metodo_pago, estado)

@@ -35,6 +35,14 @@ function validarFechaHoraDuracion($fecha, $hora, $duracion) {
     // Comprueba que la fecha+hora exista (rechaza 30 de febrero, etc.)
     $ts = strtotime($fecha . ' ' . $hora);
     if ($ts === false) return "Fecha y hora no válidas.";
+
+    // La cita debe terminar el mismo día — no se permite cruzar medianoche
+    // (el calendario semanal y el día se modelan en 24h cerradas).
+    list($hh, $mm) = array_map('intval', explode(':', $hora));
+    $minutosFin = $hh * 60 + $mm + $d;
+    if ($minutosFin > 24 * 60) {
+        return "La cita no puede terminar después de las 23:59 del mismo día.";
+    }
     return null;
 }
 

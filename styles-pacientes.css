@@ -611,6 +611,11 @@ input:-webkit-autofill:active {
     display: flex;
     flex-direction: column;
     overflow-x: auto;
+    /* Rango 0-23h = 24 filas × 56px = 1344px de contenido. Limitar la altura
+       visible para que no ocupe toda la pantalla; el usuario hace scroll
+       vertical dentro del componente. El JS hace scrollTop inicial a las 8:00. */
+    overflow-y: auto;
+    max-height: 70vh;
 }
 .semana-cabecera {
     display: grid;
@@ -663,10 +668,10 @@ input:-webkit-autofill:active {
     display: grid;
     grid-template-columns: 64px repeat(7, 1fr);
     /* Mismo min-width que .semana-cabecera para que cabecera y cuerpo
-       desplacen juntos al hacer scroll horizontal. */
+       desplacen juntos al hacer scroll horizontal.
+       Altura natural · 24 filas × 56px = 1344px (rango 0-23h). */
     min-width: 760px;
     position: relative;
-    min-height: 728px;
 }
 .semana-col-hora {
     border-right: 1px solid var(--vidrio-borde);

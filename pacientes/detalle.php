@@ -110,11 +110,14 @@ if ($tab === 'notas') {
     }
 }
 
-/* ----- Conteos para badges en las pestañas ----- */
+/* ----- Conteos para badges en las pestañas -----
+ * El contador "X citas" cuenta TODAS las citas registradas con este
+ * paciente (incluye canceladas y no asistidas) para que coincida con
+ * el historial completo que se muestra en la pestaña. */
 $cnt = [];
 $sqlsCnt = [
     'citas'    => "SELECT COUNT(*) FROM citas
-                   WHERE paciente_id = ? AND usuario_id = ? AND estado NOT IN ('cancelada','no_asistio')",
+                   WHERE paciente_id = ? AND usuario_id = ?",
     'archivos' => "SELECT COUNT(*) FROM archivos_paciente a
                    JOIN pacientes p ON a.paciente_id = p.paciente_id
                    WHERE a.paciente_id = ? AND p.usuario_id = ? AND a.eliminado_en IS NULL",

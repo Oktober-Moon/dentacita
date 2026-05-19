@@ -278,8 +278,8 @@ $('formCita').addEventListener('submit', function(e) {
                 estado.fechaSeleccionada = new Date(data.fecha + 'T00:00:00');
                 estado.mesVisible = new Date(estado.fechaSeleccionada);
             }
-            cargarCitasDelMes();
-            cargarCitasDelDia(); cargarMemorias();
+            refrescarAgenda();
+            cargarMemorias();
         })
         .catch(function() {
             btn.disabled = false; btn.textContent = 'Guardar cita';
