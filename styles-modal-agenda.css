@@ -223,9 +223,21 @@
 
 .lista-citas { list-style: none; padding: 0; margin: 0; }
 .cita-item {
+    /* Grid en 2 filas con áreas nombradas. La primera fila aloja
+       hora, cuerpo (título + paciente) y estado (badge + select);
+       la segunda fila aloja las acciones (Editar / Eliminar /
+       Reembolsar) que de otro modo no caben en el aside angosto y
+       hacen que el cuerpo del texto se desborde por encima del
+       badge. minmax(0, 1fr) en la columna del cuerpo permite que
+       el texto largo se trunque/envuelva en lugar de empujar al
+       resto de las columnas. */
     display: grid;
-    grid-template-columns: 110px 1fr auto auto;
-    gap: var(--espacio-md);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        "hora cuerpo estado"
+        "acciones acciones acciones";
+    column-gap: var(--espacio-md);
+    row-gap: 8px;
     align-items: center;
     padding: var(--espacio-md);
     border: 1px solid var(--vidrio-borde);
@@ -247,20 +259,58 @@
 .cita-item-completada { border-left-color: var(--texto-secundario); }
 .cita-item-cancelada  { border-left-color: var(--color-peligro); opacity: 0.6; }
 .cita-item-no_asistio { border-left-color: var(--color-advertencia); }
-.cita-cuerpo { min-width: 0; }
+.cita-cuerpo { grid-area: cuerpo; min-width: 0; }
 .cita-hora {
+    grid-area: hora;
     font-family: var(--fuente-mono);
     font-size: 13px; font-weight: 600;
     color: var(--color-acento-claro);
+    white-space: nowrap;
 }
-.cita-titulo { font-weight: 600; margin-bottom: 2px; }
-.cita-paciente { font-size: 13px; color: var(--texto-secundario); }
-.cita-acciones { display: flex; gap: 4px; }
-.cita-estado { display: flex; align-items: center; }
+.cita-titulo {
+    font-weight: 600;
+    margin-bottom: 2px;
+    /* Truncar títulos largos con elipsis para que nunca se
+       desborden a la siguiente columna (el badge). */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cita-paciente {
+    font-size: 13px;
+    color: var(--texto-secundario);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cita-estado {
+    grid-area: estado;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.cita-acciones {
+    grid-area: acciones;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
 
 @media (max-width: 720px) {
-    .cita-item { grid-template-columns: 1fr; gap: 8px; }
-    .cita-acciones { flex-wrap: wrap; }
+    .cita-item {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "hora"
+            "cuerpo"
+            "estado"
+            "acciones";
+        row-gap: 8px;
+    }
+    .cita-estado    { justify-content: flex-start; }
+    .cita-acciones  { justify-content: flex-start; }
 }
 
 
@@ -342,6 +392,10 @@
     font-family: var(--fuente-titular);
     font-size: 22px; font-weight: 700;
     margin-bottom: var(--espacio-xs);
+    /* Reservar espacio para el botón X de cerrar (absolute top:12 right:12,
+       width 36px) — sin esto los títulos largos como "Editar · Juan Pablo
+       Sebastián de la Cruz" pasan por debajo de la X. */
+    padding-right: 48px;
 }
 .modal-subtitulo {
     color: var(--texto-secundario);

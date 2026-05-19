@@ -192,16 +192,20 @@ $conexion->close();
                         <label for="hora_inicio">Hora *</label>
                         <input type="time" id="hora_inicio" required>
                     </div>
-                    <div class="campo oculto" id="campo-estado-cita">
-                        <label for="estado">Estado</label>
-                        <select id="estado">
-                            <option value="programada">Programada</option>
-                            <option value="confirmada">Confirmada</option>
-                            <option value="completada">Completada</option>
-                            <option value="cancelada">Cancelada</option>
-                            <option value="no_asistio">No asistió</option>
-                        </select>
-                    </div>
+                </div>
+
+                <!-- Campo Estado FUERA de la .grid-2 para que cuando se
+                     desoculta al editar no quede como huérfano en la
+                     segunda fila junto a un hueco a la derecha. -->
+                <div class="campo oculto" id="campo-estado-cita">
+                    <label for="estado">Estado</label>
+                    <select id="estado">
+                        <option value="programada">Programada</option>
+                        <option value="confirmada">Confirmada</option>
+                        <option value="completada">Completada</option>
+                        <option value="cancelada">Cancelada</option>
+                        <option value="no_asistio">No asistió</option>
+                    </select>
                 </div>
 
                 <input type="hidden" id="duracion" value="30">

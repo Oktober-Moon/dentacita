@@ -8,23 +8,28 @@
     <?php if (empty($citas)): ?>
         <div class="texto-atenuado">No hay citas registradas con este paciente.</div>
     <?php else: ?>
-        <table class="tabla">
-            <thead>
-                <tr>
-                    <th>Fecha</th><th>Motivo</th><th>Estado</th><th style="text-align:right">Precio</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($citas as $c): ?>
-                <tr>
-                    <td><?php echo fmtFechaHora($c['fecha_hora_inicio']); ?></td>
-                    <td><?php echo htmlspecialchars($c['titulo']); ?></td>
-                    <td><span class="badge badge-<?php echo htmlspecialchars($c['estado']); ?>"><?php echo htmlspecialchars($c['estado']); ?></span></td>
-                    <td style="text-align:right" class="mono"><?php echo fmtDinero($c['precio']); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <!-- Wrapper con scroll horizontal: títulos de cita largos no rompen
+             el ancho de la .ficha-card. min-width:0 para no estirar el grid
+             padre. -->
+        <div class="tabla-scroll" style="overflow-x:auto; min-width:0;">
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Fecha</th><th>Motivo</th><th>Estado</th><th style="text-align:right">Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($citas as $c): ?>
+                    <tr>
+                        <td style="white-space:nowrap"><?php echo fmtFechaHora($c['fecha_hora_inicio']); ?></td>
+                        <td style="word-break:break-word; max-width:380px;"><?php echo htmlspecialchars($c['titulo']); ?></td>
+                        <td><span class="badge badge-<?php echo htmlspecialchars($c['estado']); ?>"><?php echo htmlspecialchars($c['estado']); ?></span></td>
+                        <td style="text-align:right; white-space:nowrap" class="mono"><?php echo fmtDinero($c['precio']); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     <?php endif; ?>
     <div class="ficha-card-pie">
         <a href="../agenda/" class="btn btn-secundario btn-sm">Ir a la agenda completa</a>

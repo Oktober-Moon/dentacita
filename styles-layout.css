@@ -409,6 +409,18 @@
 .tabla-card { overflow: hidden; }
 .tabla-contenedor { overflow: hidden; }
 
+/* Wrapper utilitario para tablas con muchas columnas. Activa scroll
+   horizontal cuando el contenido excede el ancho del padre y, en
+   combinación con `min-width` en la <table>, fuerza el scroll en
+   lugar de aplastar las celdas. Usado en pacientes/citas, inventario,
+   bitácora y cualquier tabla densa. */
+.tabla-scroll {
+    width: 100%;
+    overflow-x: auto;
+    min-width: 0;
+    scrollbar-width: thin;
+}
+
 /* Variante peligro: banner de alerta dentro del flujo, mismo padding/radius
    que ficha-card pero acento rojo (stock bajo, errores recuperables…). */
 .ficha-card-peligro {
@@ -467,7 +479,10 @@
 
 .ficha-dl {
     display: grid;
-    grid-template-columns: minmax(140px, auto) 1fr;
+    /* La segunda columna usa minmax(0, 1fr) para que valores largos
+       (emails, direcciones, URLs sin espacios) se rompan dentro de
+       la celda en vez de estirar el grid y desbordar la card. */
+    grid-template-columns: minmax(140px, auto) minmax(0, 1fr);
     gap: 8px var(--espacio-md);
     margin: 0;
 }
@@ -479,6 +494,10 @@
     margin: 0;
     font-size: 14px;
     color: var(--texto-primario);
+    /* Permite romper palabras largas (correos, URLs) que no contienen
+       espacios para que nunca desborden la celda. */
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .ficha-bloque-clinico {

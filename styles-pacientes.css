@@ -495,6 +495,11 @@ input:-webkit-autofill:active {
     letter-spacing: 0.04em;
     display: flex; align-items: center; gap: var(--espacio-sm);
     flex-wrap: wrap;
+    /* Min-width:0 + overflow-wrap evita que un correo o teléfono
+       internacional largo (sin espacios para romperse) estire la
+       card y desalinee el grid auto-fill de pacientes. */
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 .pac-card-meta .dot {
     width: 3px; height: 3px;
@@ -507,6 +512,8 @@ input:-webkit-autofill:active {
     color: var(--texto-secundario);
     display: flex; align-items: center; gap: var(--espacio-sm);
     flex-wrap: wrap;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 /* Footer · 3 cells de datos clave */
@@ -608,6 +615,11 @@ input:-webkit-autofill:active {
 .semana-cabecera {
     display: grid;
     grid-template-columns: 64px repeat(7, 1fr);
+    /* Sin min-width el grid colapsa a 30-50px por columna cuando el
+       aside está abierto y el contenido (hora + título + paciente)
+       queda truncado a 1-2 caracteres. Con min-width forzamos que el
+       scroll horizontal del .semana-grid se active. */
+    min-width: 760px;
     border-bottom: 1px solid var(--vidrio-borde);
     position: sticky; top: 0;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent),
@@ -650,6 +662,9 @@ input:-webkit-autofill:active {
 .semana-cuerpo {
     display: grid;
     grid-template-columns: 64px repeat(7, 1fr);
+    /* Mismo min-width que .semana-cabecera para que cabecera y cuerpo
+       desplacen juntos al hacer scroll horizontal. */
+    min-width: 760px;
     position: relative;
     min-height: 728px;
 }

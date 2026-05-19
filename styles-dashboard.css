@@ -52,8 +52,12 @@
 }
 .tl-cita-hora {
     position: absolute;
+    /* La hora vive a la izquierda del bloque, dentro del padding-left
+       del .timeline (90px). Reservamos solo 50px para el texto y
+       dejamos un margen de 20px entre el final del "HH:MM" y el
+       punto del timeline, así el círculo no se monta sobre el "0". */
     left: -90px; top: 12px;
-    width: 70px;
+    width: 50px;
     text-align: right;
     font-family: var(--fuente-mono);
     font-size: 13px; font-weight: 600;

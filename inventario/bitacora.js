@@ -108,27 +108,33 @@ function renderTabla(movs) {
                 <td>${escapar(m.item_nombre)}</td>
                 <td><span class="badge badge-${escapar(m.tipo)}">${escapar(m.tipo)}</span></td>
                 <td>${escapar(motivo)}</td>
-                <td style="text-align:right" class="mono ${claseSigno}">${etiquetaCantidad}${signo}${m.cantidad} ${escapar(m.unidad || '')}</td>
-                <td style="text-align:right" class="mono">${monto}</td>
-                <td class="texto-pequeno">${escapar(m.notas || '')}</td>
+                <td style="text-align:right; white-space:nowrap" class="mono ${claseSigno}">${etiquetaCantidad}${signo}${m.cantidad} ${escapar(m.unidad || '')}</td>
+                <td style="text-align:right; white-space:nowrap" class="mono">${monto}</td>
+                <td class="texto-pequeno" style="max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapar(m.notas || '')}">${escapar(m.notas || '')}</td>
             </tr>`;
     }).join('');
 
+    /* Wrapper con scroll horizontal: 7 columnas con notas de hasta 500
+       caracteres rompen el ancho del card en cualquier viewport menor a
+       ~1200px. La columna "Notas" además trunca con elipsis y muestra
+       el texto completo en el title (tooltip nativo). */
     $('#bitacoraTabla').innerHTML = `
-        <table class="tabla-datos">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Producto</th>
-                    <th>Tipo</th>
-                    <th>Motivo</th>
-                    <th style="text-align:right">Cantidad</th>
-                    <th style="text-align:right">Importe</th>
-                    <th>Notas</th>
-                </tr>
-            </thead>
-            <tbody>${filas}</tbody>
-        </table>`;
+        <div class="tabla-scroll" style="overflow-x:auto; width:100%;">
+            <table class="tabla-datos" style="min-width:880px;">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Tipo</th>
+                        <th>Motivo</th>
+                        <th style="text-align:right">Cantidad</th>
+                        <th style="text-align:right">Importe</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>${filas}</tbody>
+            </table>
+        </div>`;
 }
 
 function renderConteo(total, pagina, porPag) {

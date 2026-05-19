@@ -48,44 +48,56 @@ function renderTabla(filtro = '') {
         return;
     }
 
+    /* Wrapper con scroll horizontal: cuando la viewport es estrecha o
+       el sidebar está abierto la tabla excede el ancho del card y
+       provoca que las celdas se compriman y los 4 botones de acción
+       se desborden. El wrapper permite scroll lateral sin romper el
+       layout. min-width:640px en la tabla asegura que el scroll se
+       activa en lugar de aplastar las columnas. */
     cont.innerHTML = `
-    <table class="tabla-datos">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Categoría</th>
-                <th style="text-align:right">Stock</th>
-                <th style="text-align:right">Mín.</th>
-                <th style="text-align:right">Costo</th>
-                <th style="text-align:right">Venta</th>
-                <th style="width:200px">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${lista.map(i => `
-            <tr>
-                <td>
-                    <strong>${escapar(i.nombre)}</strong>
-                    ${i.proveedor ? `<div class="texto-atenuado texto-pequeno">${escapar(i.proveedor)}</div>` : ''}
-                </td>
-                <td>${escapar(categoriaLabel[i.categoria] || i.categoria || '—')}</td>
-                <td style="text-align:right" class="mono">
-                    <strong class="${i.estado_stock === 'agotado' ? 'estado-no-disponible' : (i.estado_stock === 'bajo' ? 'badge-warn' : '')}">${i.cantidad_actual}</strong>
-                    <span class="texto-atenuado"> ${escapar(unidadLabel[i.unidad] || i.unidad || '')}</span>
-                </td>
-                <td style="text-align:right" class="mono">${i.cantidad_minima}</td>
-                <td style="text-align:right" class="mono">${fmtDinero(i.costo_unitario)}</td>
-                <td style="text-align:right" class="mono">${fmtDinero(i.precio_venta)}</td>
-                <td>
-                    <button type="button" class="btn-link" data-accion="movimiento" data-id="${i.item_id}">Movimiento</button>
-                    <button type="button" class="btn-link" data-accion="historial" data-id="${i.item_id}">Historial</button>
-                    <button type="button" class="btn-link" data-accion="editar" data-id="${i.item_id}">Editar</button>
-                    <button type="button" class="btn-link btn-link-peligro" data-accion="eliminar" data-id="${i.item_id}">Eliminar</button>
-                </td>
-            </tr>
-            `).join('')}
-        </tbody>
-    </table>
+    <div class="tabla-scroll" style="overflow-x:auto; width:100%;">
+        <table class="tabla-datos" style="min-width:640px;">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th style="text-align:right">Stock</th>
+                    <th style="text-align:right">Mín.</th>
+                    <th style="text-align:right">Costo</th>
+                    <th style="text-align:right">Venta</th>
+                    <th style="width:240px">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${lista.map(i => `
+                <tr>
+                    <td>
+                        <strong>${escapar(i.nombre)}</strong>
+                        ${i.proveedor ? `<div class="texto-atenuado texto-pequeno">${escapar(i.proveedor)}</div>` : ''}
+                    </td>
+                    <td>${escapar(categoriaLabel[i.categoria] || i.categoria || '—')}</td>
+                    <td style="text-align:right" class="mono">
+                        <strong class="${i.estado_stock === 'agotado' ? 'estado-no-disponible' : (i.estado_stock === 'bajo' ? 'badge-warn' : '')}">${i.cantidad_actual}</strong>
+                        <span class="texto-atenuado"> ${escapar(unidadLabel[i.unidad] || i.unidad || '')}</span>
+                    </td>
+                    <td style="text-align:right" class="mono">${i.cantidad_minima}</td>
+                    <td style="text-align:right" class="mono">${fmtDinero(i.costo_unitario)}</td>
+                    <td style="text-align:right" class="mono">${fmtDinero(i.precio_venta)}</td>
+                    <td>
+                        <!-- Botones envueltos en flex con wrap: si la columna se aprieta
+                             los botones bajan a la siguiente línea en vez de desbordar. -->
+                        <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                            <button type="button" class="btn-link" data-accion="movimiento" data-id="${i.item_id}">Movimiento</button>
+                            <button type="button" class="btn-link" data-accion="historial" data-id="${i.item_id}">Historial</button>
+                            <button type="button" class="btn-link" data-accion="editar" data-id="${i.item_id}">Editar</button>
+                            <button type="button" class="btn-link btn-link-peligro" data-accion="eliminar" data-id="${i.item_id}">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    </div>
     `;
 }
 

@@ -82,7 +82,9 @@
     padding: 12px var(--espacio-md);
     border-radius: var(--radio-sm);
     font-size: 13px; font-weight: 500;
-    z-index: 200;
+    /* z-index alto para que el toast nunca quede debajo del overlay
+       del onboarding (z-index 1000) ni de modales (z-index 100). */
+    z-index: 1100;
     transform: translateY(-20px); opacity: 0;
     pointer-events: none;
     transition: all var(--dur-base) var(--ease-salida);
@@ -125,6 +127,13 @@
     border-bottom: 1px solid var(--vidrio-borde);
     margin-bottom: var(--espacio-lg);
     overflow-x: auto;
+    /* Gradiente fade a la derecha como pista visual de que hay
+       más tabs cuando el contenedor está más angosto que el
+       contenido. mask-image deja transparente el último ~24px
+       sobre el scroll horizontal. */
+    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+    scrollbar-width: thin;
 }
 .tab-link {
     background: transparent;
@@ -222,6 +231,13 @@
     cursor: grab;
     background: var(--vidrio-fondo);
     max-width: 100%;
+    /* height:auto + aspect-ratio:1 preservan el cuadrado al
+       reducirse por max-width:100% en modales angostos. Sin esto el
+       canvas se aplastaba horizontalmente y el cálculo de
+       offset/zoom (basado en canvas.width=240) quedaba desfasado
+       respecto a los píxeles CSS reales, haciendo el drag impreciso. */
+    height: auto;
+    aspect-ratio: 1 / 1;
 }
 #cropCanvas:active,
 #npCropCanvas:active { cursor: grabbing; }
@@ -339,10 +355,28 @@
     gap: var(--espacio-sm);
     flex-wrap: wrap;
     font-size: 13px;
+    /* min-width:0 evita que flex-items con texto sin espacios
+       (nombres de archivo descriptivos como "RX_panoramica_dic2024.pdf")
+       fuercen el ancho del <li> y produzcan scroll horizontal en la
+       card de archivos. */
+    min-width: 0;
+}
+/* El nombre del archivo dentro de cada <li> puede ser muy largo y
+   no contener espacios para romperse. Le damos espacio flexible y
+   permitimos que se rompa por cualquier carácter. */
+.lista-archivos li > strong,
+.lista-archivos li > .archivo-nombre {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 .lista-archivos a {
     color: var(--color-acento-texto);
     text-decoration: none;
+    /* Los enlaces dentro de un nombre de archivo deben respetar las
+       reglas de wrap del nombre. */
+    overflow-wrap: anywhere;
 }
 .lista-archivos a:hover { color: var(--color-acento-claro); }
 .carpeta-bloque {
@@ -508,8 +542,19 @@
         align-items: stretch;
         text-align: center;
         gap: var(--espacio-md);
+        /* En móvil reducimos el margin-top negativo de -50px a -36px
+           para que el avatar de 110px no se salga del top del hero
+           y reducimos el padding-x para aprovechar el ancho. */
+        margin-top: -36px;
+        padding: 0 var(--espacio-md) var(--espacio-md);
     }
     .perfil-hero .perfil-form { text-align: left; padding-bottom: 0; }
+    /* Avatar un poco más chico en móvil para que respire dentro del
+       hero (110px era apretado en viewports <380px). */
+    .perfil-hero .perfil-foto-img {
+        width: 92px; height: 92px;
+        margin: 0 auto;
+    }
 }
 
 

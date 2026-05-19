@@ -434,6 +434,96 @@ function pintarSemana() {
     });
 }
 
+/* ============================================================
+   AUTO-ACTUALIZACIÓN DE LA LÍNEA "AHORA" (sin recargar la página)
+   ------------------------------------------------------------
+   pintarSemana() dibuja la línea naranja con la hora actual una
+   sola vez. Para que se mueva en tiempo real (cada minuto que
+   pasa), corremos un setInterval que SOLO actualiza la posición
+   y la etiqueta del elemento .semana-linea-ahora; no re-renderiza
+   toda la rejilla (lo cual provocaría parpadeos y pérdida de
+   estado en los bloques de citas).
+   ============================================================ */
+function actualizarLineaAhora() {
+    /* Solo tiene sentido si la vista semanal está visible. */
+    var vistaSem = $('vistaSemanal');
+    if (!vistaSem || vistaSem.style.display === 'none') return;
+
+    var cont = $('semanaContenedor');
+    if (!cont) return;
+
+    var ahora = new Date();
+    var horaIni = 8, horaFin = 20;            // mismos límites que pintarSemana
+    var hAhora = ahora.getHours() + ahora.getMinutes() / 60;
+
+    var pad2 = function(n) { return n < 10 ? '0' + n : '' + n; };
+    var horaTxt = pad2(ahora.getHours()) + ':' + pad2(ahora.getMinutes());
+
+    /* Buscar la columna del día actual dentro de la semana visible.
+       Si el usuario está viendo otra semana, no habrá coincidencia
+       y simplemente removemos la línea (si quedó visible). */
+    var hoyStr = fmtFecha(ahora);
+    var colHoy = cont.querySelector('.semana-col[data-fecha="' + hoyStr + '"]');
+    var linea  = cont.querySelector('.semana-linea-ahora');
+
+    /* Si hoy no está en la semana visible o la hora cae fuera de la
+       franja 8-20h, quitamos la línea si seguía colgada. */
+    if (!colHoy || hAhora < horaIni || hAhora > horaFin + 1) {
+        if (linea) linea.parentNode.removeChild(linea);
+        return;
+    }
+
+    var topAhora = (hAhora - horaIni) * 56;
+
+    if (linea && linea.parentNode === colHoy) {
+        /* Mismo contenedor: solo movemos y actualizamos texto. */
+        linea.style.top = topAhora + 'px';
+        var label = linea.querySelector('.semana-linea-ahora-label');
+        if (label) label.textContent = horaTxt;
+    } else {
+        /* No existe (o estaba en otra columna por cambio de día):
+           la creamos en la columna correcta. */
+        if (linea) linea.parentNode.removeChild(linea);
+        linea = document.createElement('div');
+        linea.className = 'semana-linea-ahora';
+        linea.style.top = topAhora + 'px';
+        linea.innerHTML = '<span class="semana-linea-ahora-label">' + horaTxt + '</span>';
+        colHoy.appendChild(linea);
+    }
+}
+
+/* Tick ANCLADO al cambio de minuto del reloj real.
+   ------------------------------------------------------------
+   Un setInterval(fn, 30000) puede ir desfasado hasta ~30s, lo
+   que hace que el indicador se vea "atrasado". En lugar de eso:
+     1) Calculamos cuántos ms faltan para el próximo :00 de minuto.
+     2) Disparamos un setTimeout puntual a ese instante.
+     3) A partir de ahí, setInterval cada 60s — siempre cae sobre
+        el cambio de minuto, así que el indicador nunca se ve
+        retrasado más de unos pocos ms.
+   También llamamos actualizarLineaAhora() inmediatamente para
+   que si la página llevaba mucho tiempo abierta, el indicador
+   se ponga al día al instante. */
+(function arrancarRelojAgenda() {
+    actualizarLineaAhora();
+    var ahora = new Date();
+    var msHastaSigMinuto = (60 - ahora.getSeconds()) * 1000 - ahora.getMilliseconds();
+    setTimeout(function() {
+        actualizarLineaAhora();
+        setInterval(actualizarLineaAhora, 60000);
+    }, msHastaSigMinuto);
+})();
+
+/* Cuando la pestaña vuelve a primer plano (visibilitychange) o la
+   ventana recibe foco, sincronizamos inmediatamente — sin esperar
+   al siguiente tick. Esto cubre el caso de tener la agenda abierta
+   en una pestaña en segundo plano durante horas. */
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) actualizarLineaAhora();
+});
+window.addEventListener('focus', actualizarLineaAhora);
+
+
 /* Aplicar preferencia de vista al cargar (si existe en localStorage).
    Se ejecuta una sola vez al final de este script — los listeners de
    los botones ya están enganchados arriba. */

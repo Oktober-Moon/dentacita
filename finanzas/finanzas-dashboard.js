@@ -117,6 +117,14 @@ function renderGrafico(serie) {
     const grupos = serie.length;
     const grupoW = w / grupos;
     const barW   = Math.min(22, (grupoW - 14) / 2);
+
+    /* Cuántas etiquetas podemos pintar sin que se encimen.
+       Asumimos que cada etiqueta ocupa ~32px (formato "DD/MM" en
+       monospace 10px) y calculamos cada cuántas saltar. */
+    const ANCHO_ETIQUETA = 36;
+    const maxEtiquetas   = Math.max(1, Math.floor(w / ANCHO_ETIQUETA));
+    const pasoEtiqueta   = Math.ceil(grupos / maxEtiquetas);
+
     serie.forEach((s, i) => {
         const x0 = padding.left + grupoW * i + grupoW / 2;
         const hI = (s.ingresos / max) * h;
@@ -127,9 +135,17 @@ function renderGrafico(serie) {
         ctx.fillStyle = colPelig;
         ctx.fillRect(x0 + 2, padding.top + h - hE, barW, hE);
 
-        ctx.fillStyle = colTexto;
-        ctx.textAlign = 'center';
-        ctx.fillText(s.etiqueta, x0, padding.top + h + 14);
+        /* Solo pintamos la etiqueta cada `pasoEtiqueta` grupos, y
+           siempre forzamos la primera (i=0) y la última para que
+           el eje tenga referencias claras en los extremos. */
+        const esPrimera = (i === 0);
+        const esUltima  = (i === grupos - 1);
+        const tocaPaso  = (i % pasoEtiqueta === 0);
+        if (esPrimera || esUltima || tocaPaso) {
+            ctx.fillStyle = colTexto;
+            ctx.textAlign = 'center';
+            ctx.fillText(s.etiqueta, x0, padding.top + h + 14);
+        }
     });
 }
 
